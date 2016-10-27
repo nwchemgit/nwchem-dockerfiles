@@ -1,5 +1,6 @@
 
  Based on earlier work by Vladimir Konjkov <Konjkov.VV@gmail.com>
+ http://www.nwchem-sw.org/index.php/Special:AWCforum/st/id2181
 
  Copy the Dockerfile to a local directory and create the image with the command
  docker build -t nwchem-dev .
