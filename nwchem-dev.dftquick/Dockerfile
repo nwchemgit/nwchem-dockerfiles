@@ -31,7 +31,6 @@ RUN         svn update doafewqmtests.mpi doqmtests.mpi runtests.mpi.unix nwparse
 RUN         svn co --depth empty https://svn.pnl.gov/svn/nwchem/trunk/QA/tests
 WORKDIR     tests
 RUN         svn update h2o_opt dft_he2+ h2o_dk
-RUN         ls -alrtR
 WORKDIR     ${NWCHEM_TOP}
 RUN         svn co --depth empty https://svn.pnl.gov/svn/nwchem/trunk/src
 WORKDIR     src
