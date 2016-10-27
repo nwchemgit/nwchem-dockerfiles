@@ -1,7 +1,7 @@
 
  Based on earlier work by Vladimir Konjkov <Konjkov.VV@gmail.com>
 
- Create the image with the command
+ Copy the Dockerfile to a local directory and create the image with the command
  docker build -t nwchem-dev .
  
 After successful build one you can execute the QA tests using the command
