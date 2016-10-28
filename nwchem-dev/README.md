@@ -6,7 +6,7 @@ Copy the Dockerfile to a local directory and create the image with the command
 
  docker build -t nwchem-dev .
 
-This will build a NWChem executable using the current SVN trunk within a Debian image.
+This will build a NWChem executable using the current SVN trunk within a Debian image. OpenBLAS and Scalapack are used.
 
 
 After successful build one you can run NWChem on a input file input.nw file placed in [host_system_dir]
