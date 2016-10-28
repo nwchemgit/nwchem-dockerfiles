@@ -1,3 +1,7 @@
+NOTE: Work in progress. Not working yet
+
+=======================
+
 Based on earlier work by Vladimir Konjkov Konjkov.VV@gmail.com
 
  http://www.nwchem-sw.org/index.php/Special:AWCforum/st/id2181
