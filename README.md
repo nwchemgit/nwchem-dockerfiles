@@ -1,2 +1,2 @@
 # docker-file
-files to create nwchem docker containers
+files to create NWChem docker containers
