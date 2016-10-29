@@ -6,6 +6,8 @@ Based on earlier work by Vladimir Konjkov Konjkov.VV@gmail.com
 
  http://www.nwchem-sw.org/index.php/Special:AWCforum/st/id2181
 
+INSTRUCTIONS
+
 Copy the Dockerfile to a local directory and create the image with the command
 
  docker build -t nwchem-dev .
@@ -29,7 +31,7 @@ This command will return [container ID] value to read logs by
  
  
  
- Example:
+EXAMPLE
  
  docker build -t nwchem-dev .
 
