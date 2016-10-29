@@ -39,9 +39,10 @@ RUN         cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_SHARED_LIBS=ON -DUSE
 WORKDIR     /opt
 RUN         mkdir -p nwchem
 WORKDIR     nwchem
-RUN         svn co https://svn.pnl.gov/svn/nwchem/trunk/src 
+RUN         svn export https://svn.pnl.gov/svn/nwchem/trunk/src 
 WORKDIR     ${NWCHEM_TOP}/src/tools
-RUN         ./get-tools 
+#RUN         ./get-tools 
+RUN         svn export --non-interactive --username nwchem --password nwchem https://svn.pnl.gov/svn/hpctools/branches/ga-5-5 
 WORKDIR     ${NWCHEM_TOP}/src
 ENV         NWCHEM_TARGET=LINUX64
 ENV         NWCHEM_MODULES="all python"

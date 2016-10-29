@@ -1,6 +1,3 @@
-NOTE: Work in progress. Not working yet
-
-=======================
 
 Based on earlier work by Vladimir Konjkov Konjkov.VV@gmail.com
 
