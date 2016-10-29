@@ -1,3 +1,6 @@
+Docker build of the current NWChem trunk
+========================================
+
 
 Based on earlier work by Vladimir Konjkov Konjkov.VV@gmail.com
 
