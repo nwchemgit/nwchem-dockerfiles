@@ -45,7 +45,6 @@ RUN         ./get-tools
 WORKDIR     ${NWCHEM_TOP}/src
 ENV         NWCHEM_TARGET=LINUX64
 ENV         NWCHEM_MODULES="all python"
-#
 ENV         PYTHONVERSION=2.7
 ENV         PYTHONHOME="/usr"
 ENV         USE_PYTHONCONFIG=Y
@@ -83,3 +82,6 @@ ENV         PATH=$PATH:${NWCHEM_TOP}/bin/LINUX64
 
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]
+
+#CMD ["/bin/bash"]
+
