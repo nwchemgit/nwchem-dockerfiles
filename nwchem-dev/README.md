@@ -23,11 +23,15 @@ This command will return [container ID] value to read logs by
 
  docker logs [container ID]
  
+ or using the interactive command
+ 
+ docker run -v [host_system_dir]:/data nwchem-dev "input.nw"
+ 
  
  
  Example:
  
  docker build -t nwchem-dev .
 
- docker run -dv /home/edo/nwchem/src:/data nwchem-dev nwchem.nw
+ docker run -v /home/edo/nwchem/tests:/data nwchem-dev xvdw.nw
 
