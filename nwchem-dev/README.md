@@ -25,6 +25,9 @@ This command will return [container ID] value to read logs by
  
  
  
- Example here:
+ Example:
  
+ docker build -t nwchem-dev .
+
+ docker run -dv /home/edo/nwchem/src:/data nwchem-dev nwchem.nw
 
