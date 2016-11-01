@@ -34,8 +34,6 @@ RUN         curl -SL http://www.nwchem-sw.org/images/Gcc6_macs_optfix.patch.gz |
 RUN         curl -SL http://www.nwchem-sw.org/images/Notdir_fc.patch.gz | gzip -d | patch -p0
 RUN         curl -SL http://www.nwchem-sw.org/images/Xatom_vdw.patch.gz | gzip -d | patch -p0
 
-ENV         LARGE_FILES=TRUE
-ENV         TCGRSH="/usr/bin/ssh"
 ENV         NWCHEM_TARGET=LINUX64
 #ENV         NWCHEM_MODULES="all python"
 ENV         NWCHEM_MODULES="nwdft driver stepper solvation"
