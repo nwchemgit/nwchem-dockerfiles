@@ -19,18 +19,23 @@ RUN         apt-get update \
             && apt-get clean
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
-RUN         wget  https://github.com/xianyi/OpenBLAS/archive/develop.zip && unzip develop.zip
-WORKDIR     OpenBLAS-develop
-RUN         make -j3 INTERFACE64=1 NO_CBLAS=1 NO_LAPACK=1 NO_LAPACKE=1
+RUN         mkdir -p /opt/lib/ \
+            && wget  https://github.com/xianyi/OpenBLAS/archive/develop.zip \
+            && unzip develop.zip \
+            && rm develop.zip \
+            && cd  OpenBLAS-develop \
+            && make -j3 TARGET=CORE2 INTERFACE64=1 NO_CBLAS=1 NO_LAPACK=1 NO_LAPACKE=1 \
+            &&  cp libopenblas.* /opt/lib \
+            && rm -rf /opt/OpenBLAS-develop
 WORKDIR     /opt
 ENV         NWCHEM_TARGET=LINUX64
 ENV         NWCHEM_MODULES="nwdft driver stepper"
 ENV         PYTHONVERSION=2.7
 ENV         PYTHONHOME="/usr"
 ENV         USE_PYTHONCONFIG=Y
-ENV         BLASOPT="-L/opt/OpenBLAS-develop -lopenblas"
+ENV         BLASOPT="-L/opt/lib -lopenblas"
 ENV         BLAS_SIZE=8
-ENV         LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/OpenBLAS-develop"
+ENV         LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/lib"
 ENV         USE_MPI=y
 ENV         USE_MPIF=y
 ENV         USE_MPIF4=y
@@ -49,6 +54,11 @@ RUN         mkdir -p nwchem \
             && cd tools \
             && svn export --non-interactive --username nwchem --password nwchem https://svn.pnl.gov/svn/hpctools/branches/ga-5-5  \
             && cd .. \
+#strip native compiler options as Fedora does
+            && sed -i 's|-march=native||' config/makefile.h \
+            && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
+            && sed -i 's|-mfpmath=sse||' config/makefile.h \
+            && sed -i 's|-msse3||' config/makefile.h  \
             && make nwchem_config && make -j3  \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib
