@@ -35,5 +35,7 @@ RUN EXAMPLE
 
 This must be executed on Raspberry Pi2 (or ARMV7l and later) Hardware
 
-docker run -v /home/edo/nwchem/tests:/data my_nwchem xvdw.nw
+wget https://svn.pnl.gov/svn/nwchem/trunk/src/nwchem.nw
+
+docker run -v /home/edo/nwchem/tests:/data my_nwchem nwchem.nw
 
