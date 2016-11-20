@@ -31,9 +31,11 @@ This command will return [container ID] value to read logs by
  
  
  
-EXAMPLE
+EXAMPLES
  
  docker build -t nwchem-dev .
 
  docker run -v /home/edo/nwchem/tests:/data nwchem-dev xvdw.nw
+ 
+ docker run  -v /tmp:/data  --entrypoint='/usr/bin/mpirun'  nwchem-dev -np 2 nwchem small.nw
 
