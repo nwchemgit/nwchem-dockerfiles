@@ -4,7 +4,7 @@ MAINTAINER  Edoardo Apra <edoardo.apra@gmail.com>
 
 RUN         yum update && yum install -y epel-release deltarpm \
             && yum -y upgrade \
-            && yum install -y python-devel gcc-gfortran  openblas-devel openblas-serial64 openmpi-devel scalapack-openmpi-devel  tcsh openssh-clients which bzip2 patch make perl\
+            && yum install -y python-devel gcc-gfortran  openblas openmpi-devel scalapack-openmpi-devel  tcsh openssh-clients which bzip2 patch make perl\
             && yum clean all \ 
             && useradd -c 'NWChem user' -m -d /home/nwchem -s /bin/bash nwchem
 
@@ -13,12 +13,12 @@ WORKDIR     /home/nwchem
 ENV         NWCHEM_TOP="/home/nwchem/nwchem-6.6" \
              PATH=$PATH:/home/nwchem/nwchem-6.6/bin/LINUX64:/usr/lib64/openmpi/bin/:$PATH \
              NWCHEM_TARGET=LINUX64 \
-             NWCHEM_MODULES="nwdft driver stepper solvation" \
-#ENV         NWCHEM_MODULES="all python"
+#             NWCHEM_MODULES="nwdft driver stepper solvation" \
+             NWCHEM_MODULES="all python" \
               PYTHONVERSION=2.7 \
               PYTHONHOME="/usr" \
               USE_PYTHONCONFIG=Y \
-              BLASOPT="-lopenblas -lpthread -lrt" \
+              BLASOPT="/usr/lib64/libopenblas.so.0 -lpthread -lrt" \
               BLAS_SIZE=4 \
               USE_64TO32=y \
               LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib" \
