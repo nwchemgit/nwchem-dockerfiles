@@ -11,7 +11,7 @@ After successful build one you can run NWChem on a input file input.nw file plac
 
 by typing the command
 
-docker run -dv [host_system_dir]:/data nwchem-dev "input.nw"
+docker run -dv [host_system_dir]:/data nwchem-dev.dftquick "input.nw"
 
 This command will return [container ID] value to read logs by
 
