@@ -79,4 +79,4 @@ ENV         FFIELD=amber \
 RUN         apt-get -y remove  make curl subversion  unzip cmake perl tcsh  &&  apt-get -y autoremove && apt-get clean
 
 WORKDIR     /data
-ENTRYPOINT  ["nwchem"]
+ENTRYPOINT  ["mpirun","-np","3","nwchem"]
