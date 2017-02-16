@@ -1,6 +1,8 @@
-Image for NERSC's shifter
+Image for NERSC's shifter, available at 
 
-Uses Ubuntu 15.10 and MPICH. ARMCI_NETWORK=MPI-PT
+https://hub.docker.com/r/edoapra/nwchem-dev.dftquick.nersc/
+
+Uses Ubuntu 15.10 and MPICH. `ARMCI_NETWORK=MPI-PT`
 
 Copy the Dockerfile to a local directory and create the image with the command
  
