@@ -25,19 +25,19 @@ If you need to check anything on the image, this will open a bash on the docker 
 
  `docker run  -v /tmp:/data -it nwchem-dev.dftquick.nersc  bash`
 
-2) On Edison's NERSC
+2) On NERSC's Edison
 
 fetch image at NERSC with the command
 
- shifterimg -v pull docker:....
+ `shifterimg -v pull docker:....`
 
 Get slurm session
 
- salloc -N 1 -t 0:25:00 -p debug --image=docker:edoapra/nwchem-dev.dftquick.nersc --volume=/global/homes/a/$USER:/data
+ `salloc -N 1 -t 0:25:00 -p debug --image=docker:edoapra/nwchem-dev.dftquick.nersc --volume=/global/homes/a/$USER:/data`
 
 Run from salloc shell
 
- export MPICH_MAX_THREAD_SAFETY=multiple
+ `export MPICH_MAX_THREAD_SAFETY=multiple`
 
- srun -v -N 2 -n 24 shifter /opt/nwchem/bin/LINUX64/nwchem "input file (under /global/homes/a/$USER)"
+ `srun -v -N 2 -n 24 shifter /usr/local/src/nwchem/bin/LINUX64/nwchem "input file (under /global/homes/a/$USER)"`
 
