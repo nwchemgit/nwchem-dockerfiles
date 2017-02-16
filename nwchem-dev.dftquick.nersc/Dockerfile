@@ -11,7 +11,7 @@ MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y   gfortran   tcsh make ssh patch curl subversion wget unzip  \
+            && apt-get install -y   gfortran   tcsh make ssh patch curl subversion wget unzip gdb strace\
             && apt-get clean
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
@@ -20,7 +20,7 @@ RUN         mkdir -p /opt/lib/ \
             && unzip develop.zip \
             && rm develop.zip \
             && cd  OpenBLAS-develop \
-            && make -j3 TARGET=CORE2 INTERFACE64=1 NO_CBLAS=1 NO_LAPACK=1 NO_LAPACKE=1 libs shared \
+            && make -j3 TARGET=CORE2 INTERFACE64=1 NO_CBLAS=1 NO_LAPACK=1 NO_LAPACKE=1 USE_THREAD=0 libs shared \
             &&  cp libopenblas.* /opt/lib \
             && rm -rf /opt/OpenBLAS-develop
 #mpich user-space install
@@ -28,7 +28,7 @@ WORKDIR     /opt
 RUN         wget http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz \
             && tar xzf mpich-3.2.tar.gz \
             && cd mpich-3.2 \
-            && ./configure --prefix=/opt/mpich --enable-fortran=all --disable-cxx \
+            && ./configure --prefix=/opt/mpich --enable-fortran=all --disable-cxx --with-pm=hydra \
             && make -j4 ;make install \
             && cd .. ; rm -rf mpich-3.2.*
 WORKDIR     /opt
@@ -56,7 +56,7 @@ RUN         mkdir -p nwchem \
             tools include basis geom inp input  \
 	    pstat rtdb task symmetry util peigs perfm bq cons blas lapack \
             NWints atomscf cphf ddscf driver gradients hessian nwdft optim property stepper symmetry vib \
-            && rm -rf /opt/nwchem/.svn \
+            && rm -rf /opt/nwchem/.svn /opt/nwchem/src/.svn \
             && cd tools \
             && svn export --non-interactive --username nwchem --password nwchem https://svn.pnl.gov/svn/hpctools/branches/ga-5-5  \
             && cd .. \
@@ -65,7 +65,11 @@ RUN         mkdir -p nwchem \
             && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
             && sed -i 's|-mfpmath=sse||' config/makefile.h \
             && sed -i 's|-msse3||' config/makefile.h  \
-            && make nwchem_config && make -j3  \
+            && sed -i 's|child = fork();|/*child = fork();*/|' util/util_debug.c \
+            && sed -i 's|#define PAUSE_ON_ERROR 0|#define PAUSE_ON_ERROR 1|' tools/ga-5-5/comex/src-mpi-pr/comex.c \
+            && sed -i 's|pause();|abort();|' tools/ga-5-5/comex/src-mpi-pr/comex.c \
+            && make nwchem_config && make  -j3  \
+            && cd tools/build && make clean && make CFLAGS=-O0\ -g && cd ../.. && make FDEBUG=-O0\ -g link \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib
 

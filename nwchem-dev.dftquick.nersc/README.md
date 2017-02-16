@@ -11,9 +11,19 @@ After successful build one you can run NWChem on NERSC edison as explained in th
 
 EXAMPLE
 
+1) On your computer were you are building NWChem using Docker:
+ 
  docker build -t nwchem-dev.dftquick.nersc .
 
 push image to hub.docker.com
+
+ docker push ...
+
+If you need to check anything on the image, this will open a bash on the docker image
+
+ docker run  -v /tmp:/data -it nwchem-dev.dftquick.nersc 
+
+2) On Edison's NERSC
 
 fetch image at NERSC with the command
 
