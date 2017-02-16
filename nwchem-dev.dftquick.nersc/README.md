@@ -1,6 +1,6 @@
 Image for NERSC's shifter
 
-Uses Ubuntu 15.10 and MPICH
+Uses Ubuntu 15.10 and MPICH. ARMCI_NETWORK=MPI-PT
 
 Copy the Dockerfile to a local directory and create the image with the command
  
@@ -35,10 +35,7 @@ Get slurm session
 
 Run from salloc shell
 
- srun -v -N 1 -n 13 shifter /opt/nwchem/bin/LINUX64/nwchem "input file (under /global/homes/a/$USER)"
+ export MPICH_MAX_THREAD_SAFETY=multiple
 
-CAVEAT
+ srun -v -N 2 -n 24 shifter /opt/nwchem/bin/LINUX64/nwchem "input file (under /global/homes/a/$USER)"
 
- Does not work when using more than one node (issue under investigation)
- 
- Always supply one extra process as mpirun argument since it used the MPI-PR ARMCI_NETWORK port

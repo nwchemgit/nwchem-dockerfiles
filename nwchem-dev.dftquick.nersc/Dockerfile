@@ -28,10 +28,10 @@ ADD         http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz /usr/loca
 RUN         cd /usr/local/src \
             && tar xzf mpich-3.2.tar.gz \
             && cd mpich-3.2 \
-            && ./configure  --enable-fortran=all --disable-cxx --with-pm=hydra \
+            && ./configure  -q --enable-fortran=all --disable-cxx --with-pm=hydra --disable-romio --disable-strict --disable-dependency-tracking  --enable-silent-rules \
             && make -j4 ;make install \
             && cd .. ; rm -rf mpich-3.2.*
-ENV         ARMCI_NETWORK=MPI-TS NWCHEM_TOP="/usr/local/src/nwchem" \
+ENV         ARMCI_NETWORK=MPI-PT NWCHEM_TOP="/usr/local/src/nwchem" \
             NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="nwdft driver stepper" \
             BLASOPT="-L/opt/lib -lopenblas" \
@@ -63,6 +63,8 @@ RUN         cd /usr/local/src;mkdir -p nwchem \
             && sed -i 's|child = fork();|/*child = fork();*/|' util/util_debug.c \
             && sed -i 's|#define PAUSE_ON_ERROR 0|#define PAUSE_ON_ERROR 1|' tools/ga-5-5/comex/src-mpi-pr/comex.c \
             && sed -i 's|pause();|abort();|' tools/ga-5-5/comex/src-mpi-pr/comex.c \
+            && sed -i 's|#define PAUSE_ON_ERROR 0|#define PAUSE_ON_ERROR 1|' tools/ga-5-5/comex/src-mpi-pt/comex.c \
+            && sed -i 's|pause();|abort();|' tools/ga-5-5/comex/src-mpi-pt/comex.c \
             && make nwchem_config && make  -j3  \
             && cd tools/build && make clean && make CFLAGS=-O0\ -g && cd ../.. && make FDEBUG=-O0\ -g link \
 #clean unnecessary source to reduce docker size
