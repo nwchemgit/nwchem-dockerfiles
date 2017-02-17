@@ -9,18 +9,19 @@ FROM        ubuntu:15.10
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
-RUN         apt-get update \
-            && apt-get -y upgrade \
-            && apt-get install -y   gfortran   tcsh make ssh  subversion unzip gdb strace\
+RUN         sed -i 's|archive.ubuntu.com|mirrors.us.kernel.org|' /etc/apt/sources.list \
+            && apt -qq update \
+            && apt -qq -y upgrade \
+            && apt -qq install -y   gfortran   tcsh make ssh  subversion unzip gdb strace perl cmake \
             && apt-get clean
-#get OpenBLAS and compile with 64-bit integers
+#get OpenBLAS and compile with 32-bit integers
 ADD         https://github.com/xianyi/OpenBLAS/archive/develop.zip /usr/local/src
 RUN         mkdir -p /opt/lib/ \
             && cd /usr/local/src \
-            && unzip develop.zip \
+            && unzip -qq develop.zip \
             && rm develop.zip \
             && cd  OpenBLAS-develop \
-            && make -j3 TARGET=CORE2 INTERFACE64=1 NO_CBLAS=1 NO_LAPACK=1 NO_LAPACKE=1 USE_THREAD=0 libs shared \
+            && make -j3 TARGET=CORE2  NO_CBLAS=1  NO_LAPACKE=1 USE_THREAD=0  \
             &&  cp libopenblas.* /opt/lib \
             && rm -rf /usr/local/src/OpenBLAS-develop
 #mpich user-space install
@@ -31,12 +32,27 @@ RUN         cd /usr/local/src \
             && ./configure  -q --enable-fortran=all --disable-cxx --with-pm=hydra --disable-romio --disable-strict --disable-dependency-tracking  --enable-silent-rules \
             && make -j4 ;make install \
             && cd .. ; rm -rf mpich-3.2.*
+# build scalapack 
+#RUN         svn --trust-server-cert co https://icl.cs.utk.edu/svn/scalapack-dev/scalapack/trunk scalapack
+#WORKDIR     scalapack
+#ADD         http://www.netlib.org/scalapack/scalapack-2.0.2.tgz /usr/local/src 
+ADD         https://github.com/scibuilder/scalapack/archive/master.zip /usr/local/src
+#RUN         cd /usr/local/src   &&  tar xzf scalapack-2.0.2.tgz && rm scalapack-2.0.2.tgz \
+RUN         cd /usr/local/src   &&  unzip -qq master.zip && rm master.zip && cd scalapack-master \
+            && mkdir -p build && cd build \
+            &&  cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DUSE_OPTIMIZED_LAPACK_BLAS=ON -DBLAS_blas_LIBRARY="/opt/lib/libopenblas.so" -DLAPACK_lapack_LIBRARY="/opt/lib/libopenblas.so" \
+            && make -j3 \
+            && cp /usr/local/src/scalapack-master/build/lib/libscalapack.* /opt/lib/. \
+            && rm -rf /usr/local/src/scalapack-master 
 ENV         ARMCI_NETWORK=MPI-PT NWCHEM_TOP="/usr/local/src/nwchem" \
             NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="nwdft driver stepper" \
             BLASOPT="-L/opt/lib -lopenblas" \
-            BLAS_SIZE=8 \
+            BLAS_SIZE=4 \
+            SCALAPACK="-L/opt/lib -lscalapack" \
+            SCALAPACK_SIZE=4 \
             LD_LIBRARY_PATH=/opt/lib/:"$LD_LIBRARY_PATH" \
+            USE_64TO32=y \
             USE_MPI=y \
             USE_MPIF=y \
             USE_MPIF4=y 
@@ -49,7 +65,7 @@ RUN         cd /usr/local/src;mkdir -p nwchem \
             && cd src \
             && svn update GNUmakefile nwchem.F config \
             tools include basis geom inp input  \
-	    pstat rtdb task symmetry util peigs perfm bq cons blas lapack \
+	    pstat rtdb task symmetry util peigs perfm bq cons blas lapack 64to32blas \
             NWints atomscf cphf ddscf driver gradients hessian nwdft optim property stepper symmetry vib \
             && rm -rf /usr/local/src/nwchem/.svn /usr/local/src/nwchem/src/.svn \
             && cd tools \
@@ -65,10 +81,9 @@ RUN         cd /usr/local/src;mkdir -p nwchem \
             && sed -i 's|pause();|abort();|' tools/ga-5-5/comex/src-mpi-pr/comex.c \
             && sed -i 's|#define PAUSE_ON_ERROR 0|#define PAUSE_ON_ERROR 1|' tools/ga-5-5/comex/src-mpi-pt/comex.c \
             && sed -i 's|pause();|abort();|' tools/ga-5-5/comex/src-mpi-pt/comex.c \
-            && make nwchem_config && make  -j3  \
-            && cd tools/build && make clean && make CFLAGS=-O0\ -g && cd ../.. && make FDEBUG=-O0\ -g link \
+            && make nwchem_config && (make 64_to_32 >& 6log &) && make  -j3  \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /usr/local/src/nwchem/lib
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /usr/local/src/nwchem/lib
 
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
@@ -84,7 +99,7 @@ ENV         FFIELD=amber \
             LD_LIBRARY_PATH=/opt/lib/  \
             PATH=${NWCHEM_TOP}/bin/LINUX64:/usr/bin:/bin:/usr/sbin:/sbin
 #clean unnecessary packages
-RUN         apt-get -y remove  make  subversion  unzip tcsh  &&  apt-get -y autoremove && apt-get clean
+RUN         apt-get -y remove  make  subversion  unzip perl tcsh  &&  apt-get -y autoremove && apt-get clean
 
 WORKDIR     /data
 ENTRYPOINT  ["/bin/bash"]
