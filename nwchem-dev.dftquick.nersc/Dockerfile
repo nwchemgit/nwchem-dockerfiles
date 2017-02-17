@@ -12,12 +12,12 @@ MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 RUN         sed -i 's|archive.ubuntu.com|mirrors.us.kernel.org|' /etc/apt/sources.list \
             && apt -qq update \
             && apt -qq -y upgrade \
-            && apt -qq install -y   gfortran   tcsh make ssh  subversion unzip gdb strace perl cmake \
+            && apt -qq install -y   gfortran   tcsh make ssh  subversion unzip gdb strace perl cmake curl \
             && apt-get clean
 #get OpenBLAS and compile with 32-bit integers
-ADD         https://github.com/xianyi/OpenBLAS/archive/develop.zip /usr/local/src
 RUN         mkdir -p /opt/lib/ \
             && cd /usr/local/src \
+            && curl https://codeload.github.com/xianyi/OpenBLAS/zip/develop > develop.zip \
             && unzip -qq develop.zip \
             && rm develop.zip \
             && cd  OpenBLAS-develop \
@@ -25,9 +25,9 @@ RUN         mkdir -p /opt/lib/ \
             &&  cp libopenblas.* /opt/lib \
             && rm -rf /usr/local/src/OpenBLAS-develop
 #mpich user-space install
-ADD         http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz /usr/local/src
 RUN         cd /usr/local/src \
-            && tar xzf mpich-3.2.tar.gz \
+            && curl         http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz  \
+            | tar xzf  - \
             && cd mpich-3.2 \
             && ./configure  -q --enable-fortran=all --disable-cxx --with-pm=hydra --disable-romio --disable-strict --disable-dependency-tracking  --enable-silent-rules \
             && make -j4 ;make install \
