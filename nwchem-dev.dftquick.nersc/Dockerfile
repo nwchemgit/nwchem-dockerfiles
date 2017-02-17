@@ -13,9 +13,9 @@ RUN         sed -i 's|archive.ubuntu.com|mirrors.us.kernel.org|' /etc/apt/source
             && apt -qq update \
             && apt -qq -y upgrade \
             && apt -qq install -y   gfortran   tcsh make ssh  subversion unzip gdb strace perl cmake curl \
-            && apt-get clean
+            && apt-get clean \
 #get OpenBLAS and compile with 32-bit integers
-RUN         mkdir -p /opt/lib/ \
+            &&  mkdir -p /opt/lib/ \
             && cd /usr/local/src \
             && curl https://codeload.github.com/xianyi/OpenBLAS/zip/develop > develop.zip \
             && unzip -qq develop.zip \
@@ -23,22 +23,23 @@ RUN         mkdir -p /opt/lib/ \
             && cd  OpenBLAS-develop \
             && make -j3 TARGET=CORE2  NO_CBLAS=1  NO_LAPACKE=1 USE_THREAD=0  \
             &&  cp libopenblas.* /opt/lib \
-            && rm -rf /usr/local/src/OpenBLAS-develop
-#mpich user-space install
-RUN         cd /usr/local/src \
+            && rm -rf /usr/local/src/OpenBLAS-develop \
+            &&    cd /usr/local/src \
             && curl         http://www.mpich.org/static/downloads/3.2/mpich-3.2.tar.gz  \
             | tar xzf  - \
             && cd mpich-3.2 \
             && ./configure  -q --enable-fortran=all --disable-cxx --with-pm=hydra --disable-romio --disable-strict --disable-dependency-tracking  --enable-silent-rules \
             && make -j4 ;make install \
-            && cd .. ; rm -rf mpich-3.2.*
+            && cd .. ; rm -rf mpich-3.2.* \
 # build scalapack 
 #RUN         svn --trust-server-cert co https://icl.cs.utk.edu/svn/scalapack-dev/scalapack/trunk scalapack
 #WORKDIR     scalapack
 #ADD         http://www.netlib.org/scalapack/scalapack-2.0.2.tgz /usr/local/src 
-ADD         https://github.com/scibuilder/scalapack/archive/master.zip /usr/local/src
+#ADD         https://github.com/scibuilder/scalapack/archive/master.zip /usr/local/src
 #RUN         cd /usr/local/src   &&  tar xzf scalapack-2.0.2.tgz && rm scalapack-2.0.2.tgz \
-RUN         cd /usr/local/src   &&  unzip -qq master.zip && rm master.zip && cd scalapack-master \
+            &&         cd /usr/local/src   \
+            &&  curl https://codeload.github.com/scibuilder/scalapack/zip/master > master.zip \
+            &&  unzip -qq master.zip && rm master.zip && cd scalapack-master \
             && mkdir -p build && cd build \
             &&  cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DUSE_OPTIMIZED_LAPACK_BLAS=ON -DBLAS_blas_LIBRARY="/opt/lib/libopenblas.so" -DLAPACK_lapack_LIBRARY="/opt/lib/libopenblas.so" \
             && make -j3 \
