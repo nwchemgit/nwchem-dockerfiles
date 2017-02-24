@@ -20,7 +20,7 @@ ENV         NWCHEM_TOP="/opt/nwchem"
 
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y python-dev gfortran  libopenmpi-dev openmpi-bin make curl subversion  unzip cmake perl tcsh ssh \
+            && apt-get install -y python-dev gfortran  mpich2 libmpich2-dev  make curl subversion  unzip cmake perl tcsh ssh \
             &&  apt-get clean
 #get OpenBLAS using the default 32bit ints to work with Scalapack
 WORKDIR     /opt
@@ -50,12 +50,14 @@ ENV         NWCHEM_MODULES="all python"
 ENV         PYTHONVERSION=2.7
 ENV         PYTHONHOME="/usr"
 ENV         USE_PYTHONCONFIG=Y
+ENV         ARMCI_NETWORK=MPI-PT
 ENV         BLASOPT="-L/opt/lib -lopenblas"
 ENV         BLAS_SIZE=4
 ENV         SCALAPACK_LIB="-L/opt/lib -lscalapack"
 ENV         SCALAPACK_SIZE=4
 ENV         LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/lib
 ENV         USE_OPENMP=y
+ENV         USE_NOIO=y
 ENV         USE_64TO32=y
 ENV         USE_MPI=y
 ENV         USE_MPIF=y
