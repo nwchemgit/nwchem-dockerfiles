@@ -51,7 +51,7 @@ RUN         mkdir -p nwchem \
             NWints atomscf cphf ddscf driver gradients hessian nwdft optim property stepper symmetry vib \
             && rm -rf /opt/nwchem/.svn \
             && cd tools \
-            && svn export --non-interactive --username nwchem --password nwchem https://svn.pnl.gov/svn/hpctools/branches/ga-5-5  \
+            && ./get-tools-github \
             && cd .. \
 #strip native compiler options as Fedora does
             && sed -i 's|-march=native||' config/makefile.h \
