@@ -1,6 +1,6 @@
-Base on earlier work by Vladimir Konjkov
+Based on earlier work by Vladimir Konjkov
 
-Builds a NWChem 6.8.1  binary using qm and pw modules and ARMCI_NETWORK=SOCKETS
+Builds a NWChem 6.8.1  binary using all modules and ARMCI_NETWORK=SOCKETS
 
 The file Dockerfile can be used by tying the command
 
