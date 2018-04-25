@@ -14,7 +14,7 @@ The following command will run on 3 processors (will remove the hardwired value 
 
 docker run -v [host_dir]:/data docker run -v nwchem-681.fedora.sockets [input.nw]
 
-### EXAMPLES
+### Examples
 
 #### Execute QA tests
 
