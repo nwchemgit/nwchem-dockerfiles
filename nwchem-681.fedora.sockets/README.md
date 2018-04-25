@@ -2,9 +2,13 @@ Based on earlier work by Vladimir Konjkov
 
 Builds a NWChem 6.8.1  binary using all modules and ARMCI_NETWORK=SOCKETS
 
+### Build Instructions
+
 The file Dockerfile can be used by tying the command
 
 docker build -t  nwchem-681.fedora.sockets .
+
+### Usage
 
 The following command will run on 3 processors (will remove the hardwired value later ...)
 
