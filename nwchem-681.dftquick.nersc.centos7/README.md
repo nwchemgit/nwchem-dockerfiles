@@ -2,7 +2,7 @@ Image for NERSC's shifter, available at
 
 https://hub.docker.com/r/edoapra/nwchem-681.dftquick.nersc.centos7/
 
-Uses Centos 7 and MPICH. `ARMCI_NETWORK=MPI-PT`
+Uses Centos 7 and MPICH. Uses ARMCI_NETWORK=MPI-PT and contains only the DFT LCAO modules
 
 Copy the Dockerfile to a local directory and create the image with the command
  
