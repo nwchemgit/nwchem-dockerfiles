@@ -10,16 +10,18 @@ docker build -t  nwchem-681.fedora.sockets .
 
 ### Usage
 
-The following command will run on 3 processors (will remove the hardwired value later ...)
+The following command will run NWChem on 1 processor (will remove the hardwired value later ...)
 
-docker run -v [host_dir]:/data docker run -v nwchem-681.fedora.sockets [input.nw]
+docker run --entrypoint='mpirun'  [host_dir]:/data docker run  nwchem-681.fedora.sockets [input.nw]
 
 ### Examples
 
-#### Execute QA tests
+#### Modifiy  mpirun options
 
-docker run -v /home/edo/park/nwchem-6.8.1/QA/tests/band:/data nwchem-681.fedora.sockets band
+The following command will run NWChem on 3 processors 
 
-#### Use mpirun on a given input file
+docker run --entrypoint='mpirun'  /home/edo/nwchem/tests:/data nwchem-681.fedora.sockets -np 3 nwchem  /data/bar_lcwpbe
 
-docker run --entrypoint='mpirun' -v /home/edo/nwchem/tests:/data nwchem-681.fedora.sockets -np 3 nwchem  /data/bar_lcwpbe
+Get shell on the Docker container
+
+docker run   -v /home/edo/nwchem/tests:/data -it nwchem-681.fedora.sockets

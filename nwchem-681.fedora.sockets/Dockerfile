@@ -4,7 +4,7 @@ MAINTAINER  Edoardo Apra <edoardo.apra@gmail.com>
 
 RUN         dnf -y update \  
             && dnf -y upgrade \
-            && dnf install -y python-devel gcc-gfortran  openblas openmpi-devel scalapack-openmpi-devel  tcsh openssh-clients which bzip2 patch make perl subversion  findutils hostname git \
+            && dnf install -y python-devel gcc-gfortran  openblas openmpi-devel scalapack-openmpi-devel  tcsh openssh-clients which bzip2 patch make perl  findutils hostname git \
             && dnf clean all \ 
             && useradd -c 'NWChem user' -m -d /home/nwchem -s /bin/bash nwchem
 
@@ -35,17 +35,23 @@ ENV         NWCHEM_TOP="/home/nwchem/nwchem-6.8.1" \
               AMBER_4=/home/nwchem/nwchem-6.8.1/src/data/amber_u/ \
               SPCE=/home/nwchem/nwchem-6.8.1/src/data/solvents/spce.rst \
               CHARMM_S=/home/nwchem/nwchem-6.8.1/src/data/charmm_s/ \
-              CHARMM_X=/home/nwchem/nwchem-6.8.1/src/data/charmm_x/ 
+              CHARMM_X=/home/nwchem/nwchem-6.8.1/src/data/charmm_x/ \
+	      OMPI_MCA_btl_vader_single_copy_mechanism=none
 #ENV          ELPA="-I/usr/lib64/gfortran/modules/openmpi -L/usr/lib64/openmpi/lib -lelpa"
 RUN        cd /home/nwchem; git clone -b hotfix/release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8.1 \
             && cd nwchem-6.8.1/src \
+            && sed -i 's|-march=native||' config/makefile.h \
+            && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
+            && sed -i 's|-mfpmath=sse||' config/makefile.h \
+            && sed -i 's|-msse3||' config/makefile.h  \
             && ls -lrt  \
-            &&  make nwchem_config && (make 64_to_32 > make.6log  2>&1 &)  \
+            &&  make nwchem_config && make 64_to_32  \
             &&  make -j3
 #old            &&  make GA_BRANCH=hotfix/5.6.5 -j3
 
 
-WORKDIR     /home/nwchem/nwchem-6.8.1/QA
-ENTRYPOINT  ["runtests.mpi.unix","procs","3"]
-#WORKDIR     /data
+#WORKDIR     /home/nwchem/nwchem-6.8.1/QA
+#ENTRYPOINT  ["runtests.mpi.unix","procs","3"]
+WORKDIR     /data
+ENTRYPOINT  ["/bin/bash"]
 #ENTRYPOINT  ["mpirun","-np","3","nwchem"]
