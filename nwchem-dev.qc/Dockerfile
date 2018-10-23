@@ -37,11 +37,11 @@ ENV  NWCHEM_TOP="/opt/nwchem" \
      PATH=$PATH:/opt/nwchem/contrib/quasar \
      NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem
 
+ARG nwchem_shaid=fb4151614232a00d292c2644c00745890e599522
 
 # ------------------------------------------------------------
 # Install dependencies
 # ------------------------------------------------------------
-
 RUN apt-get update -y && \
     apt-get install -y python-dev wget git curl gcc g++ gfortran make libopenmpi-dev && \
     apt-get clean && apt-get purge && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
@@ -50,6 +50,7 @@ RUN apt-get update -y && \
 # ---------------------------------
     && cd /opt \
     && git clone https://github.com/nwchemgit/nwchem.git \
+    && cd /opt/nwchem && git checkout ${nwchem_shaid} \
     && cd /opt/nwchem/src && make nwchem_config && make -j3 \
 # -------------------------------------------
 # Cleanup (remove unnecessary nwchem files)
