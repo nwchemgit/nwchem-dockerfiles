@@ -17,6 +17,7 @@ ENV         NWCHEM_TOP="/home/nwchem/nwchem-6.8.1" \
               PYTHONHOME="/usr" \
               USE_PYTHONCONFIG=Y \
               BLASOPT="/usr/lib64/libopenblas.so.0 -lpthread -lrt" \
+              LAPACK_LIB="/usr/lib64/libopenblas.so.0 -lpthread -lrt" \
               BLAS_SIZE=4 \
               USE_64TO32=y \
               LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib64/openmpi/lib" \
