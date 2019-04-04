@@ -23,6 +23,6 @@ docker run -v [host_system_dir]:/data nwchem-dev.dftquick "input.nw"
 
 EXAMPLE
 
-docker build -t nwchem-dev .
+docker build -t nwchem-dev.dftquick .
 
 docker run -v /home/edo/nwchem/tests:/data nwchem-dev.dftquick xvdw.nw
