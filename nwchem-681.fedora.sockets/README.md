@@ -12,7 +12,7 @@ docker build -t  nwchem-681.fedora.sockets .
 
 The following command will run NWChem on 1 processor (will remove the hardwired value later ...)
 
-docker run --entrypoint='mpirun' -v [host_dir]:/data docker run  nwchemorg/nwchem-681.fedora.sockets [input.nw]
+docker run --entrypoint='mpirun' -v [host_dir]:/data  nwchemorg/nwchem-681.fedora.sockets [input.nw]
 
 ### Examples
 
