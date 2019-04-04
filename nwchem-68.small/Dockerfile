@@ -8,7 +8,7 @@ ENV         NWCHEM_TOP=$MYHOME/nwchem-6.8
 RUN         sed -i 's|archive.ubuntu.com|mirrors.us.kernel.org|' /etc/apt/sources.list \
             && apt -qq update \
             && apt -qq -y upgrade \
-            && apt-get install -y python-dev gfortran  libopenmpi-dev openmpi-bin make curl subversion  unzip cmake perl tcsh ssh bzip2 tar patch libopenblas-dev \
+            && apt-get install -y python-dev gfortran  libopenmpi-dev openmpi-bin make git subversion  unzip cmake perl tcsh ssh bzip2 tar patch libopenblas-dev \
             &&  apt-get clean \
             && useradd -c 'NWChem user' -m -d $MYHOME -s /bin/bash nwchem
 USER        nwchem
@@ -33,7 +33,7 @@ env          PYTHONVERSION=2.7
 #ENV         USE_MPIF4=y
 #ENV         MRCC_METHODS=y
 
-RUN        curl -SL http://www.nwchem-sw.org/images/Nwchem-6.8.revision29612-srconly.2017-11-07.tar.bz2 | tar -jxf -  \
+RUN        cd $MYHOME; git clone -b release-6-8 https://github.com/nwchemgit/nwchem.git nwchem-6.8  \
             && cd nwchem-6.8/src \
             && ls -lrt  \
             && make clean && make nwchem_config && make 64_to_32;make -j3 
