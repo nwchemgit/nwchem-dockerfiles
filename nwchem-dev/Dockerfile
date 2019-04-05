@@ -18,7 +18,7 @@ MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y python-dev gfortran  mpich2 libmpich2-dev  make curl subversion  unzip cmake perl tcsh ssh \
+            && apt-get install -y python-dev gfortran  mpich libmpich-dev  make curl subversion  unzip cmake perl tcsh ssh git file \
             &&  apt-get clean \
 #get OpenBLAS using the default 32bit ints to work with Scalapack
             && mkdir -p /opt \
@@ -27,7 +27,7 @@ RUN         apt-get update \
             &&  curl -L https://github.com/xianyi/OpenBLAS/archive/develop.zip -o develop.zip && unzip develop.zip ; rm develop.zip \
             && cd     OpenBLAS-develop \
 #TARGET=CORE2 for compatibility
-            &&   make -j3  TARGET=CORE2 NO_CBLAS=1 NO_LAPACKE=1 && cp libopenblas.* /opt/lib \
+            && make -j3  INTERFACE64=0 NO_CBLAS=1 NO_LAPACKE=1 NUM_THREADS=1  USE_THREAD=0 all      && cp libopenblas.* /opt/lib \
             && rm -rf /opt/OpenBLAS-develop \
 # build scalapack 
             && cd     /opt \
@@ -49,6 +49,7 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
             USE_PYTHONCONFIG=Y  \
             ARMCI_NETWORK=MPI-PT  \
             BLASOPT="-L/opt/lib -lopenblas"  \
+            LAPACK_LIB="-L/opt/lib -lopenblas"  \
             BLAS_SIZE=4  \
             SCALAPACK_LIB="-L/opt/lib -lscalapack"  \
             SCALAPACK_SIZE=4  \
@@ -59,7 +60,6 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
             USE_MPI=y  \
             USE_MPIF=y  \
             USE_MPIF4=y  \
-            MRCC_METHODS=y  \
             NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem \
             NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/ \
             NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/  \
@@ -73,21 +73,15 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
             PATH=$PATH:/opt/nwchem/bin/LINUX64 
 #one single ugly command to reduce docker size
-RUN         cd /opt ; mkdir -p nwchem  \
-            && cd nwchem \
-            && svn export https://svn.pnl.gov/svn/nwchem/trunk/src \
-            && rm -rf /opt/nwchem/.svn /opt/nwchem/src/.svn \
-            && cd    ${NWCHEM_TOP}/src/tools \
-            && svn export --non-interactive --username nwchem --password nwchem https://svn.pnl.gov/svn/hpctools/branches/ga-5-5  \
-            && cd .. \
+RUN        cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && cd nwchem/src \
 #strip native compiler options as Fedora does
             && sed -i 's|-march=native||' config/makefile.h \
             && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
             && sed -i 's|-mfpmath=sse||' config/makefile.h \
             && sed -i 's|-msse3||' config/makefile.h  \
-            && make nwchem_config && (make 64_to_32 >& 6log &) && make -j3 \
+            && make nwchem_config && make 64_to_32   && make -j3 \
 #clean unnecessary source to reduce docker size
-            && rm -rf  /opt/nwchem/src/tools/ga-5-5/.svn \
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib \
 #clean unnecessary packages
             &&       apt-get -y remove  make curl subversion  unzip cmake perl tcsh  &&  apt-get -y autoremove && apt-get clean
