@@ -13,7 +13,7 @@ MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  gfortran  libopenmpi-dev openmpi-bin tcsh make ssh patch curl subversion wget unzip perl \
+            && apt-get install -y  gfortran mpich libmpich-dev tcsh make ssh patch curl subversion wget unzip perl git file \
             && apt-get clean
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
@@ -22,7 +22,7 @@ RUN         mkdir -p /opt/lib/ \
             && unzip develop.zip \
             && rm develop.zip \
             && cd  OpenBLAS-develop \
-            && make -j3 TARGET=CORE2 INTERFACE64=1 NO_CBLAS=1 NO_LAPACK=1 NO_LAPACKE=1 libs shared \
+            && make -j3  INTERFACE64=1 NO_CBLAS=1 NO_LAPACKE=1 NUM_THREADS=1  USE_THREAD=0 all     \
             &&  cp libopenblas.* /opt/lib \
             && rm -rf /opt/OpenBLAS-develop
 WORKDIR     /opt
@@ -33,6 +33,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             PYTHONHOME="/usr" \
             USE_PYTHONCONFIG=Y \
             BLASOPT="-L/opt/lib -lopenblas" \
+            LAPACK_LIB="-L/opt/lib -lopenblas" \
             BLAS_SIZE=8 \
             LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/lib" \
             USE_MPI=y \
@@ -41,18 +42,8 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
-RUN         mkdir -p nwchem \
-            && cd nwchem \
-            && svn co --depth empty https://svn.pnl.gov/svn/nwchem/trunk/src \
-            && cd src \
-            && svn update GNUmakefile nwchem.F config \
-            tools include basis geom inp input  \
-	    pstat rtdb task symmetry util peigs perfm bq cons blas lapack \
-            NWints atomscf cphf ddscf driver gradients hessian nwdft optim property stepper symmetry vib \
-            && rm -rf /opt/nwchem/.svn \
-            && cd tools \
-            && svn export --non-interactive --username nwchem --password nwchem https://svn.pnl.gov/svn/hpctools/branches/ga-5-5  \
-            && cd .. \
+RUN        cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && cd nwchem/src \
 #strip native compiler options as Fedora does
             && sed -i 's|-march=native||' config/makefile.h \
             && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
