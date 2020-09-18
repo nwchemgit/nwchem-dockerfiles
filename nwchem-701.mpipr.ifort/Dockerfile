@@ -68,7 +68,13 @@ ENV         FFIELD=amber \
             SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/ \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/ \
-            PATH=$PATH:${NWCHEM_TOP}/bin/LINUX64
+            PATH=$PATH:${NWCHEM_TOP}/bin/LINUX64:/opt/intel/oneapi/mpi/latest//libfabric/bin:/opt/intel/oneapi/mpi/latest//bin \
+            I_MPI_ROOT=/opt/intel/oneapi/mpi/latest \
+            FI_PROVIDER_PATH=/opt/intel/oneapi/mpi/latest/libfabric/lib/prov \
+            LIBRARY_PATH=/opt/intel/oneapi/mpi/latest//libfabric/lib:/opt/intel/oneapi/mpi/latest//lib/release:/opt/intel/oneapi/mpi/latest/lib \
+            CLASSPATH=/opt/intel/oneapi/mpi/latest//lib/mpi.jar \
+            LD_LIBRARY_PATH=opt/intel/oneapi/mpi/latest/lib:/opt/intel/oneapi/mpi/latest/lib/release:/opt/intel/oneapi/mkl/latest/lib/intel64/:/opt/intel/oneapi/mpi/latest/libfabric/lib:/opt/intel/oneapi/mpi/latest/lib/ \
+            CPATH=/opt/intel/oneapi/mpi/latest//include
 
 
 WORKDIR     /data
