@@ -23,6 +23,10 @@ docker run  --entrypoint='/bin/bash' -v /home/edo/nwchem/tests:/data -it nwchem-
 ```
 
 ### How to use on NERSC computers using the image from the Docker hub
+Download the image  
+```
+shifterimg -v pull docker:nwchemorg/nwchem-702.mpipr.nersc
+```
 Interactive shell  
 
 ```
