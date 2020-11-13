@@ -4,7 +4,7 @@ Docker build of the current NWChem trunk
 
 Based on earlier work by Vladimir Konjkov Konjkov.VV@gmail.com
 
- http://www.nwchem-sw.org/index.php/Special:AWCforum/st/id2181
+ https://nwchemgit.github.io/Special_AWCforum/st/id2181
 
 INSTRUCTIONS
 

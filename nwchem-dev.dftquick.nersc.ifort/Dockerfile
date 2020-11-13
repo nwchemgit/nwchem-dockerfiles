@@ -20,7 +20,7 @@ ENV         MKLROOT=$INTELROOT/linux/mkl \
             I_MPI_ROOT=$INTELROOT/linux/mpi \
             ARMCI_NETWORK=MPI-PT NWCHEM_TOP=/usr/local/src/nwchem \
             NWCHEM_TARGET=LINUX64 \
-            NWCHEM_MODULES="nwdft driver stepper" \
+            NWCHEM_MODULES="nwdft driver stepper property" \
             BLASOPT=-L$MKLROOT/lib/intel64\ -lmkl_intel_ilp64\ -lmkl_sequential\ -lmkl_core\ -lpthread\ -lm\ -ldl \
             BLAS_SIZE=8 \
             SCALAPACK=-L$MKLROOT/lib/intel64\ -lmkl_scalapack_ilp64\ -lmkl_intel_ilp64\ -lmkl_sequential\ -lmkl_core\ -lmkl_blacs_intelmpi_ilp64\ -lpthread\ -lm\ -ldl \

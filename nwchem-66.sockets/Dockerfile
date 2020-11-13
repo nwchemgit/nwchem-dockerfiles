@@ -39,27 +39,27 @@ ENV         NWCHEM_TOP="/home/nwchem/nwchem-6.6" \
               CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/ \
               CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/ 
 #ENV          ELPA="-I/usr/lib64/gfortran/modules/openmpi -L/usr/lib64/openmpi/lib -lelpa"
-RUN        curl -SL http://www.nwchem-sw.org/images/Nwchem-6.6.revision27746-srconly.2015-10-20.tar.bz2 | tar -jxf -  \
+RUN        curl -SL https://nwchemgit.github.io/images/Nwchem-6.6.revision27746-srconly.2015-10-20.tar.bz2 | tar -jxf -  \
             && cd nwchem-6.6 \
-            && curl -SL http://www.nwchem-sw.org/images/Tools_lib64.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Config_libs66.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Cosmo_meminit.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Sym_abelian.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Xccvs98.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Dplot_tolrho.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Driver_smalleig.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Ga_argv.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Raman_displ.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Ga_defs.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Zgesvd.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Cosmo_dftprint.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Txs_gcc6.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Gcc6_optfix.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Util_gnumakefile.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Util_getppn.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Gcc6_macs_optfix.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Notdir_fc.patch.gz | gzip -d | patch -p0 \
-            &&   curl -SL http://www.nwchem-sw.org/images/Xatom_vdw.patch.gz | gzip -d | patch -p0 \
+            && curl -SL https://nwchemgit.github.io/images/Tools_lib64.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Config_libs66.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Cosmo_meminit.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Sym_abelian.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Xccvs98.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Dplot_tolrho.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Driver_smalleig.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Ga_argv.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Raman_displ.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Ga_defs.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Zgesvd.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Cosmo_dftprint.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Txs_gcc6.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Gcc6_optfix.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Util_gnumakefile.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Util_getppn.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Gcc6_macs_optfix.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Notdir_fc.patch.gz | gzip -d | patch -p0 \
+            &&   curl -SL https://nwchemgit.github.io/images/Xatom_vdw.patch.gz | gzip -d | patch -p0 \
             && cd src  \
             && make clean && make nwchem_config && make 64_to_32;make -j3 \
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm  /home/nwchem/nwchem-6.6/lib
