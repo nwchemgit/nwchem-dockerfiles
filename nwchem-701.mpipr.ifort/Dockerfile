@@ -38,7 +38,7 @@ RUN         apt-get update \
             && echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list \
             && add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" \
             && apt-get update \
-            && apt install -y intel-oneapi-ifort intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl intel-oneapi-dpcpp-cpp-compiler-pro \
+            && apt install -y intel-oneapi-ifort intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
             && apt-get clean \
             && cd /opt;curl -SL     https://github.com/nwchemgit/nwchem/archive/$nwchem_hash.tar.gz | tar xzf - \
 	    &&  source /opt/intel/oneapi/mpi/latest/env/vars.sh \
@@ -55,7 +55,7 @@ RUN         apt-get update \
 	  #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib ../../QA \
 #clean unnecessary packages
-         && apt-get -y purge  make curl subversion  unzip cmake perl tcsh intel-oneapi-ifort intel-oneapi-dpcpp-cpp-compiler-pro intel-oneapi-tbb-devel intel-oneapi-tbb &&  apt-get -y autoremove && apt -y install intel-oneapi-mkl && apt-get clean
+         && apt-get -y purge  make curl subversion  unzip cmake perl tcsh intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-tbb-devel intel-oneapi-tbb &&  apt-get -y autoremove && apt -y install intel-oneapi-mkl && apt-get clean
 
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
