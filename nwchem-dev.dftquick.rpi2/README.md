@@ -1,4 +1,4 @@
-Builds on non-ARM hardware a NWChem binary for Rapsberry Pi2 (should be compatible for Pi3, too, or any paltform compatible with ARMv7l architecture) on a Debian and/or Ubuntu box.
+Builds on non-ARM hardware a NWChem binary for Rapsberry Pi2 (should be compatible for Pi3, too, or any platform compatible with ARMv7l architecture) on a Debian and/or Ubuntu box.
 
 Steps required
 * Copy /usr/bin/qemu-arm-static to the current work directory
