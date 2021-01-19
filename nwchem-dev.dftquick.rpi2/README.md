@@ -35,7 +35,7 @@ RUN EXAMPLE
 
 This must be executed on Raspberry Pi2 (or ARMV7l and later) Hardware
 
-wget https://svn.pnl.gov/svn/nwchem/trunk/src/nwchem.nw
+wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/src/nwchem.nw
 
 docker run -v /home/edo/nwchem/tests:/data my_nwchem nwchem.nw
 
