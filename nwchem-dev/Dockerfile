@@ -57,10 +57,9 @@ RUN         apt-get update \
             && sed -i 's|-msse3||' config/makefile.h  \
             && make nwchem_config    && make -j3 \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas ../QA ../contrib ../examples ../.git ../travis \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis \
 #clean unnecessary packages
-            &&       apt-get -y remove wget git make curl  unzip cmake  &&  apt-get -y autoremove && apt-get clean \
-	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 40
+            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu63 &&  apt-get -y autoremove && apt-get clean 
 
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]

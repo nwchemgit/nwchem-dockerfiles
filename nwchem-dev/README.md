@@ -38,4 +38,6 @@ EXAMPLES
  docker run -v /home/edo/nwchem/tests:/data nwchem-dev xvdw.nw
  
  docker run  -v /tmp:/data  --entrypoint='/usr/bin/mpirun'  nwchem-dev -np 2 nwchem small.nw
+ 
+ docker run  --rm  --entrypoint='/bin/bash' -v /home/edo/nwchem/tests:/data -it nwchem-dev
 
