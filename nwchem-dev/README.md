@@ -6,7 +6,7 @@ Based on earlier work by Vladimir Konjkov Konjkov.VV@gmail.com
 
  https://nwchemgit.github.io/Special_AWCforum/st/id2181
 
-INSTRUCTIONS
+### INSTRUCTIONS
 
 Copy the Dockerfile to a local directory and create the image with the command
 
@@ -31,7 +31,7 @@ This command will return [container ID] value to read logs by
 ``` 
 
  
-EXAMPLES
+### EXAMPLES
  
 ```
  docker run --rm -v /home/edo/nwchem/tests:/data nwchem-dev xvdw.nw
@@ -45,7 +45,7 @@ EXAMPLES
  docker run  --rm  --entrypoint='/bin/bash' -v /home/edo/nwchem/tests:/data -it nwchem-dev
 ```
  
-EXAMPLES using the hub.docker.com image
+### EXAMPLES using the hub.docker.com image
 
 After pulling the hub.docker.com image with the command
 ```
