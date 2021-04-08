@@ -20,8 +20,6 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
             NWCHEM_TARGET=LINUX64  \
             NWCHEM_MODULES="all python"  \
             PYTHONVERSION=2.7  \
-            PYTHONHOME="/usr"  \
-            USE_PYTHONCONFIG=Y  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=y  \
             USE_NOIO=y  \
@@ -44,10 +42,11 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
             PATH=$PATH:/opt/nwchem/bin/LINUX64 
+
 #one single ugly command to reduce docker size
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y python-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
+            && apt-get install -y  python-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #strip native compiler options as Fedora does
@@ -59,7 +58,11 @@ RUN         apt-get update \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis \
 #clean unnecessary packages
-            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu63 &&  apt-get -y autoremove && apt-get clean 
+            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu63 &&  apt-get -y autoremove && apt-get clean \
+           && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
+	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem
+
+USER        nwchem
 
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]
