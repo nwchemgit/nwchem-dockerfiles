@@ -9,9 +9,9 @@ Based on earlier work by Vladimir Konjkov Konjkov.VV@gmail.com
 ### INSTRUCTIONS
 
 Copy the Dockerfile to a local directory and create the image with the command
-
+```
  docker build -t nwchem-dev .
-
+```
 This will build a NWChem executable using the current master branch within a Debian image. OpenBLAS and Scalapack are used.
 
 
