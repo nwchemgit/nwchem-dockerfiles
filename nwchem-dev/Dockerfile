@@ -56,11 +56,22 @@ RUN         apt-get update \
             && sed -i 's|-msse3||' config/makefile.h  \
             && make nwchem_config    && make -j3 \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
+	    && strip ../bin/LINUX64/nwchem \
 #clean unnecessary packages
-            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu63 &&  apt-get -y autoremove && apt-get clean \
+            && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
+	    && echo MANDELETE >  /etc/locale.nopurge \
+	    && echo DONTBOTHERNEWLOCALE >> /etc/locale.nopurge \
+	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
+	    && localepurge \
+	    && rm -rf /usr/share/doc \
+            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu63 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-8-dev libmpich-dev &&  apt-get -y autoremove && apt-get clean \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
-	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem
+	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
+	   && du -sh /opt/nwchem \
+	   && du sk /opt/nwchem/*|sort -n \
+	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+	   
 
 USER        nwchem
 
