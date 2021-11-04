@@ -6,7 +6,7 @@ ENV         DEBIAN_FRONTEND=noninteractive
 
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y curl  python3-dev gfortran  mpi-default-bin mpi-default-dev ssh git  dpkg-dev  devscripts debhelper dh-python pkg-config python3-dev python-minimal python-dev cmake  libarmci-mpi-dev libscalapack-mpi-dev libglobalarrays-dev \
+            && apt-get install -y curl  python3-dev gfortran  mpi-default-bin mpi-default-dev ssh git  dpkg-dev  devscripts debhelper dh-python pkg-config python3-dev python-minimal python-dev cmake  libarmci-mpi-dev libscalapack-mpi-dev libglobalarrays-dev libopenblas-base libopenblas-dev \
             &&  apt-get clean \
             &&  git  clone https://salsa.debian.org/edoapra-guest/nwchem.git \
             &&  cd nwchem \
