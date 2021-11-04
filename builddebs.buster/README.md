@@ -1,9 +1,9 @@
 # Docker build to test NWChem debian packages
 
 The file Dockerfile can be used by tying the command
-
+```
 docker build -t  builddebs.buster .
-
+```
 
 ### Examples
 
