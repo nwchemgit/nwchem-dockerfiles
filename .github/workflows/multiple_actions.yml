@@ -17,9 +17,9 @@ jobs:
       id: filter
       with:
         filters: |
-          folder1: 'nwchem-700.fedora.sockets/*'
-          folder2: 'nwchem-700.mpipr/*'
-          folder3: 'builddebs.buster/*'
+          nwchem-700.fedora.sockets: 'nwchem-700.fedora.sockets/*'
+          nwchem-700.mpipr: 'nwchem-700.mpipr/*'
+          builddebs.buster: 'builddebs.buster/*'
   docker:
     needs: changes
     strategy:
