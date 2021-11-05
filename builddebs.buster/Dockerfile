@@ -17,7 +17,7 @@ RUN         apt-get update \
 	    && cd nwchem-* \
 	    && dpkg-buildpackage  -d -rfakeroot -us -uc \
             && cd .. \
-            && find . -name nwc*deb \
+            && find . -name "nwc*deb" \
 	    && echo **** DONE **************
 
 WORKDIR     /data
