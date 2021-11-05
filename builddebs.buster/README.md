@@ -7,9 +7,6 @@ docker build -t  builddebs.buster .
 
 ### Examples
 
-
-
-
 The following command will get a  shell on the Docker container and copy the `*.deb` files to the host filesystem.
 ```
 docker run  --entrypoint='/bin/bash' -v /home/edo/debs:/data -it builddebs.buster
