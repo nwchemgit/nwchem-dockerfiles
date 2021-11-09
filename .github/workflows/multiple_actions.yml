@@ -47,6 +47,7 @@ jobs:
         with:
           push: false
           context: ${{ matrix.folder }}
+          outputs: type=docker,dest=/tmp/${{ matrix.folder }}.tar
           tags: user/app:latest
       -
         name: Upload artifact
