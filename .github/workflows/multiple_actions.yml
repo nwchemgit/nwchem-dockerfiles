@@ -24,6 +24,8 @@ jobs:
         filters: |
           nwchem-700.fedora.sockets: 'nwchem-700.fedora.sockets/*'
           nwchem-700.mpipr: 'nwchem-700.mpipr/*'
+          nwchem-700.amazonlinux.sockets: 'nwchem-700.amazonlinux.sockets/*'
+          nwchem-dev: 'nwchem-dev/*'
           builddebs.buster: 'builddebs.buster/*'
   docker:
     needs: changes
