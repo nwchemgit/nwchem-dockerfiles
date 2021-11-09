@@ -19,7 +19,6 @@ MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 ENV         NWCHEM_TOP="/opt/nwchem" \
             NWCHEM_TARGET=LINUX64  \
             NWCHEM_MODULES="all python"  \
-            PYTHONVERSION=2.7  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=y  \
             USE_NOIO=y  \
@@ -41,19 +40,16 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
+	    USE_HWOPT=n \
             PATH=$PATH:/opt/nwchem/bin/LINUX64 
 
 #one single ugly command to reduce docker size
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  python-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
+            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #strip native compiler options as Fedora does
-            && sed -i 's|-march=native||' config/makefile.h \
-            && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
-            && sed -i 's|-mfpmath=sse||' config/makefile.h \
-            && sed -i 's|-msse3||' config/makefile.h  \
             && make nwchem_config    && make -j3 \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
@@ -65,7 +61,7 @@ RUN         apt-get update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu63 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-8-dev libmpich-dev &&  apt-get -y autoremove && apt-get clean \
+            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu67 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-10-dev libmpich-dev &&  apt-get -y autoremove && apt-get clean \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
