@@ -3,7 +3,7 @@ FROM        amazonlinux
 MAINTAINER  Edoardo Apra <edoardo.apra@gmail.com>
 
 RUN	    amazon-linux-extras install epel \
-	    && yum update \
+	    && yum -y update \
 	    && yum install -y cmake3 python3-devel gcc-gfortran  openblas-serial openmpi-devel  openssh-clients which bzip2 patch make perl  findutils hostname git \
 	    && ln -sf /usr/bin/cmake3 /usr/bin/cmake  \
 	    && ln -sf /usr/lib64/libopenblas.so.0 /usr/lib64/libopenblas.so \
