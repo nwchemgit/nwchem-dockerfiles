@@ -49,8 +49,11 @@ RUN         apt-get update \
             && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
-#strip native compiler options as Fedora does
             && make nwchem_config    && make -j3 \
+# QA tests
+            && cd .. \
+            && SKIP_CACHE=1 NWCHEM_EXECUTABLE=`pwd`/bin/LINUX64/nwchem ./travis/run_qas.sh \
+	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
 	    && strip ../bin/LINUX64/nwchem \
@@ -65,7 +68,7 @@ RUN         apt-get update \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
-	   && du sk /opt/nwchem/*|sort -n \
+	   && du -sk /opt/nwchem/*|sort -n \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 	   
 
