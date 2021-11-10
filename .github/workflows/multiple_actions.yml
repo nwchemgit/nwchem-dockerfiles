@@ -14,7 +14,7 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      # Expose matched filters as job 'packages' output variable
+      # Expose matched filters as job 'folders' output variable
       folders: ${{ steps.filter.outputs.changes }}
     steps:
     - uses: actions/checkout@v2
