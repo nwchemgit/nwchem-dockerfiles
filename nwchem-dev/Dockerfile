@@ -52,7 +52,7 @@ RUN         apt-get update \
             && make nwchem_config    && make -j3 \
 # QA tests
             && cd .. \
-            && NWCHEM_EXECUTABLE=`pwd`/bin/LINUX64/nwchem ./travis/run_qas.sh \
+            && SKIP_CACHE=1 NWCHEM_EXECUTABLE=`pwd`/bin/LINUX64/nwchem ./travis/run_qas.sh \
 	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
@@ -68,7 +68,7 @@ RUN         apt-get update \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
-	   && du sk /opt/nwchem/*|sort -n \
+	   && du -sk /opt/nwchem/*|sort -n \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 	   
 
