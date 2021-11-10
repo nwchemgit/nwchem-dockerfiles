@@ -26,6 +26,7 @@ jobs:
           nwchem-700.mpipr: 'nwchem-700.mpipr/*'
           nwchem-700.amazonlinux.sockets: 'nwchem-700.amazonlinux.sockets/*'
           nwchem-dev: 'nwchem-dev/*'
+          nwchem-dev.qc: 'nwchem-dev.qc/*'
           builddebs.buster: 'builddebs.buster/*'
   docker:
     needs: changes
