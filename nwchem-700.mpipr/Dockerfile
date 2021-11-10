@@ -13,7 +13,7 @@ MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  gfortran mpich libmpich-dev  make ssh patch curl subversion wget unzip perl git file python3 python3-dev \
+            && apt-get install -y  gfortran mpich libmpich-dev  make ssh patch curl subversion wget unzip perl git file python3 python3-dev bzip2 \
             && apt-get clean
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
