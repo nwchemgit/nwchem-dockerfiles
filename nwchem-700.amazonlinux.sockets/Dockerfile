@@ -48,7 +48,8 @@ RUN        cd /home/nwchem; curl -SL https://github.com/nwchemgit/nwchem/release
             && sed -i 's|-msse3||' config/makefile.h  \
             && ls -lrt  \
             &&  make nwchem_config  \
-            &&  make -j3
+            &&  make -j3 \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm ../lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc
 
 #WORKDIR     /home/nwchem/nwchem-7.0.0/QA
 #ENTRYPOINT  ["runtests.mpi.unix","procs","3"]
