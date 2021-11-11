@@ -28,6 +28,9 @@ jobs:
           nwchem-700.amazonlinux.sockets: 'nwchem-700.amazonlinux.sockets/*'
           nwchem-dev: 'nwchem-dev/*'
           builddebs.buster: 'builddebs.buster/*'
+    - name: cleanup_nochange
+      if: steps.filter.outputs.changes == '[]'
+      run: echo "no change detected"
   init:
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +44,7 @@ jobs:
         (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule')
     strategy:
         matrix:
-          folder: ${{ fromJSON(needs.changes.outputs.folders) }}
+          folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -54,6 +57,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build_filter
+        if: ${{ matrix.folder  != 'helloworld' }}
         uses: docker/build-push-action@v2
         with:
           push: ${{ github.actor == github.repository_owner }}
