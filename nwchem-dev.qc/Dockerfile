@@ -16,7 +16,6 @@ ENV  NWCHEM_TOP="/opt/nwchem" \
      ARMCI_NETWORK=MPI-PR \
      ARMCI_DEFAULT_SHMMAX_UBOUND=65536 \
      INTEL_64ALIGN=1 \
-     USE_OPENMP=n \
      NWCHEM_MODULES="all python" \
      USE_INTERNALBLAS=y \
      BLAS_SIZE=8 \
