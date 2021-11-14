@@ -1,14 +1,12 @@
 FROM ubuntu:20.04
-LABEL maintainer="Letícia Maria Pequeno Madureira <leticia.maria@grad.ufsc.br>"
+MAINTAINER Letícia Maria Pequeno Madureira <leticia.maria@grad.ufsc.br>
 # --- NWChem docker build with MPI suppport ---
 # --- Setting arguments ---
 ARG NAME=nwchem-7.0.0
 ARG PREFIX=/opt
-ARG USER=leticia
-# ARG USER = nwchem
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ=America/Sao_Paulo
-USER root 
+
 WORKDIR $PREFIX
 RUN apt update && \
 # --- Installing utilitaries and dependencies ---
@@ -28,8 +26,7 @@ RUN apt update && \
     apt-get install -y file && \
     apt-get install -y python3 && \
     apt-get install -y python3-dev && \
-    apt install --yes vim && \
-    apt install --yes htop 
+    apt-get clean
 # --- Defining previous installation parameters ---    
 ENV ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem-7.0.0" \
     NWCHEM_TARGET=LINUX64 \
@@ -50,7 +47,7 @@ RUN curl -SL https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-releas
     make nwchem_config && \
     make -j3  && \
 # --- Cleaning apt-cache ---
-    rm -rf /var/lib/apt/lists/* && \
-USER $USER
-WORKDIR /home/$USER
-CMD ["tail", "-f", "/dev/null"]
+    rm -rf /var/lib/apt/lists/* 
+    
+WORKDIR /data
+CMD ["mpirun", "-np", "3", "nwchem"]
