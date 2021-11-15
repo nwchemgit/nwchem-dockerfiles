@@ -41,6 +41,8 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
 	    USE_HWOPT=n \
+	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
+	    OMP_NUM_THREADS=1 \
             PATH=$PATH:/opt/nwchem/bin
 #get NWCHEM_TARGET
 SHELL ["/bin/bash","-c"]
@@ -75,7 +77,7 @@ RUN         apt-get update \
             && make nwchem_config    && make V=-1 -j3 \
 # QA tests
             && cd .. \
-            &&  if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
+            && SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh \
 	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
