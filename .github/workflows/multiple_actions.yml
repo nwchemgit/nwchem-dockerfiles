@@ -38,7 +38,7 @@ jobs:
     strategy:
         matrix:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}"]
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           include:
             - folder: helloworld
               archs: linux/amd64
@@ -83,7 +83,7 @@ jobs:
         matrix:
           fld_schedule:
             - nwchem-dev
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
