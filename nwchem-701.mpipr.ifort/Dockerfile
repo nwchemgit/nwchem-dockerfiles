@@ -30,15 +30,17 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem-$nwchem_hash" \
             USE_MPIF4=y 
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  gfortran   make ssh patch curl subversion wget unzip perl git file python3 python3-dev gnupg2 software-properties-common \
+            && apt-get install -y  gfortran   make ssh patch curl wget unzip perl  file python3 python3-dev tar zip bzip2 gnupg2 software-properties-common \
             && cd /tmp  \
-            && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB \
-            && apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB  \
-            && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB  \
+            && wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+            && apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+            && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
             && echo "deb https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list \
             && add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" \
-            && apt-get update \
-            && apt install -y intel-oneapi-ifort intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
+            && tries=0 ; until [ "$tries" -ge 10 ] ; do \
+               apt-get update \
+            && apt install -y intel-oneapi-ifort intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic && break ;\
+               tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
             && apt-get clean \
             && cd /opt;curl -SL     https://github.com/nwchemgit/nwchem/archive/$nwchem_hash.tar.gz | tar xzf - \
 	    &&  source /opt/intel/oneapi/mpi/latest/env/vars.sh \
@@ -53,9 +55,10 @@ RUN         apt-get update \
             && sed -i 's|-msse3||' config/makefile.h  \
             && make nwchem_config && make FC=ifort -j3 \
 	  #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib ../../QA \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib ../../QA libext develop ../contrib ../examples ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
 #clean unnecessary packages
-         && apt-get -y purge  make curl subversion  unzip cmake perl tcsh intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-tbb-devel intel-oneapi-tbb &&  apt-get -y autoremove && apt -y install intel-oneapi-mkl && apt-get clean
+         && apt-get -y purge  make curl subversion  unzip cmake perl intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic intel-oneapi-tbb-devel intel-oneapi-tbb intel-oneapi-mpi-devel  intel-oneapi-dpcpp-debugger-eclipse-cfg gnupg2 &&  apt-get -y autoremove && apt -y install intel-oneapi-mkl && apt-get clean \
+         && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
