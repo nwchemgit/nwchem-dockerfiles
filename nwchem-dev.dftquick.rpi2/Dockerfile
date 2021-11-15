@@ -17,15 +17,14 @@ ENV 	    DEBIAN_FRONTEND=noninteractive \
             NWCHEM_TOP="/home/nwchem/nwchem-master" \
             NWCHEM_TARGET=LINUX \
             NWCHEM_MODULES="nwdft solvation driver stepper" \
-            PYTHONVERSION=2.7 \
-            PYTHONHOME="/usr" \
-            USE_PYTHONCONFIG=Y \
             BLASOPT=-lopenblas \
             LAPACK_LIB=-lopenblas \
             BLAS_SIZE=4 \
             FORCETARGET=" TARGET=ARMV7 " \
             USE_MPI=y \
             USE_MPIF=y \
+	    USE_HWOPT=n \
+	    USE_NOIO=y \
             USE_MPIF4=y
 RUN         uname -m \
 	    && apt-get update \
@@ -39,10 +38,6 @@ RUN         uname -m \
             && unzip -qq  master.zip  nwchem-master/src/* \
 	    && rm -f *.zip || true \
             && cd nwchem-master/src \
-            && sed -i 's|-march=native||' config/makefile.h \
-            && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
-            && sed -i 's|-mfpmath=sse||' config/makefile.h \
-            && sed -i 's|-msse3||' config/makefile.h  \
             && ls -lrt  \
             &&  make nwchem_config  \
             &&  make V=1 -j3 \

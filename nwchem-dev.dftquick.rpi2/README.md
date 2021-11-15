@@ -38,5 +38,5 @@ This must be executed on Raspberry Pi2 (or ARMV7l and later) Hardware
 ```
 wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/src/nwchem.nw
 
-docker run --rm -v /home/edo/nwchem/tests:/data my_nwchem nwchem.nw
+docker run --rm -v /home/edo/nwchem/tests:/data my_nwchem --entrypoint='/home/nwchem/nwchem-master/bin/LINUX/nwchem' nwchem.nw
 ```
