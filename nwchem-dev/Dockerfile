@@ -12,20 +12,20 @@
 #docker pause <container ID>
 #docker unpause <container ID>
 
-FROM        debian
+FROM        ubuntu
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
+ARG DEBIAN_FRONTEND=noninteractive
+ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ENV         NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_TARGET=LINUX64  \
             NWCHEM_MODULES="all python"  \
             ARMCI_NETWORK=MPI-PT  \
-            USE_OPENMP=y  \
+            USE_OPENMP=1  \
             USE_NOIO=y  \
             USE_MPI=y  \
             USE_MPIF=y  \
             USE_MPIF4=y  \
-            NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem \
             NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/ \
             NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/  \
             FFIELD=amber  \
@@ -41,22 +41,44 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
 	    USE_HWOPT=n \
-            PATH=$PATH:/opt/nwchem/bin/LINUX64 
+            PATH=$PATH:/opt/nwchem/bin
+#get NWCHEM_TARGET
+SHELL ["/bin/bash","-c"]
+RUN arch=`uname -m` ; if [[ $arch == "x86_64" ]] || [[ $arch == "aarch64" ]] || [[ $arch == "riscv64" ]] || [[ $arch == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi
+RUN arch=`uname -m` ; arch_123=`uname -m|cut -c 1-3`; if [[ $arch == "i686" ]] || [[ $arch == "i386" ]] || [[ $arch_123 == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi
+RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 
 #one single ugly command to reduce docker size
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
+#            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
+            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2\
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
-            && make nwchem_config    && make -j3 \
+#set NWCHEM_TARGET
+            &&  . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET \
+#fix openblas cross-compilation
+            && arch=`uname -m` \
+            && arch3=`uname -m|cut -c 1-3` \
+            && arch5=`uname -m|cut -c 1-5` \
+	    && if [[ $arch == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
+	    && if [[ $arch == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
+	    && if [[ $arch == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
+	    && if [[ $arch5 == "armv6" ]]; then export FORCETARGET=" TARGET=ARMV6 "; fi \
+	    && if [[ $arch5 == "armv7" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
+# _SIZE=4 and openblas pkg for 32bit archs
+	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi \
+# smaller build on qemu emulated archs
+	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
+            && make nwchem_config    && make V=-1 -j3 \
 # QA tests
             && cd .. \
-            && SKIP_CACHE=1 NWCHEM_EXECUTABLE=`pwd`/bin/LINUX64/nwchem ./travis/run_qas.sh \
+            &&  if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
 	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
-	    && strip ../bin/LINUX64/nwchem \
+	    && strip ../bin/$NWCHEM_TARGET/nwchem \
+	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
 #clean unnecessary packages
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
 	    && echo MANDELETE >  /etc/locale.nopurge \
@@ -64,7 +86,9 @@ RUN         apt-get update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu67 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-10-dev libmpich-dev &&  apt-get -y autoremove && apt-get clean \
+            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libopenmpi-dev perl &&  apt-get -y autoremove && apt-get -y install libopenmpi3 && apt-get clean \
+#            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libmpich-dev  &&  apt-get -y autoremove && apt-get clean \
+           && if [[ $NWCHEM_TARGET == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
