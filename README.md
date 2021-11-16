@@ -14,8 +14,9 @@ https://nwchemgit.github.io/
 
 ```
 cd /tmp
+
 wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/QA/tests/libxc_waterdimer_bmk/libxc_waterdimer_bmk.nw
-docker run -dv /tmp:/data ghcr.io/nwchemgit/nwchem-dev/amd64 libxc_waterdimer_bmk.nw
+
 docker run --rm -v /tmp:/data ghcr.io/nwchemgit/nwchem-dev/amd64 libxc_waterdimer_bmk.nw
 ```
 
