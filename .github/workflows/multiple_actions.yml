@@ -36,12 +36,14 @@ jobs:
     if: |
         (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule')
     strategy:
+        fail-fast: false
         matrix:
-          folder: ["${{ fromJSON(needs.changes.outputs.folders) }}"]
+          folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
-          include:
-            - folder: helloworld
-              archs: linux/amd64
+          exclude:
+            - {folder: helloworld, archs: linux/arm64}
+            - {folder: helloworld, archs: linux/ppc64le}
+            - {folder: helloworld, archs: linux/arm/v7}
 #            - folder: nwchem-701.mpipr.ifort
 #              archs: linux/amd64
 
