@@ -42,8 +42,8 @@ jobs:
           include:
             - folder: helloworld
               archs: linux/amd64
-            - folder: nwchem-701.mpipr.ifort
-              archs: linux/amd64
+#            - folder: nwchem-701.mpipr.ifort
+#              archs: linux/amd64
 
     runs-on: ubuntu-latest
     steps:

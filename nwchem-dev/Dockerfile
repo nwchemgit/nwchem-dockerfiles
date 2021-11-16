@@ -41,6 +41,8 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
 	    USE_HWOPT=n \
+	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
+	    OMP_NUM_THREADS=1 \
             PATH=$PATH:/opt/nwchem/bin
 #get NWCHEM_TARGET
 SHELL ["/bin/bash","-c"]
@@ -70,10 +72,13 @@ RUN         apt-get update \
 	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi \
 # smaller build on qemu emulated archs
 	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
+# compile libxc for amd64
+	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && make nwchem_config    && make V=-1 -j3 \
 # QA tests
             && cd .. \
-            &&  if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
+            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
 	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
