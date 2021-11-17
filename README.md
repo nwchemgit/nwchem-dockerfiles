@@ -7,9 +7,9 @@ https://nwchemgit.github.io/
 ## USAGE SYNTAX
 
 ```
- docker run --rm -v [host_system_dir]:/data ghcr.io/nwchemgit/nwchem-dev/amd64 input.nw
+ docker run --rm -v [host_system_dir]:/data ghcr.io/nwchemgit/nwchem-dev/[arch] input.nw
 ```
-
+where the `[arch]` option can have the values `amd64`, `arm64`, `ppc64le` or `armv7`
 ## EXAMPLE
 
 ```
