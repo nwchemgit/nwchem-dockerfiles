@@ -23,9 +23,7 @@ jobs:
       id: filter
       with:
         filters: |
-          nwchem-700.fedora.sockets: 'nwchem-700.fedora.sockets/*'
           nwchem-700.mpipr: 'nwchem-700.mpipr/*'
-          nwchem-700.amazonlinux.sockets: 'nwchem-700.amazonlinux.sockets/*'
           nwchem-dev: 'nwchem-dev/*'
           builddebs.buster: 'builddebs.buster/*'
     - name: cleanup_nochange
@@ -79,11 +77,26 @@ jobs:
           context: ${{ matrix.folder }}
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
+      - name: load and test image
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )
+        run: |
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
+          cd /tmp
+          umask u=rwx,g=rwx,o=rwx
+          umask -S
+          svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
+          cd QA
+          if [[ ${{ matrix.folder }} != 'helloworld' ]]; then \
+          docker run --rm -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
+          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
+          dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
+          fi
+
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
     strategy:
         matrix:
-          fld_schedule:
+          folder:
             - nwchem-dev
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
     runs-on: ubuntu-latest
@@ -115,6 +128,20 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: ${{ github.actor == github.repository_owner }}
-          context: ${{ matrix.fld_schedule }}
+          context: ${{ matrix.folder }}
           platforms: ${{ matrix.archs }}
-          tags: ghcr.io/${{ github.actor }}/${{ matrix.fld_schedule }}/${{ steps.get-arch.outputs.arch }}:latest
+          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
+      - name: load and test image
+        if: ${{ github.actor == github.repository_owner }}
+        run: |
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
+          cd /tmp
+          umask u=rwx,g=rwx,o=rwx
+          umask -S
+          svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
+          cd QA
+          if [[ ${{ matrix.folder }} != 'helloworld' ]]; then \
+          docker run --rm -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
+          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
+          dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
+          fi
