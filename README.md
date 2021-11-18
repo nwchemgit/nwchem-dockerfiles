@@ -9,8 +9,8 @@ https://nwchemgit.github.io/
 ```
  docker run --rm -v [host_system_dir]:/data ghcr.io/nwchemgit/nwchem-dev/[arch] input.nw
 ```
-where the `[arch]` option can have the values `amd64`, `arm64`, `ppc64le` or `armv7`
-## EXAMPLE
+where the `[arch]` option can have the values `amd64`, `arm64`, `ppc64le` or `armv7`  
+## EXAMPLES
 
 ```
 cd /tmp
@@ -18,7 +18,7 @@ cd /tmp
 wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/QA/tests/dft_he2+/dft_he2+.nw
 docker run --rm -v /tmp:/data ghcr.io/nwchemgit/nwchem-dev/amd64 dft_he2+.nw
 ```
-Example of parallel run
+Example of parallel run  
 
 ```
 docker run --rm  --entrypoint='/usr/bin/mpirun' \
