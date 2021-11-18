@@ -15,13 +15,14 @@ where the `[arch]` option can have the values `amd64`, `arm64`, `ppc64le` or `ar
 ```
 cd /tmp
 
-wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/QA/tests/libxc_waterdimer_bmk/libxc_waterdimer_bmk.nw
-
-docker run --rm -v /tmp:/data ghcr.io/nwchemgit/nwchem-dev/amd64 libxc_waterdimer_bmk.nw
-
+wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/QA/tests/dft_he2+/dft_he2+.nw
+docker run --rm -v /tmp:/data ghcr.io/nwchemgit/nwchem-dev/amd64 dft_he2+.nw
+```
 Example of parallel run
 
 ```
-docker run --rm  --entrypoint='/usr/bin/mpirun' -v /tmp:/data ghcr.io/nwchemgit/nwchem-700.mpipr -np 3 nwchem dft_siosi3.nw
+docker run --rm  --entrypoint='/usr/bin/mpirun' \
+-v /tmp:/data ghcr.io/nwchemgit/nwchem-700.mpipr \
+-np 3 nwchem dft_siosi3.nw
 ```
 
