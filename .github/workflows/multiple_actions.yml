@@ -42,6 +42,8 @@ jobs:
             - {folder: helloworld, archs: linux/arm64}
             - {folder: helloworld, archs: linux/ppc64le}
             - {folder: helloworld, archs: linux/arm/v7}
+            - folder: nwchem-dev.xlf
+              archs: linux/ppc64le
 #            - folder: nwchem-701.mpipr.ifort
 #              archs: linux/amd64
 
