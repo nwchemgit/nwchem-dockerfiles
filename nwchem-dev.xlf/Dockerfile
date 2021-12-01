@@ -1,8 +1,27 @@
 #FROM --platform=linux/ppc64le ibmcom/xlf-ce as builder
-FROM ibmcom/xlf-ce 
+FROM ppc64le/ubuntu:bionic
+ENV XLF_REPO_URL https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le
+ENV XLF_REPO_KEY_SHA256SUM e0eba411ed1cbf48fdab9e03dfc159a280bd728e716dd408ef321e42ac3ae552
+ENV XLF_VRM 16.1.1
+
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+RUN apt-get update && apt-get install -y wget gpg && \
+  wget -q "$XLF_REPO_URL/ubuntu/public.gpg" && \
+  apt-get purge -y --auto-remove wget && \
+  echo "$XLF_REPO_KEY_SHA256SUM public.gpg"| sha256sum -c - && \
+  apt-key add public.gpg && \
+  rm public.gpg && \
+  echo "deb $XLF_REPO_URL/ubuntu/ xenial main" > /etc/apt/sources.list.d/ibm-xl-compiler.list && \
+  apt-get update && apt-get install -y \
+    "xlf.$XLF_VRM" \
+    "xlf-license-community.$XLF_VRM" && \
+    rm -f /tmp/in.txt  && \
+    echo 1 > /tmp/in.txt && \
+   /opt/ibm/xlf/$XLF_VRM/bin/xlf_configure </tmp/in.txt 
+
 ENV LICENSE=accept \
+MPICH_FC=xlf \
          NWCHEM_TOP="/opt/nwchem" \
             NWCHEM_MODULES="all python"  \
             ARMCI_NETWORK=MPI-PT  \
@@ -39,9 +58,10 @@ RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 RUN         apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
-            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 \
-	    &&  apt-get install -y gccgo-6 \
+#            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 \
+            && apt-get install -y  python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+	    && xlf -qversion \
             && cd nwchem/src \
 #set NWCHEM_TARGET
             &&  . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET \
@@ -60,7 +80,7 @@ RUN         apt-get update \
 	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
-            && make nwchem_config    && make FC=xlf CC=gcc-6  V=1 -j3 \
+            && make nwchem_config    && make FC=xlf CC=gcc  V=1 -j3 \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
