@@ -80,7 +80,7 @@ jobs:
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
       - name: load and test image
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
           docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
@@ -88,7 +88,7 @@ jobs:
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7'  ]] && [[ ${{ matrix.folders }} != 'nwchem-dev.xlf'  ]] ; then \
+          if [[ ${{ matrix.archs }} != 'linux/arm/v7' ]]; then \
           docker run --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
@@ -138,7 +138,7 @@ jobs:
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
       - name: load and test image
-        if: ${{ github.actor == github.repository_owner }}
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
           docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
@@ -146,7 +146,7 @@ jobs:
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7'  ]] && [[ ${{ matrix.folders }} != 'nwchem-dev.xlf'  ]] ; then \
+          if [[ ${{ matrix.archs }} != 'linux/arm/v7'  ]]; then \
           docker run --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
