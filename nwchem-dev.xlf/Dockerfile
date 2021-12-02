@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y wget gpg && \
 ENV LICENSE=accept \
 MPICH_FC=xlf \
          NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_MODULES="all python"  \
+            NWCHEM_MODULES="nwdft driver solvation property vib python"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_NOIO=y  \
             USE_MPI=y  \
@@ -81,10 +81,10 @@ RUN         apt-get update \
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && make nwchem_config    && make FC=xlf CC=gcc  V=-1 -j2 \
 # QA tests
-            && cd .. \
-            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
-	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
-	    && cd src \
+#            && cd .. \
+#            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+#	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
+#	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
@@ -96,8 +96,7 @@ RUN         apt-get update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libopenmpi-dev perl &&  apt-get -y autoremove && apt-get -y install libopenmpi3 && apt-get clean \
-#            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libmpich-dev  &&  apt-get -y autoremove && apt-get clean \
+            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins  manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++   perl || true &&  apt-get -y autoremove && apt-get clean \
            && if [[ $NWCHEM_TARGET == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
