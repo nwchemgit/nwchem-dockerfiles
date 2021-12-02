@@ -80,7 +80,7 @@ RUN         apt-get update \
 	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
-            && make nwchem_config    && make FC=xlf CC=gcc  V=1 -j3 \
+            && make nwchem_config    && make FC=xlf CC=gcc  V=-1 -j2 \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
