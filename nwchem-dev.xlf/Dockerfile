@@ -25,7 +25,6 @@ MPICH_FC=xlf \
          NWCHEM_TOP="/opt/nwchem" \
             NWCHEM_MODULES="all python"  \
             ARMCI_NETWORK=MPI-PT  \
-            USE_OPENMP=1  \
             USE_NOIO=y  \
             USE_MPI=y  \
             USE_MPIF=y  \
