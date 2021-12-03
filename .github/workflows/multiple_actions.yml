@@ -117,7 +117,7 @@ jobs:
       - name: store cache
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
         run: |
-            docker run  --rm  --entrypoint='/bin/cp' -v ~/cache:/data -it ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} -rp /opt/nwchem/src/libext /data/.
+            docker run  --rm  --entrypoint='/bin/cp' -v ~/cache:/data ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} -rp /opt/nwchem/src/libext /data/.
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
 
