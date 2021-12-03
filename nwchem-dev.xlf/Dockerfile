@@ -96,7 +96,7 @@ RUN         apt-get update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins  manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge g++ libxlf-devel libstdc++-7-dev perl libpython3.6-dev  libgcc-7-dev || true &&  && apt-get clean \
+            && apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins  manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge g++ libxlf-devel libstdc++-7-dev perl libpython3.6-dev  libgcc-7-dev || true &&  apt-get clean \
            && if [[ $NWCHEM_TARGET == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
