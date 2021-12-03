@@ -48,9 +48,17 @@ jobs:
 #              archs: linux/amd64
 
     runs-on: ubuntu-latest
+    timeout-minutes: 420
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v000
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -71,6 +79,18 @@ jobs:
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
+      - name: fetch cache
+        if: steps.setup-cache.outputs.cache-hit == 'true'
+        run: |
+          cd ${{ matrix.folder }}
+          ls -lrta
+          if [[ -f ~/cache/libext/lib/libnwc_openblas.a ]]; then \
+          echo "libext cache present" ; \
+          mkdir -p cache|| true ; \
+          [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
+          ls -l cache/libext/lib ; \
+          echo "libext cache fetched" ; \
+          fi
       - name: build_filter
         if: ${{ matrix.folder  != 'helloworld' }}
         uses: docker/build-push-action@v2
@@ -94,6 +114,12 @@ jobs:
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
           dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
           fi
+      - name: store cache
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
+        run: |
+            docker run  --rm  --entrypoint='/bin/cp' -v ~/cache:/data -it ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} -rp /opt/nwchem/src/libext /data/.
+            ls -lrt ~/cache || true
+            ls -lrta ~/cache/libext || true
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -106,6 +132,7 @@ jobs:
           include:
             - {folder: nwchem-dev.xlf, archs: linux/ppc64le}
     runs-on: ubuntu-latest
+    timeout-minutes: 420
     steps:
       - name: Checkout
         uses: actions/checkout@v2
