@@ -80,7 +80,7 @@ jobs:
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
       - name: fetch cache
-        if: steps.setup-cache.outputs.cache-hit == 'true'
+        if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
         run: |
           cd ${{ matrix.folder }}
           ls -lrta
