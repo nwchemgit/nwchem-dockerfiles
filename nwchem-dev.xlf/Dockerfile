@@ -83,7 +83,7 @@ RUN         apt-get update \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
 # cache
-            && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi
+            && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
             && make nwchem_config    && make FC=xlf CC=gcc  V=-1 -j2 \
 # QA tests
 #            && cd .. \
