@@ -16,6 +16,9 @@ FROM        ubuntu
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
+#caching from host cache dir
+COPY Dockerfile cache* /tmp/
+
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ENV         NWCHEM_TOP="/opt/nwchem" \
@@ -54,7 +57,7 @@ RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 RUN         apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
-            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2\
+            && apt-get install -y  rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2\
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #set NWCHEM_TARGET
@@ -74,6 +77,7 @@ RUN         apt-get update \
 	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
+            && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
             && make nwchem_config    && make V=-1 -j3 \
 # QA tests
             && cd .. \
