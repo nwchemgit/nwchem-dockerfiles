@@ -3,7 +3,7 @@ FROM ppc64le/ubuntu:bionic
 ENV XLF_REPO_URL https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le
 ENV XLF_REPO_KEY_SHA256SUM e0eba411ed1cbf48fdab9e03dfc159a280bd728e716dd408ef321e42ac3ae552
 ENV XLF_VRM 16.1.1
-#caching
+#caching from host cache dir
 COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
