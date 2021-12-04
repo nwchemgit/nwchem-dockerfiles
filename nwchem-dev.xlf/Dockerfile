@@ -61,7 +61,7 @@ RUN         apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
 #            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 \
-            && apt-get install -y  python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 \
+            && apt-get install -y  rsync python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
 	    && xlf -qversion \
             && cd nwchem/src \
