@@ -8,9 +8,6 @@
 #this command return container ID to read logs by
 #docker logs <container ID>
 #
-#It is possible to pause execution, and then continue.
-#docker pause <container ID>
-#docker unpause <container ID>
 
 FROM        ubuntu
 
