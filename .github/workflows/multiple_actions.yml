@@ -38,6 +38,8 @@ jobs:
         matrix:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          include:
+            - {folder: nwchem-dev.xlf, archs: linux/ppc64le}
           exclude:
             - {folder: helloworld, archs: linux/arm64}
             - {folder: helloworld, archs: linux/ppc64le}
@@ -46,9 +48,17 @@ jobs:
 #              archs: linux/amd64
 
     runs-on: ubuntu-latest
+    timeout-minutes: 420
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v000
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -69,6 +79,18 @@ jobs:
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
+      - name: fetch cache
+        if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
+        run: |
+          cd ${{ matrix.folder }}
+          ls -lrta
+          if [[ -f ~/cache/libext/lib/libnwc_openblas.a ]]; then \
+          echo "libext cache present" ; \
+          mkdir -p cache|| true ; \
+          [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
+          ls -l cache/libext/lib ; \
+          echo "libext cache fetched" ; \
+          fi
       - name: build_filter
         if: ${{ matrix.folder  != 'helloworld' }}
         uses: docker/build-push-action@v2
@@ -78,7 +100,7 @@ jobs:
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
       - name: load and test image
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
           docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
@@ -86,12 +108,23 @@ jobs:
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7' ]] ; then \
+          if [[ ${{ matrix.archs }} != 'linux/arm/v7' ]]; then \
           docker run --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
           dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
           fi
+      - name: store cache
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
+        run: |
+            mkdir -p ~/cache
+            ls -lrt ~/cache
+            docker run  --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext /data/.
+            ls -lrt ~/cache || true
+            ls -lrta ~/cache/libext || true
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -101,10 +134,20 @@ jobs:
           folder:
             - nwchem-dev
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          include:
+            - {folder: nwchem-dev.xlf, archs: linux/ppc64le}
     runs-on: ubuntu-latest
+    timeout-minutes: 420
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v000
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -126,6 +169,18 @@ jobs:
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
+      - name: fetch cache
+        if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
+        run: |
+          cd ${{ matrix.folder }}
+          ls -lrta
+          if [[ -f ~/cache/libext/lib/libnwc_openblas.a ]]; then \
+          echo "libext cache present" ; \
+          mkdir -p cache|| true ; \
+          [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
+          ls -l cache/libext/lib ; \
+          echo "libext cache fetched" ; \
+          fi
       - name: build_schedule
         uses: docker/build-push-action@v2
         with:
@@ -134,7 +189,7 @@ jobs:
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
       - name: load and test image
-        if: ${{ github.actor == github.repository_owner }}
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
           docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
@@ -142,9 +197,20 @@ jobs:
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7'  ]] ; then \
+          if [[ ${{ matrix.archs }} != 'linux/arm/v7'  ]]; then \
           docker run --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
           dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
           fi
+      - name: store cache
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
+        run: |
+            mkdir -p ~/cache
+            ls -lrt ~/cache
+            docker run  --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext /data/.
+            ls -lrt ~/cache || true
+            ls -lrta ~/cache/libext || true

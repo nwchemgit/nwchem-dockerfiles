@@ -1,27 +1,33 @@
-#based on earlier work by Vladim Konjkov <Konjkov.VV@gmail.com>
-#
-# Create the image with the command
-# docker build -t nwchem-dev .
-# 
-#after successful build one should run container to calculate input.nw file placed in <host_system_dir>
-#docker run -dv <host_system_dir>:/data nwchem-dev "input.nw"
-#this command return container ID to read logs by
-#docker logs <container ID>
-#
-
-FROM        ubuntu
-
-MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
-
+#FROM --platform=linux/ppc64le ibmcom/xlf-ce as builder
+FROM ppc64le/ubuntu:bionic
+ENV XLF_REPO_URL https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le
+ENV XLF_REPO_KEY_SHA256SUM e0eba411ed1cbf48fdab9e03dfc159a280bd728e716dd408ef321e42ac3ae552
+ENV XLF_VRM 16.1.1
 #caching from host cache dir
 COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-ENV         NWCHEM_TOP="/opt/nwchem" \
+RUN ls -lrta /tmp && \
+  apt-get update && apt-get install -y wget gpg && \
+  wget -q "$XLF_REPO_URL/ubuntu/public.gpg" && \
+  apt-get purge -y --auto-remove wget && \
+  echo "$XLF_REPO_KEY_SHA256SUM public.gpg"| sha256sum -c - && \
+  apt-key add public.gpg && \
+  rm public.gpg && \
+  echo "deb $XLF_REPO_URL/ubuntu/ xenial main" > /etc/apt/sources.list.d/ibm-xl-compiler.list && \
+  apt-get update && apt-get install -y \
+    "xlf.$XLF_VRM" \
+    "xlf-license-community.$XLF_VRM" && \
+    rm -f /tmp/in.txt  && \
+    echo 1 > /tmp/in.txt && \
+   /opt/ibm/xlf/$XLF_VRM/bin/xlf_configure </tmp/in.txt 
+
+ENV LICENSE=accept \
+MPICH_FC=xlf \
+         NWCHEM_TOP="/opt/nwchem" \
             NWCHEM_MODULES="all python"  \
             ARMCI_NETWORK=MPI-PT  \
-            USE_OPENMP=1  \
             USE_NOIO=y  \
             USE_MPI=y  \
             USE_MPIF=y  \
@@ -54,8 +60,10 @@ RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 RUN         apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
-            && apt-get install -y  rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2\
+#            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 \
+            && apt-get install -y  rsync python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+	    && xlf -qversion \
             && cd nwchem/src \
 #set NWCHEM_TARGET
             &&  . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET \
@@ -74,13 +82,14 @@ RUN         apt-get update \
 	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
+# cache
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
-            && make nwchem_config    && make V=-1 -j3 \
+            && make nwchem_config    && make FC=xlf CC=gcc  V=-1 -j2 \
 # QA tests
-            && cd .. \
-            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
-	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
-	    && cd src \
+#            && cd .. \
+#            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+#	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
+#	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
@@ -92,8 +101,7 @@ RUN         apt-get update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libopenmpi-dev perl &&  apt-get -y autoremove && apt-get -y install libopenmpi3 && apt-get clean \
-#            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libmpich-dev  &&  apt-get -y autoremove && apt-get clean \
+            && apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins  manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge g++  libstdc++-7-dev perl libpython3.6-dev  libgcc-7-dev libicu60 locales libperl5.26 cpp-7 libc6-dev perl-modules-5.26 linux-libc-dev || true &&  apt-get clean \
            && if [[ $NWCHEM_TARGET == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
