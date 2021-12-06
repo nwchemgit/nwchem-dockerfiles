@@ -67,7 +67,7 @@ you can execute the following commands
 
 ### EXAMPLES using the ghcr.io image
 
-You can the ghcr.io image with the command  
+You can pull the image from the ghcr.io GitHub Container Registry with the command  
   
 `docker pull ghcr.io/nwchemgit/nwchem-dev/`*arch*`:latest`
   
