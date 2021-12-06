@@ -77,15 +77,20 @@ were *arch* corresponds to the hardware platform on the host. The following *arc
 * armv7
 * ppc64le
 
-You can execute the following commands
+You can execute the following command  to run NWChem on a single process
 
 ```
  docker run --rm -v /home/edo/nwchem/tests:/data ghcr.io/nwchemgit/nwchem-dev/amd64:latest xvdw.nw
 ```
+  
+You can execute the following command  to run NWChem in paralell using three processes 
  
 ``` 
  docker run --rm -e OMP_NUM_THREADS=1 -v /tmp:/data  --entrypoint='/usr/bin/mpirun'  ghcr.io/nwchemgit/nwchem-dev/amd64:latest -np 2 nwchem small.nw
 ```
+
+
+You can execute the following command  to access the image and open a bash shell
  
 ``` 
  docker run  --rm  --entrypoint='/bin/bash' -v /home/edo/nwchem/tests:/data -it ghcr.io/nwchemgit/nwchem-dev/amd64:latest
