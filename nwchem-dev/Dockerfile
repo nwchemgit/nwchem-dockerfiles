@@ -41,6 +41,7 @@ ENV         FFIELD=amber  \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
+	    COMEX_MAX_NB_OUTSTANDING=16 \
             PATH=$PATH:/opt/nwchem/bin
 #get NWCHEM_TARGET
 SHELL ["/bin/bash","-c"]
