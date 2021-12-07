@@ -18,17 +18,20 @@ COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-ENV         NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_MODULES="all python"  \
+ENV         NWCHEM_TOP="/opt/nwchem" 
+ARG         NWCHEM_MODULES="all python"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
             USE_MPI=y  \
             USE_MPIF=y  \
             USE_MPIF4=y  \
-            NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/ \
-            NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/  \
-            FFIELD=amber  \
+	    BUILD_OPENBLAS=1 \
+	    BUILD_SCALAPACK=1 \
+	    BLAS_SIZE=8 \
+	    SCALAPACK_SIZE=8 \
+	    USE_HWOPT=n 
+ENV         FFIELD=amber  \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/  \
             AMBER_3=${NWCHEM_TOP}/src/data/amber_x/  \
@@ -36,11 +39,6 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
             SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst  \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/  \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
-	    BUILD_OPENBLAS=1 \
-	    BUILD_SCALAPACK=1 \
-	    BLAS_SIZE=8 \
-	    SCALAPACK_SIZE=8 \
-	    USE_HWOPT=n \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
             PATH=$PATH:/opt/nwchem/bin
@@ -82,7 +80,7 @@ RUN         apt-get update \
 	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
 	    && cd src \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libexc/libxc/libxc* || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
 #clean unnecessary packages
