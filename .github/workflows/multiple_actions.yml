@@ -90,6 +90,9 @@ jobs:
           [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
           ls -l cache/libext/lib ; \
           echo "libext cache fetched" ; \
+          ls -l cache/libext/ ; \
+          ls -l cache/libext/libxc ; \
+          echo "======" ; \
           fi
       - name: build_filter
         if: ${{ matrix.folder  != 'helloworld' }}
