@@ -58,7 +58,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v001
+          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v002
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -180,8 +180,10 @@ jobs:
           mkdir -p cache|| true ; \
           [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
           ls -l cache/libext/lib ; \
-          ls -l cache/libext/libxc ; \
           echo "libext cache fetched" ; \
+          ls -l cache/libext/ ; \
+          ls -l cache/libext/libxc ; \
+          echo "======" ; \
           fi
       - name: build_schedule
         uses: docker/build-push-action@v2
