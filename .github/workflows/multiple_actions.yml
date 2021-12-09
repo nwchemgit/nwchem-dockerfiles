@@ -151,7 +151,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v002
+          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v003
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
