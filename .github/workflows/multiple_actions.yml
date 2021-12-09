@@ -58,7 +58,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v000
+          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v002
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -90,6 +90,9 @@ jobs:
           [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
           ls -l cache/libext/lib ; \
           echo "libext cache fetched" ; \
+          ls -l cache/libext/ ; \
+          ls -l cache/libext/libxc ; \
+          echo "======" ; \
           fi
       - name: build_filter
         if: ${{ matrix.folder  != 'helloworld' }}
@@ -125,6 +128,7 @@ jobs:
             -rp /opt/nwchem/src/libext /data/.
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
+            ls -lrta ~/cache/libext/libxc || true
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -147,7 +151,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v000
+          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v002
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -180,6 +184,9 @@ jobs:
           [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
           ls -l cache/libext/lib ; \
           echo "libext cache fetched" ; \
+          ls -l cache/libext/ ; \
+          ls -l cache/libext/libxc ; \
+          echo "======" ; \
           fi
       - name: build_schedule
         uses: docker/build-push-action@v2
