@@ -12,7 +12,7 @@ jobs:
         fail-fast: false
         matrix:
           folder:
-            - nwchem-dev-qc
+            - nwchem-dev.qc
           archs: [linux/amd6]
     runs-on: ubuntu-latest
     timeout-minutes: 420
