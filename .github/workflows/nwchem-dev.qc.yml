@@ -13,7 +13,7 @@ jobs:
         matrix:
           folder:
             - nwchem-dev.qc
-          archs: [linux/amd6]
+          archs: [linux/amd64]
     runs-on: ubuntu-18.04
     timeout-minutes: 420
     steps:
