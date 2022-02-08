@@ -61,7 +61,7 @@ RUN         apt-get update \
 	    && echo arch is $arch \
 	    && if [[ $arch == "aarch64" ]]; then arch_cpu="arm64"; fi \
 	    && if [[ $arch == "x86_64" ]]; then arch_cpu="amd64"; fi \
-	    &&  if [[ $FC == "nvfortran" ]]; then wget https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-22-1_22.1_$arch_cpu.deb https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-2022_22.1_$arch_cpu.deb ; sudo dpkg -i nvhpc*deb ; fi \
+	    &&  if [[ $FC == "nvfortran" ]]; then wget https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-22-1_22.1_$arch_cpu.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-2022_22.1_$arch_cpu.deb >&  log2 ; tail -2 log1 log2; ls -lrt nv*deb; sudo dpkg -i nvhpc*deb ; fi \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #set NWCHEM_TARGET
