@@ -57,6 +57,8 @@ RUN         apt-get update \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
             && apt-get install -y  rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2\
 	    && echo FCFCFC is $FC \
+	    && arch=`uname -m` \
+	    && echo arch is $arch \
 	    && if [[ $arch == "aarch64" ]]; then arch_cpu="arm64"; fi \
 	    && if [[ $arch == "x86_64" ]]; then arch_cpu="amd64"; fi \
 	    &&  if [[ $FC == "nvfortran" ]]; then wget https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-22-1_22.1_$arch_cpu.deb https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-2022_22.1_$arch_cpu.deb ; sudo dpkg -i nvhpc*deb ; fi \
