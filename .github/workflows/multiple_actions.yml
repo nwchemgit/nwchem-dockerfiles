@@ -148,6 +148,8 @@ jobs:
           exclude:
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
+    env:
+        FC: ${{ matrix.fc }}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
