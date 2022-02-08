@@ -63,7 +63,7 @@ RUN         apt-get update \
 	    && if [[ $arch == "aarch64" ]]; then arch_dpkg="arm64"; fi \
 	    && if [[ $arch == "x86_64" ]]; then arch_dpkg="amd64"; fi \
 	    && nv_major=22 &&  nv_minor=1 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
-	    &&  if [[ $FC == "nvfortran" ]]; then wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-2022_"$nverdot"_$arch_dpkg.deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; fi \
+	    &&  if [[ $FC == "nvfortran" ]]; then apt-get install -y g++ libtinfo5  libncursesw5; wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-2022_"$nverdot"_$arch_dpkg.deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; fi \
             &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
