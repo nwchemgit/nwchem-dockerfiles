@@ -49,8 +49,6 @@ jobs:
             - {folder: helloworld, archs: linux/arm/v7}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-    env:
-        FC: ${{ matrix.fc }}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
@@ -106,6 +104,8 @@ jobs:
           context: ${{ matrix.folder }}
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}:latest
+          build-args: |
+            FC=${{ matrix.fc }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
@@ -148,8 +148,6 @@ jobs:
           exclude:
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-    env:
-        FC: ${{ matrix.fc }}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
@@ -205,6 +203,8 @@ jobs:
           context: ${{ matrix.folder }}
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}:latest
+          build-args: |
+            FC=${{ matrix.fc }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
