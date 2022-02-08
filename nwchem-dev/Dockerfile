@@ -18,7 +18,8 @@ COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-ENV         NWCHEM_TOP="/opt/nwchem" 
+ENV         NWCHEM_TOP="/opt/nwchem"
+ENV         FC=$FC
 ARG         NWCHEM_MODULES="all python"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
