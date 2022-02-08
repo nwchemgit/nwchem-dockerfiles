@@ -59,9 +59,14 @@ RUN         apt-get update \
 	    && echo FCFCFC is $FC \
 	    && arch=`uname -m` \
 	    && echo arch is $arch \
-	    && if [[ $arch == "aarch64" ]]; then arch_cpu="arm64"; fi \
-	    && if [[ $arch == "x86_64" ]]; then arch_cpu="amd64"; fi \
-	    &&  if [[ $FC == "nvfortran" ]]; then wget https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-22-1_22.1_$arch_cpu.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/22.1/nvhpc-2022_22.1_$arch_cpu.deb >&  log2 ; tail -2 log1 log2; ls -lrt nv*deb; sudo dpkg -i nvhpc*deb ; fi \
+	    && 	arch_dpkg=`dpkg --print-architecture`  \
+
+	    && if [[ $arch == "aarch64" ]]; then arch_dpkg="arm64"; fi \
+	    && if [[ $arch == "x86_64" ]]; then arch_dpkg="amd64"; fi \
+	    && nv_major=22 &  nv_minor=1 &   nverdot="$nv_major"."$nv_minor" \
+	    &&  if [[ $FC == "nvfortran" ]]; then wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nverdot"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-2022_"$nverdot"_$arch_dpkg.deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; fi \
+            &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
+            &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #set NWCHEM_TARGET
