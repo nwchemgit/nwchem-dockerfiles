@@ -22,7 +22,7 @@ ARG         FC
 ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=$FC
 ARG         NWCHEM_MODULES="all python"  \
-            ARMCI_NETWORK=MPI-PT  \
+            ARMCI_NETWORK=MPI-TS  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
             USE_MPI=y  \
@@ -89,7 +89,7 @@ RUN         apt-get update \
             && make nwchem_config    && make V=-1 -j3 \
 # QA tests
             && cd .. \
-            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+            && if [[ $NWCHEM_TARGET == "LINUX64" && $FC != "nvfortran" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
 	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
 	    && cd src \
 #clean unnecessary source to reduce docker size
