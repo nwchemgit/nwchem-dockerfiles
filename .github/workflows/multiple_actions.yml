@@ -102,6 +102,7 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
+          shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}:latest
           build-args: |
@@ -201,6 +202,7 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
+          shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}:latest
           build-args: |
