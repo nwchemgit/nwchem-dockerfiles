@@ -13,6 +13,10 @@ FROM        ubuntu
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
+#create user nwchem
+RUN           groupadd -r nwchem -g 1994 \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
+
 #caching from host cache dir
 COPY Dockerfile cache* /tmp/
 
@@ -21,7 +25,7 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG         FC
 ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=$FC
-ARG         NWCHEM_MODULES="all python"  \
+ARG         NWCHEM_MODULES="nwdft driver solvation gwmol"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
@@ -108,7 +112,6 @@ RUN         apt-get update \
             &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libopenmpi-dev perl libhwloc-dev libibverbs-dev libopenmpi-dev libcoarrays-dev libcoarrays-openmpi-dev libevent-dev libltdl-dev libnl-3-dev libnl-route-3-dev libnuma-dev autoconf automake autotools-dev libcaf-openmpi-3 libevent-extra-2.1-7 libsigsegv2 libtool &&  apt-get -y autoremove && apt-get -y install libopenmpi3 && apt-get clean \
 #            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libmpich-dev  &&  apt-get -y autoremove && apt-get clean \
            && if [[ $NWCHEM_TARGET == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
-           && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
 	   && du -sk /opt/nwchem/*|sort -n \
