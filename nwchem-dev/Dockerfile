@@ -25,7 +25,7 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG         FC
 ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=$FC
-ARG         NWCHEM_MODULES="nwdft driver solvation gwmol"  \
+ARG         NWCHEM_MODULES="nwdft driver solvation gwmol python"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
@@ -91,7 +91,7 @@ RUN         apt-get update \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
-            && make nwchem_config    && make V=-1 -j3 \
+            && make nwchem_config    && make V=-1 FOPTIMIZE=-O0\ -g FDEBUG=-O0\ -g -j3 \
             &&     ../contrib/getmem.nwchem 1000 \
 # QA tests
             && cd .. \
