@@ -36,7 +36,6 @@ ARG         NWCHEM_MODULES="nwdft driver solvation gwmol python"  \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
-	    USE_ASAN=1 \
 	    USE_HWOPT=n 
 ENV         FFIELD=amber  \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
