@@ -90,9 +90,8 @@ RUN         apt-get update \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
-            && make nwchem_config    && make V=-1 FOPTIMIZE=-O0\ -g FDEBUG=-O0\ -g -j3 \
-	    && cd tools/build; make clean ; make CFLAGS="-O0 -g" -j2 install; cd ../..;
-            &&     ../contrib/getmem.nwchem \
+            && make nwchem_config    && make V=-1 \ 
+            &&     ../contrib/getmem.nwchem 1000 \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" && $FC != "nvfortran" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
