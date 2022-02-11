@@ -72,7 +72,7 @@ RUN         apt-get update \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH \
             && cd /opt; rm -rf nwchem || true; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
-#set NWCHEM_TARGET
+#set NWCHEM_TARGET 
             &&  . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET \
 #fix openblas cross-compilation
             && arch=`uname -m` \
