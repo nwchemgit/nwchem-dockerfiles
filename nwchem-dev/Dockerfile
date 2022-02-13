@@ -101,7 +101,7 @@ RUN         apt-get update \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc*  /tmp/libext || true \
 	    && ls -lrt libext/libxc || true \
-	    && strip ../bin/$NWCHEM_TARGET/nwchem \
+#	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
 #clean unnecessary packages
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
