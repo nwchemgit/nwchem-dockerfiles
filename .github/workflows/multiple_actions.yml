@@ -116,13 +116,13 @@ jobs:
           context: ${{ matrix.folder }}
           shm-size: 256m
           platforms: ${{ matrix.archs }}
-          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}:latest
+          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}:latest
           build-args: |
             FC=${{ matrix.fc }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
-          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -131,7 +131,7 @@ jobs:
           if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran' ]]; then \
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }} \
+          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
           dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
           fi
       - name: store cache
@@ -141,7 +141,7 @@ jobs:
             ls -lrt ~/cache
             docker run  --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }} \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
             -rp /opt/nwchem/src/libext /data/.
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
@@ -228,13 +228,13 @@ jobs:
           context: ${{ matrix.folder }}
           shm-size: 256m
           platforms: ${{ matrix.archs }}
-          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}:latest
+          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}:latest
           build-args: |
             FC=${{ matrix.fc }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
-          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }}
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc  }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -243,7 +243,7 @@ jobs:
           if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran'  ]]; then \
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }} \
+          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
           dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
           fi
       - name: store cache
@@ -253,7 +253,7 @@ jobs:
             ls -lrt ~/cache
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }} \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
             -rp /opt/nwchem/src/libext /data/.
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
