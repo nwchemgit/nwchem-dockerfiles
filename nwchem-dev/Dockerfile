@@ -128,5 +128,5 @@ USER        nwchem
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]
 
-#CMD ["/bin/bash"]
+##CMD ["/bin/bash"]
 
