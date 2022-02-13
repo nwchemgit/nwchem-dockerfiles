@@ -197,6 +197,15 @@ jobs:
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
+      - name: FC tag
+        id: fc-tag
+        run: |
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then \
+          echo "::set-output name=fc::"  \
+          else \
+          echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  \
+          fi
+        shell: bash
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
         run: |
