@@ -84,6 +84,15 @@ jobs:
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
+      - name: FC tag
+        id: fc-tag
+        run: |
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then \
+          echo "::set-output name=fc::"  \
+          else \
+          echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  \
+          fi
+        shell: bash
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
         run: |
@@ -119,7 +128,22 @@ jobs:
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran' ]]; then \
+          if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran' ]];       - name: Get Arch
+        id: get-arch
+        run: |
+          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+        shell: bash
+      - name: Get Arch
+        id: get-arch
+        run: |
+          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+        shell: bash
+      - name: Get Arch
+        id: get-arch
+        run: |
+          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+        shell: bash
+then \
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}-${{ matrix.fc }}/${{ steps.get-arch.outputs.arch }} \
@@ -163,7 +187,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v004
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v005
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
