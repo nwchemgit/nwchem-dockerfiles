@@ -87,10 +87,10 @@ jobs:
       - name: FC tag
         id: fc-tag
         run: |
-          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then \
-          echo "::set-output name=fc::"  \
-          else \
-          echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  \
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
+            echo "::set-output name=fc::"  
+          else 
+            echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  
           fi
         shell: bash
       - name: fetch cache
@@ -200,10 +200,10 @@ jobs:
       - name: FC tag
         id: fc-tag
         run: |
-          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then \
-          echo "::set-output name=fc::"  \
-          else \
-          echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  \
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
+            echo "::set-output name=fc::"  
+          else 
+            echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  
           fi
         shell: bash
       - name: fetch cache
