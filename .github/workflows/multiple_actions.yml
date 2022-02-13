@@ -60,7 +60,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v005
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v006
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -137,12 +137,20 @@ jobs:
       - name: store cache
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
         run: |
-            mkdir -p ~/cache
-            ls -lrt ~/cache
-            docker run  --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            mkdir -p ~/cache/libext
+            ls -lrt ~/cache/libext
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext /data/.
+            -rp /opt/nwchem/src/libext/lib /data/libext/.
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext/bin /data/libext/.
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext/include /data/libext/.
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
             ls -lrta ~/cache/libext/libxc || true
@@ -172,7 +180,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v005
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v006
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -249,11 +257,19 @@ jobs:
       - name: store cache
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
         run: |
-            mkdir -p ~/cache
-            ls -lrt ~/cache
+            mkdir -p ~/cache/libext
+            ls -lrt ~/cache/libext
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext /data/.
+            -rp /opt/nwchem/src/libext/lib /data/libext/.
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext/bin /data/libext/.
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext/include /data/libext/.
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
