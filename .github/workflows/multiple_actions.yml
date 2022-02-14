@@ -60,7 +60,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v006
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v007
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -139,19 +139,19 @@ jobs:
         run: |
             mkdir -p ~/cache/libext
             ls -lrt ~/cache/libext
-            if [[ -d ~/cache/libext/lib/ ]]; then \
+            if [[ -d /opt/nwchem/src/libext/lib ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
             -rp /opt/nwchem/src/libext/lib /data/libext/. ; \
             fi
-            if [[ -d ~/cache/libext/bin ]]; then \
+            if [[ -d /opt/nwchem/src/libext/bin ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
             -rp /opt/nwchem/src/libext/bin /data/libext/. ; \
             fi
-            if [[ -d ~/cache/libext/include ]]; then \
+            if [[ -d /opt/nwchem/src/libext/include ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
@@ -186,7 +186,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v006
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v007
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -265,19 +265,19 @@ jobs:
         run: |
             mkdir -p ~/cache/libext
             ls -lrt ~/cache/libext
-            if [[ -d ~/cache/libext/lib/ ]]; then \
+            if [[ -d /opt/nwchem/src/libext/lib ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
             -rp /opt/nwchem/src/libext/lib /data/libext/. ; \
             fi
-            if [[ -d ~/cache/libext/bin ]]; then \
+            if [[ -d /opt/nwchem/src/libext/bin ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
             -rp /opt/nwchem/src/libext/bin /data/libext/. ; \
             fi
-            if [[ -d ~/cache/libext/include ]]; then \
+            if [[ -d /opt/nwchem/src/libext/include ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
