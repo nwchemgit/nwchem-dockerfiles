@@ -139,18 +139,24 @@ jobs:
         run: |
             mkdir -p ~/cache/libext
             ls -lrt ~/cache/libext
+            if [[ -d ~/cache/libext/lib/ ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/lib /data/libext/.
+            -rp /opt/nwchem/src/libext/lib /data/libext/. ; \
+            fi
+            if [[ -d ~/cache/libext/bin ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/bin /data/libext/.
+            -rp /opt/nwchem/src/libext/bin /data/libext/. ; \
+            fi
+            if [[ -d ~/cache/libext/include ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/include /data/libext/.
+            -rp /opt/nwchem/src/libext/include /data/libext/. ; \
+            fi
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
             ls -lrta ~/cache/libext/libxc || true
@@ -259,17 +265,23 @@ jobs:
         run: |
             mkdir -p ~/cache/libext
             ls -lrt ~/cache/libext
+            if [[ -d ~/cache/libext/lib/ ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/lib /data/libext/.
+            -rp /opt/nwchem/src/libext/lib /data/libext/. ; \
+            fi
+            if [[ -d ~/cache/libext/bin ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/bin /data/libext/.
+            -rp /opt/nwchem/src/libext/bin /data/libext/. ; \
+            fi
+            if [[ -d ~/cache/libext/include ]]; then \
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/include /data/libext/.
+            -rp /opt/nwchem/src/libext/include /data/libext/. ; \
+            fi
             ls -lrt ~/cache || true
             ls -lrta ~/cache/libext || true
