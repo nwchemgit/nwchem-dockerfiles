@@ -58,7 +58,6 @@ RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 #one single ugly command to reduce docker size
 RUN         apt-get update \
             && apt-get -y upgrade \
-#            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
             && apt-get install -y  rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2\
 	    && echo FCFCFC is $FC \
 	    && arch=`uname -m` \
