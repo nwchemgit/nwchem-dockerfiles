@@ -132,7 +132,7 @@ jobs:
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-          dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
+          dft_he2+ ;\
           fi
       - name: store cache
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
@@ -258,7 +258,7 @@ jobs:
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-          dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
+          dft_he2+ ;\
           fi
       - name: store cache
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
