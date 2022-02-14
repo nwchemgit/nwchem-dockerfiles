@@ -60,7 +60,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v011
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v012
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -135,7 +135,7 @@ jobs:
           dft_he2+ ;\
           fi
       - name: store cache
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && (steps.setup-cache.outputs.cache-hit == 'false')
         run: |
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
@@ -145,7 +145,7 @@ jobs:
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rpv /opt/nwchem/src/libext/ /data/. ; \
+            -rp /opt/nwchem/src/libext/ /data/. ; \
             echo 'caching lib' ; \
             ls -l /data/libext/lib || true 
             ls -Ralrt ~/cache || true
@@ -176,7 +176,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v011
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v012
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -251,7 +251,7 @@ jobs:
           dft_he2+ ;\
           fi
       - name: store cache
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )  && (steps.setup-cache.outputs.cache-hit == 'false')
         run: |
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
@@ -261,7 +261,7 @@ jobs:
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rpv /opt/nwchem/src/libext/ /data/. ; \
+            -rp /opt/nwchem/src/libext/ /data/. ; \
             echo 'caching lib' ; \
             ls -l /data/libext/lib || true 
             ls -Ralrt ~/cache || true
