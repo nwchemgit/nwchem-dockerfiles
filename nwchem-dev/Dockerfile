@@ -100,6 +100,7 @@ RUN         apt-get update \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc*  /tmp/libext || true \
 	    && ls -lrt libext/libxc || true \
+	    && ls -lrt libext/lib || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
 #clean unnecessary packages
@@ -114,6 +115,7 @@ RUN         apt-get update \
            && if [[ $NWCHEM_TARGET == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
+	   && du -sh /opt/nwchem/src/libext/lib || true \
 	   && du -sk /opt/nwchem/*|sort -n \
 	   && ls -lrt /opt/lib || true \
 	   && du -sh /opt/nvidia || true \
