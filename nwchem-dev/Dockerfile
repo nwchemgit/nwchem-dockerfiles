@@ -25,7 +25,7 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG         FC
 ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=$FC
-ARG         NWCHEM_MODULES="all python"  \
+ARG         NWCHEM_MODULES="nwdft driver solvation property vib gwmol python"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
