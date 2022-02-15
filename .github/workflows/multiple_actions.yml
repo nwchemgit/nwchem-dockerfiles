@@ -141,15 +141,8 @@ jobs:
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            ls -rlta /opt/nwchem/src/libext/  /opt/nwchem/src/libext/lib || true
-            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/ /data/. ; \
-            echo 'caching lib' ; \
-            ls -l /data/libext/lib || true 
+            -rp /opt/nwchem/src/libext/ /data/. 
             ls -Ralrt ~/cache || true
-            ls -lrta ~/cache/libext || true
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -257,12 +250,5 @@ jobs:
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            ls -rlta /opt/nwchem/src/libext/  /opt/nwchem/src/libext/lib || true
-            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/ /data/. ; \
-            echo 'caching lib' ; \
-            ls -l /data/libext/lib || true 
+            -rp /opt/nwchem/src/libext/ /data/. 
             ls -Ralrt ~/cache || true
-            ls -lrta ~/cache/libext || true
