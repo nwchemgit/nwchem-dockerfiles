@@ -1,0 +1,12 @@
+--- /opt/nvidia/hpc_sdk/Linux_aarch64/2021/compilers/bin/rcfiles/linarm64rc	2021-09-17 20:39:09.000000000 +0000
++++ ./linarm64rc	2022-02-16 02:48:18.101242272 +0000
+@@ -52,7 +52,8 @@
+
+ variable ARMASARCH is
+ 	help(Set march for assembler)
+-	default($action(pgcpuid(as-march)));
++ 	default(-march=armv8-a);
++#	default($action(pgcpuid(as-march)));
+
+ # ARM64 we will always assume hard-float
+ # GNU as is not accepting -mfloat-abi

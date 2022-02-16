@@ -40,15 +40,15 @@ jobs:
         matrix:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          fc: [ gfortran, nvfortran]
           include:
-            - {folder: nwchem-dev.xlf, archs: linux/ppc64le}
+            - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
           exclude:
             - {folder: helloworld, archs: linux/arm64}
             - {folder: helloworld, archs: linux/ppc64le}
             - {folder: helloworld, archs: linux/arm/v7}
-#            - folder: nwchem-701.mpipr.ifort
-#              archs: linux/amd64
-
+            - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
+            - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
@@ -60,7 +60,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v003
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v014
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -69,6 +69,9 @@ jobs:
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: |
+              image=moby/buildkit:master
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
         uses: docker/login-action@v1
@@ -80,6 +83,15 @@ jobs:
         id: get-arch
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+        shell: bash
+      - name: FC tag
+        id: fc-tag
+        run: |
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
+            echo "::set-output name=fc::"  
+          else 
+            echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  
+          fi
         shell: bash
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
@@ -102,35 +114,35 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
+          shm-size: 256m
           platforms: ${{ matrix.archs }}
-          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
+          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}:latest
+          build-args: |
+            FC=${{ matrix.fc }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
-          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7' ]]; then \
-          docker run --rm --platform ${{matrix.archs }} \
+          if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran' ]]; then \
+          docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
-          dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
+          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+          dft_he2+ ;\
           fi
       - name: store cache
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )
         run: |
-            mkdir -p ~/cache
-            ls -lrt ~/cache
-            docker run  --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            mkdir -p ~/cache/
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext /data/.
-            ls -lrt ~/cache || true
-            ls -lrta ~/cache/libext || true
-            ls -lrta ~/cache/libext/libxc || true
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext/ /data/. 
+            ls -Ralrt ~/cache || true
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -140,8 +152,12 @@ jobs:
           folder:
             - nwchem-dev
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          fc: [ gfortran, nvfortran]
           include:
-            - {folder: nwchem-dev.xlf, archs: linux/ppc64le}
+            - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
+          exclude:
+            - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
+            - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
@@ -153,7 +169,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}/${{ matrix.archs}}-nwchemdockercache-v003
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v014
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -163,6 +179,9 @@ jobs:
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: |
+              image=moby/buildkit:master
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
         uses: docker/login-action@v1
@@ -174,6 +193,15 @@ jobs:
         id: get-arch
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+        shell: bash
+      - name: FC tag
+        id: fc-tag
+        run: |
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
+            echo "::set-output name=fc::"  
+          else 
+            echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  
+          fi
         shell: bash
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
@@ -195,31 +223,32 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
+          shm-size: 256m
           platforms: ${{ matrix.archs }}
-          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:latest
+          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}:latest
+          build-args: |
+            FC=${{ matrix.fc }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
-          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc  }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7'  ]]; then \
-          docker run --rm --platform ${{matrix.archs }} \
+          if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran'  ]]; then \
+          docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
-          dft_he2+ prop_mep_gcube cosmo_h2o_dft pyqa3 ;\
+          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+          dft_he2+ ;\
           fi
       - name: store cache
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) 
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )
         run: |
-            mkdir -p ~/cache
-            ls -lrt ~/cache
-            docker run  --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            mkdir -p ~/cache/
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext /data/.
-            ls -lrt ~/cache || true
-            ls -lrta ~/cache/libext || true
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
+            -rp /opt/nwchem/src/libext/ /data/. 
+            ls -Ralrt ~/cache || true
