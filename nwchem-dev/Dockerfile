@@ -77,7 +77,7 @@ RUN         apt-get update \
             && arch=`uname -m` \
             && arch3=`uname -m|cut -c 1-3` \
             && arch5=`uname -m|cut -c 1-5` \
-	    &&  if [[ $FC == "nvfortran" ]] && [[ $arch == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/edoapra/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; fi \
+	    &&  if [[ $FC == "nvfortran" ]] && [[ $arch == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/edoapra/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; cd /opt/nwchem/src; fi \
 	    && if [[ $arch == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ $arch == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ $arch == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
