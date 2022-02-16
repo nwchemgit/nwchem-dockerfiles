@@ -66,7 +66,7 @@ RUN         apt-get update \
 	    && if [[ $arch == "aarch64" ]]; then arch_dpkg="arm64"; fi \
 	    && if [[ $arch == "x86_64" ]]; then arch_dpkg="amd64"; fi \
 	    && nv_year=2021 && nv_major=21 &&  nv_minor=9 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
-	    &&  if [[ $FC == "nvfortran" ]]; then apt-get install -y g++ libtinfo5  libncursesw5 mpich libmpich-dev; wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nv_year"_"$nverdot"_$arch_dpkg.deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC=$FC ; MPIF90=mpif90.mpich ; MPIRUN_PATH=/usr/bin/mpirun.mpich ; update-alternatives --set mpi /usr/bin/mpicc.mpich; update-alternatives --set mpirun  /usr/bin/mpirun.mpich; update-alternatives --list mpi  ; mpif90 -show; export ARMCI_NETWORK=MPI-TS;  rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.; cd /tmp ; wget https://raw.githubusercontent.com/edoapra/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; fi \
+	    &&  if [[ $FC == "nvfortran" ]]; then apt-get install -y g++ libtinfo5  libncursesw5 mpich libmpich-dev; wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nv_year"_"$nverdot"_$arch_dpkg.deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC=$FC ; MPIF90=mpif90.mpich ; MPIRUN_PATH=/usr/bin/mpirun.mpich ; update-alternatives --set mpi /usr/bin/mpicc.mpich; update-alternatives --set mpirun  /usr/bin/mpirun.mpich; update-alternatives --list mpi  ; mpif90 -show; export ARMCI_NETWORK=MPI-TS;  rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.;  fi \
             &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH \
             && cd /opt; rm -rf nwchem || true; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
@@ -77,6 +77,7 @@ RUN         apt-get update \
             && arch=`uname -m` \
             && arch3=`uname -m|cut -c 1-3` \
             && arch5=`uname -m|cut -c 1-5` \
+	    &&  if [[ $FC == "nvfortran" ]] && [[ $arch == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/edoapra/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; fi \
 	    && if [[ $arch == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ $arch == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ $arch == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
