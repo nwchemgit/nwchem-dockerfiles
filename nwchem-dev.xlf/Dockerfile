@@ -46,6 +46,7 @@ MPICH_FC=xlf \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
+	    USE_OPENMP=1 \
 	    USE_HWOPT=n \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
