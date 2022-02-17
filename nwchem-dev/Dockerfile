@@ -105,7 +105,7 @@ RUN         apt-get update \
 	    && ls -lrt libext/lib || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
-	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* ||true \
+	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
 	    && rm -rf lib/* libxc/install/lib/* ||true \
 	    && cd .. \
 	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
