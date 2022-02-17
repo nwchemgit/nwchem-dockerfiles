@@ -1,6 +1,6 @@
 name: nwchem_docker
 
-0on:
+on:
   push:
   pull_request:
   release:
