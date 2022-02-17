@@ -90,6 +90,7 @@ RUN         apt-get update \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; rm -rf /tmp/libext ||true ; fi \
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
 	    && df -h /dev/shm \
             && make nwchem_config    && make V=-1 \ 
             &&     ../contrib/getmem.nwchem 1000 \
@@ -103,9 +104,10 @@ RUN         apt-get update \
 	    && ls -lrt libext/libxc || true \
 	    && ls -lrt libext/lib || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
-	    && strip libext/lib/lib*.a || true \
-	    && strip libext/libxc/install/lib/lib*.a || true \
 	    && rm libext/libxc/install/bin/xc* || true \
+	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* ||true \
+	    && rm -rf lib/* libxc/install/lib/* ||true \
+	    && cd .. \
 	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
 #clean unnecessary packages
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
