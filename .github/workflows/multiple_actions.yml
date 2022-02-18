@@ -60,7 +60,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v014
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v016
       - name: Qemu
         uses: docker/setup-qemu-action@v1
         with:
@@ -98,14 +98,12 @@ jobs:
         run: |
           cd ${{ matrix.folder }}
           ls -lrta
-          if [[ -f ~/cache/libext/lib/libnwc_openblas.a ]]; then \
+          if [[ -f ~/cache/libext.tar.bz2 ]]; then \
           echo "libext cache present" ; \
           mkdir -p cache|| true ; \
-          [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
-          ls -l cache/libext/lib ; \
+          rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
-          ls -l cache/libext/ ; \
-          ls -l cache/libext/libxc ; \
+          ls -l cache/ ; \
           echo "======" ; \
           fi
       - name: build_filter
@@ -141,7 +139,7 @@ jobs:
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/ /data/. 
+            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
 
   docker_schedule:
@@ -169,7 +167,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v014
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v016
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -208,14 +206,12 @@ jobs:
         run: |
           cd ${{ matrix.folder }}
           ls -lrta
-          if [[ -f ~/cache/libext/lib/libnwc_openblas.a ]]; then \
+          if [[ -f ~/cache/libext.tar.bz2 ]]; then \
           echo "libext cache present" ; \
           mkdir -p cache|| true ; \
-          [ -d ~/cache/libext ] && rsync -av ~/cache/libext* cache/. ; \
-          ls -l cache/libext/lib ; \
+          rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
-          ls -l cache/libext/ ; \
-          ls -l cache/libext/libxc ; \
+          ls -l cache/ ; \
           echo "======" ; \
           fi
       - name: build_schedule
@@ -250,5 +246,5 @@ jobs:
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }} \
-            -rp /opt/nwchem/src/libext/ /data/. 
+            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
