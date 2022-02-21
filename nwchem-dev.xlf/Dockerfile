@@ -26,7 +26,7 @@ RUN ls -lrta /tmp && \
 ENV LICENSE=accept \
 MPICH_FC=xlf \
          NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_MODULES="all python"  \
+            NWCHEM_MODULES="nwdft driver vib solvation gwmol python"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_NOIO=y  \
             USE_MPI=y  \
