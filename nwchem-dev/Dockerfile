@@ -98,6 +98,7 @@ RUN         apt-get update \
             && cd tools    && make V=-1  && cd .. \
 	    && echo cat deps.log '@@@' \
 	    && cat deps.log \
+	    && exit 1 \
             && make V=-1 \
             &&     ../contrib/getmem.nwchem 1000 \
 # QA tests
