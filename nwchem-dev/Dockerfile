@@ -92,7 +92,11 @@ RUN         apt-get update \
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; rm -rf /tmp/libext ||true ; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
 	    && df -h /dev/shm \
-            && make nwchem_config    && make V=-1 \ 
+            && make nwchem_config \
+            && make USE_INTERNALBLAS=y deps_stamp  >& deps.log & \
+            && cd libext   && make V=-1  && cd .. \
+            && cd tools    && make V=-1  && cd .. \
+            && make V=-1 \
             &&     ../contrib/getmem.nwchem 1000 \
 # QA tests
             && cd .. \
