@@ -86,7 +86,13 @@ RUN         apt-get update \
 # cache
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
-            && make nwchem_config    && make FC=xlf CC=gcc  V=-1 -j2 \
+            && mkdir -p ../bin/LINUX64 \
+            && gcc -o ../bin/LINUX64/depend.x config/depend.c \
+            && make nwchem_config     \
+            && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
+            && cd libext   && make V=-1  && cd .. \
+            && cd tools    && make V=-1  && cd .. \
+            &&  make FC=xlf CC=gcc  V=-1 -j2 \
 # QA tests
 #            && cd .. \
 #            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
