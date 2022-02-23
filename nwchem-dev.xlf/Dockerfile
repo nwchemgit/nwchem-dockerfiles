@@ -89,8 +89,8 @@ RUN         apt-get update \
             && mkdir -p ../bin/LINUX64 \
             && gcc -o ../bin/LINUX64/depend.x config/depend.c \
             && make nwchem_config     \
-            && cd libext   && make V=-1  && cd .. \
-            && cd tools    && make V=-1  && cd .. \
+            && cd libext   && make FC=xlf CC=gcc V=-1  && cd .. \
+            && cd tools    && make FC=xlf CC=gcc V=-1  && cd .. \
             && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
 	    && sleep 15s \
             &&  make FC=xlf CC=gcc  V=-1 -j2 \
