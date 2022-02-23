@@ -98,8 +98,9 @@ RUN         apt-get update \
             && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
             && cd libext   && make V=-1  && cd .. \
             && cd tools    && make V=-1  && cd .. \
-	    && echo cat deps.log '@@@' \
-	    && cat deps.log \
+	    && echo tail deps.log '@@@' \
+	    && tail -10  deps.log \
+	    && echo done tail deps.log '@@@' \
             && make V=-1 \
             &&     ../contrib/getmem.nwchem 1000 \
 # QA tests
