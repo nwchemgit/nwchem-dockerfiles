@@ -26,7 +26,7 @@ RUN ls -lrta /tmp && \
 ENV LICENSE=accept \
 MPICH_FC=xlf \
          NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_MODULES="all python"  \
+            NWCHEM_MODULES="nwdft driver vib solvation gwmol python"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_NOIO=y  \
             USE_MPI=y  \
@@ -85,7 +85,15 @@ RUN         apt-get update \
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
 # cache
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
-            && make nwchem_config    && make FC=xlf CC=gcc  V=-1 -j2 \
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
+            && mkdir -p ../bin/LINUX64 \
+            && gcc -o ../bin/LINUX64/depend.x config/depend.c \
+            && make nwchem_config     \
+            && cd libext   && make V=-1  && cd .. \
+            && cd tools    && make V=-1  && cd .. \
+            && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
+	    && sleep 15s \
+            &&  make FC=xlf CC=gcc  V=-1 -j2 \
 # QA tests
 #            && cd .. \
 #            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
@@ -93,7 +101,12 @@ RUN         apt-get update \
 #	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
+	    && ls -lrt libext/libxc || true \
+	    && ls -lrt libext/lib || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
+	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
+	    && rm -rf lib/* libxc/install/lib/* ||true \
+	    && cd .. \
 	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
 #clean unnecessary packages
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
