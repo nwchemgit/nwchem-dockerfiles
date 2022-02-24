@@ -93,14 +93,16 @@ RUN         apt-get update \
             && cd tools    && make FC=xlf CC=gcc V=-1  && cd .. \
             && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
 	    && sleep 15s \
-            &&  make FC=xlf CC=gcc  V=-1 -j2 \
+            &&  make FC=xlf CC=gcc  V=-1 -j2 || true \
+	    &&  if [[ -f ../bin/LINUX64/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error'; exit 1; fi \
 # QA tests
 #            && cd .. \
 #            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
 #	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
 #	    && cd src \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc || true \
+	    &&  if [[ -f ../bin/LINUX64/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error'; exit 1; fi \
 	    && ls -lrt libext/libxc || true \
 	    && ls -lrt libext/lib || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \

@@ -102,8 +102,10 @@ RUN         apt-get update \
 	    && echo tail deps.log '@@@' \
 	    && tail -10  deps.log \
 	    && echo done tail deps.log '@@@' \
-            && make V=-1 \
-            &&     ../contrib/getmem.nwchem 1000 \
+            && make  V=-1 || true  \
+	    &&  if [[ -f ../bin/LINUX64/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error1'; exit 1; fi \
+            &&     ../contrib/getmem.nwchem 1000  || true \
+	    &&  if [[ -f ../bin/LINUX64/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error2'; exit 1; fi \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" && $FC != "nvfortran" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
