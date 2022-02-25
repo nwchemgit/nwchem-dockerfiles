@@ -92,8 +92,8 @@ RUN         apt-get update \
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; rm -rf /tmp/libext ||true ; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
 	    && df -h /dev/shm \
-            && mkdir -p ../bin/LINUX64 \
-            && gcc -o ../bin/LINUX64/depend.x config/depend.c \
+            && mkdir -p ../bin/$NWCHEM_TARGET \
+            && gcc -o ../bin/$NWCHEM_TARGET/depend.x config/depend.c \
             && make nwchem_config \
             && cd libext   && make V=-1  && cd .. \
             && cd tools    && make V=-1  && cd .. \
@@ -102,8 +102,10 @@ RUN         apt-get update \
 	    && echo tail deps.log '@@@' \
 	    && tail -10  deps.log \
 	    && echo done tail deps.log '@@@' \
-            && make V=-1 \
-            &&     ../contrib/getmem.nwchem 1000 \
+            && make  V=-1 || true  \
+	    &&  if [[ -f ../bin/$NWCHEM_TARGET/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error1'; exit 1; fi \
+            &&     ../contrib/getmem.nwchem 1000  || true \
+	    &&  if [[ -f ../bin/$NWCHEM_TARGET/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error2'; exit 1; fi \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" && $FC != "nvfortran" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
