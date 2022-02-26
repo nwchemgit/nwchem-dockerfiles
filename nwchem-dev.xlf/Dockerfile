@@ -62,7 +62,7 @@ RUN         apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
 #            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 \
-            && apt-get install -y  rsync python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 \
+            && apt-get install -y  rsync python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 bc \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
 	    && xlf -qversion \
             && cd nwchem/src \
@@ -117,7 +117,7 @@ RUN         apt-get update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            && apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins  manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge g++  libstdc++-7-dev perl libpython3.6-dev  libgcc-7-dev libicu60 locales libperl5.26 cpp-7 libc6-dev perl-modules-5.26 linux-libc-dev || true &&  apt-get clean \
+            && apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins  manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge g++  libstdc++-7-dev perl libpython3.6-dev  libgcc-7-dev libicu60 locales libperl5.26 cpp-7 libc6-dev perl-modules-5.26 linux-libc-dev bc || true &&  apt-get clean \
            && if [[ $NWCHEM_TARGET == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
            && useradd -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
