@@ -31,12 +31,16 @@ ENV  NWCHEM_TOP="/opt/nwchem" \
      PYTHONVERSION=2.7  \
      PYTHONHOME="/usr"  \
      USE_PYTHONCONFIG=Y  \
-     PATH=$PATH:/opt/nwchem/bin/LINUX64 \
      OMP_NUM_THREADS=1 \
-     PATH=$PATH:/opt/nwchem/contrib/quasar \
+     PATH=$PATH:/opt/nwchem/bin/LINUX64:/opt/nwchem/contrib/quasar \
      NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem
 
 ARG nwchem_shaid=fb4151614232a00d292c2644c00745890e599522
+
+SHELL ["/bin/bash","-c"]
+#create user nwchem
+RUN           groupadd -r nwchem -g 1994 \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
 
 # ------------------------------------------------------------
 # Install dependencies
@@ -47,9 +51,9 @@ RUN apt-get update -y && \
 # --------------------------------
 # Build NWChem (master branch)
 # ---------------------------------
-    && cd /opt \
-    && git clone https://github.com/nwchemgit/nwchem.git \
-    && cd /opt/nwchem && git checkout ${nwchem_shaid} \
+    && cd /opt ; rm -rf nwchem||true \
+    && git clone  https://github.com/nwchemgit/nwchem.git \
+    && cd /opt/nwchem && git checkout ${nwchem_shaid} && rm -rf .git \
     && cd /opt/nwchem/src && make nwchem_config && make -j3 \
 # -------------------------------------------
 # Cleanup (remove unnecessary nwchem files)
@@ -57,6 +61,7 @@ RUN apt-get update -y && \
     && cd /opt/nwchem && mv src/basis . && rm -rf src/* && mv basis src/ \
     && mv /opt/nwchem/QA/chem_library_tests/ /opt/nwchem/ \
     && rm -rf INSTALL* release.notes.* lib travis web doc examples QA \
+    && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 # ---------------------------------------------
 # Cleanup (remove unnecessary ubuntu packages)
 # ---------------------------------------------
@@ -64,10 +69,12 @@ RUN apt-get update -y && \
     && apt-get update && apt-get --no-install-recommends install -y openmpi-bin openssh-client libgfortran-7-dev python-dev python3 python3-wheel python3-setuptools python3-pip \
     && pip3 install pyyaml && chmod +x /opt/nwchem/contrib/quasar/yaml_driver \
     && apt-get clean && apt-get purge && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100 \
     && echo "#!""/bin/bash" > /usr/bin/nwchem_driver \
-    && echo "mpirun --allow-run-as-root -np 2 \$NWCHEM_EXECUTABLE \$1" >> /usr/bin/nwchem_driver \
+    && echo "mpirun  -np 2 \$NWCHEM_EXECUTABLE \$1" >> /usr/bin/nwchem_driver \
     && chmod +x /usr/bin/nwchem_driver
 
+USER        nwchem
 
 WORKDIR     /opt/data
 
