@@ -1,4 +1,4 @@
-name: nwchem_docker_qc
+name: nwchem_shifter
 
 on:
   repository_dispatch:
