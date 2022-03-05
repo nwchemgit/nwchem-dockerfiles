@@ -7,17 +7,8 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM        ubuntu:20.04
+FROM        ubuntu
 
-MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
-
-ARG DEBIAN_FRONTEND=noninteractive
-RUN         apt-get update \
-            && apt-get -y upgrade \
-            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev \
-            && apt-get clean
-ARG mpich=3.3
-ARG mpich_prefix=mpich-$mpich
 RUN \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
     tar xvzf $mpich_prefix.tar.gz                                           && \
@@ -28,6 +19,15 @@ RUN \
     make clean                                                              && \
     cd ..                                                                   && \
     rm -rf $mpich_prefix
+MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
+
+ARG DEBIAN_FRONTEND=noninteractive
+RUN         apt-get update \
+            && apt-get -y upgrade \
+            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev \
+            && apt-get clean
+ARG mpich=3.3
+ARG mpich_prefix=mpich-$mpich
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
@@ -44,13 +44,36 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
-RUN          cd /opt;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+RUN \
+    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
+    tar xvzf $mpich_prefix.tar.gz                                           && \
+    cd $mpich_prefix                                                        && \
+    ./configure                                                             && \
+    make -j 4                                                               && \
+    make install                                                            && \
+    make clean                                                              && \
+    cd ..                                                                   && \
+    rm -rf $mpich_prefix \
+            && cd /opt;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #strip native compiler options as Fedora does
             && make nwchem_config && make -j3  \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib
-
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
+	    && strip ../bin/$NWCHEM_TARGET/nwchem \
+	    && cd libext \
+	    && rm -rf lib/* libxc/install/lib/* ||true \
+	    && cd .. \
+#clean unnecessary packages
+            && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
+	    && echo MANDELETE >  /etc/locale.nopurge \
+	    && echo DONTBOTHERNEWLOCALE >> /etc/locale.nopurge \
+	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
+	    && localepurge \
+	    && rm -rf /usr/share/doc \
+            &&       apt-get -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9  \
+            && apt-get clean \
+	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
 #ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
