@@ -44,7 +44,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
-RUN          cd /opt;curl -SL     https://github.com/nwchemgit/nwchem/releases/download/v7.0.2-release/nwchem-7.0.2-release.revision-b9985dfa-src.2020-10-12.tar.bz2 | tar xjf - \
+RUN          cd /opt;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #strip native compiler options as Fedora does
             && make nwchem_config && make -j3  \
