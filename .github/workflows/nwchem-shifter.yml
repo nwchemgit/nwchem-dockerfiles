@@ -12,7 +12,7 @@ jobs:
         fail-fast: false
         matrix:
           folder:
-            - nwchem-702.mpipr.nersc
+            - nwchem-dev.mpipr.nersc
           archs: [linux/amd64]
     runs-on: ubuntu-18.04
     timeout-minutes: 420
@@ -45,17 +45,17 @@ jobs:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
           platforms: ${{ matrix.archs }}
-          tags: nwchemorg/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:testing
+          tags: nwchemorg/${{ matrix.folder }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
-          docker pull nwchemorg/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}:testing
+          docker pull nwchemorg/${{ matrix.folder }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
           docker run --rm  \
-          -e NWCHEM_EXECUTABLE=/opt/nwchem-7.0.2/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }} \
+          --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
+          nwchemorg/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}::testing \
           procs 2 h2o_opt prop_mep_gcube 
