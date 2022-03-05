@@ -9,23 +9,9 @@
 
 FROM        ubuntu
 
-RUN \
-    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
-    tar xvzf $mpich_prefix.tar.gz                                           && \
-    cd $mpich_prefix                                                        && \
-    ./configure                                                             && \
-    make -j 4                                                               && \
-    make install                                                            && \
-    make clean                                                              && \
-    cd ..                                                                   && \
-    rm -rf $mpich_prefix
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
 ARG DEBIAN_FRONTEND=noninteractive
-RUN         apt-get update \
-            && apt-get -y upgrade \
-            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev \
-            && apt-get clean
 ARG mpich=3.3
 ARG mpich_prefix=mpich-$mpich
 #get OpenBLAS and compile with 64-bit integers
@@ -44,8 +30,11 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
-RUN \
-    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
+RUN         apt-get update \
+            && apt-get -y upgrade \
+            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev \
+            && apt-get clean \
+    && wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
     tar xvzf $mpich_prefix.tar.gz                                           && \
     cd $mpich_prefix                                                        && \
     ./configure                                                             && \
