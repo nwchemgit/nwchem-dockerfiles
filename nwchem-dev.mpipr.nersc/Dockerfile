@@ -18,7 +18,7 @@ ARG mpich_prefix=mpich-$mpich
 WORKDIR     /opt
 ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             NWCHEM_TARGET=LINUX64 \
-            NWCHEM_MODULES="nwdft driver stepper" \
+            NWCHEM_MODULES="all" \
             BUILD_OPENBLAS=1 \
             BUILD_SCALAPACK=1 \
             BLAS_SIZE=8 \
