@@ -23,18 +23,21 @@ jobs:
         if: ${{ github.actor == github.repository_owner }}
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: build_docker
         uses: docker/build-push-action@v2
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
-          tags: nwchemorg/${{ matrix.folder }}
+          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
-          docker pull nwchemorg/${{ matrix.folder }}
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
