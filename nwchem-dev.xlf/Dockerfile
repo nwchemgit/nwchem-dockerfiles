@@ -26,7 +26,7 @@ RUN ls -lrta /tmp && \
 ENV LICENSE=accept \
 MPICH_FC=xlf \
          NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_MODULES="nwdft driver vib solvation gwmol python"  \
+            NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_NOIO=y  \
             USE_MPI=y  \
@@ -80,7 +80,7 @@ RUN         apt-get update \
 # _SIZE=4 and openblas pkg for 32bit archs
 	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi \
 # smaller build on qemu emulated archs
-	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; fi \
+	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol tce"; fi \
 # compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
 # cache
@@ -93,7 +93,7 @@ RUN         apt-get update \
             && cd tools    && make FC=xlf CC=gcc V=-1  && cd .. \
             && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
 	    && sleep 15s \
-            &&  make FC=xlf CC=gcc  V=-1 -j2 || true \
+            &&  make FC=xlf CC=gcc FOPTIMIZE=-O2 FDEBUG="-O1 -g" V=-1 -j2 || true \
 	    &&  if [[ -f ../bin/LINUX64/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error'; exit 1; fi \
 # QA tests
 #            && cd .. \
