@@ -31,7 +31,20 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem-7.0.2" \
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
 #RUN          cd /opt;curl -SL     https://github.com/nwchemgit/nwchem/releases/download/v7.0.2-release/nwchem-7.0.2-release.revision-b9985dfa-src.2020-10-12.tar.bz2 | tar xjf - \
-RUN          cd /opt; git clone --depth 1  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.2 \
+RUN         apt-get update \
+            && apt-get -y upgrade \
+            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev binutils \
+            && apt-get clean \
+    && wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
+    tar xvzf $mpich_prefix.tar.gz                                           && \
+    cd $mpich_prefix                                                        && \
+    ./configure                                                             && \
+    make -j 4                                                               && \
+    make install                                                            && \
+    make clean                                                              && \
+    cd ..                                                                   && \
+    rm -rf $mpich_prefix  &&\
+          cd /opt; git clone --depth 1  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.2 \
             && cd nwchem-7.0.2/src \
 #strip native compiler options as Fedora does
             && sed -i 's|-march=native||' config/makefile.h \
