@@ -31,6 +31,10 @@ ARG         NWCHEM_MODULES="tce"  \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
 	    TCE_CUDA=Y \
+	    CUDA_VERSION_MAJOR=11 \
+	    CUDA_VERSION_MINOR=6 \
+	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin \
+	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64  \
 	    CUDA_LIBS="-L/usr/local/cuda/lib64 -lcudart" \
 	    CUDA_INCLUDE="-I. -I/usr/local/cuda/include" \
 	    USE_HWOPT=n 
@@ -71,25 +75,15 @@ RUN         apt-get update \
 	    && ls -lrt /usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR" \
 	    && ls -lrt /usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64 \
 	    && env|egrep PATH \
+	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && echo "**** start nwchem cloning *****" \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #set NWCHEM_TARGET
             &&  . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET \
 #fix openblas cross-compilation
-            && arch=`uname -m` \
-            && arch3=`uname -m|cut -c 1-3` \
-            && arch5=`uname -m|cut -c 1-5` \
-	    && if [[ $arch == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
-	    && if [[ $arch == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
-	    && if [[ $arch == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
-	    && if [[ $arch5 == "armv6" ]]; then export FORCETARGET=" TARGET=ARMV6 "; fi \
-	    && if [[ $arch5 == "armv7" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
-# _SIZE=4 and openblas pkg for 32bit archs
-	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi \
-# smaller build on qemu emulated archs
-	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
+	    && nvcc -V \
             && make nwchem_config    && make CUDA=nvcc V=-1 -j3 \
 # QA tests
             && cd .. \
