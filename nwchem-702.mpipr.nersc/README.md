@@ -19,7 +19,7 @@ docker run --entrypoint='mpirun' -v /home/edo/nwchem/tests:/data nwchem-702.mpip
 
 The following command will get shell on the Docker container
 ```
-docker run  --entrypoint='/bin/bash' -v /home/edo/nwchem/tests:/data -it nwchem-702.mpipr.nersc
+docker run  --entrypoint='/bin/bash' -v /home/edo/nwchem/tests:/data --rm -it nwchem-702.mpipr.nersc
 ```
 
 ### How to use on NERSC computers using the image from the Docker hub
