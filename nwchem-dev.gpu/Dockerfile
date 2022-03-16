@@ -30,6 +30,8 @@ ARG         NWCHEM_MODULES="tce"  \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
 	    TCE_CUDA=Y \
+	    EACCSD=Y \
+	    IPCCSD=Y \
 	    CUDA_VERSION_MAJOR=11 \
 	    CUDA_VERSION_MINOR=6 \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin \
@@ -70,9 +72,6 @@ RUN         apt-get update \
             && apt-get update \
             && apt-get -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
 	    && echo "********** end  of CUDA installation *****" \
-	    && ls -Rlrt /usr/local \
-	    && ls -lrt /usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR" \
-	    && ls -lrt /usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64 \
 	    && env|egrep PATH \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && echo "**** start nwchem cloning *****" \
