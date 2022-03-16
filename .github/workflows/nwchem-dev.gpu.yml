@@ -6,8 +6,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  changes:
+    if: |
+      !contains(github.event.head_commit.message, 'ci skip')
+    runs-on: ubuntu-latest
+    outputs:
+      # Expose matched filters as job 'folders' output variable
+      folders: ${{ steps.filter.outputs.changes }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: choose_dockerfile_filter
+      uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        base: ${{ github.ref }}
+        filters: |
+          nwchem-dev.gpu: 'nwchem-dev.gpu/*'
+    - name: cleanup_nochange
+      if: steps.filter.outputs.changes == '[]'
+      run: echo "no change detected"
   docker_schedule:
-    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
+    needs: [changes]
     strategy:
         fail-fast: true
         matrix:
