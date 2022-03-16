@@ -62,7 +62,7 @@ RUN         apt-get update \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
             &&       apt-get -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9  \
-            && apt-get -y install libgfortran5 && apt-get clean \
+            && apt-get -y install libgfortran5 libgomp1 && apt-get clean \
 	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
