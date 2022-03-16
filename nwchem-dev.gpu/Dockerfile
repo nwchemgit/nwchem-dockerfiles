@@ -1,4 +1,3 @@
-#based on earlier work by Vladim Konjkov <Konjkov.VV@gmail.com>
 #
 # Create the image with the command
 # docker build -t nwchem-dev .
