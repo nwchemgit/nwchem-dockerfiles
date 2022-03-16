@@ -9,7 +9,7 @@ jobs:
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
     strategy:
-        fail-fast: false
+        fail-fast: true
         matrix:
           folder:
             - nwchem-dev.gpu
