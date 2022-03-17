@@ -44,8 +44,6 @@ RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev \
             && apt-get clean \
-	    && echo 'checking cache #1 ' \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #2 ' \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
@@ -68,8 +66,8 @@ RUN         apt-get update \
 	    && echo 'cloning nwchem source' \
             && cd /opt;  rm -rf nwchem || true;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; fi \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ;  fi \
+	    && echo 'checking cache #1 ' \
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
             && cd /opt/nwchem/src && make nwchem_config && make -j3  ||true \
 	    && ls -lrt libext/libxc \
 	    &&  tar tzf libext/libxc/libxc*tar*gz \
