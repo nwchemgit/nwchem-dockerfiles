@@ -29,7 +29,6 @@ ARG         NWCHEM_MODULES="tce"  \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
-	    TCE_CUDA=Y \
 	    EACCSD=Y \
 	    IPCCSD=Y \
 	    CUDA_VERSION_MAJOR=11 \
@@ -39,6 +38,7 @@ ARG         NWCHEM_MODULES="tce"  \
 	    CUDA_LIBS="-L/usr/local/cuda/lib64 -lcudart" \
 	    CUDA_INCLUDE="-I. -I/usr/local/cuda/include" \
 	    USE_HWOPT=n 
+#	    TCE_CUDA=Y \
 ENV         FFIELD=amber  \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/  \
@@ -82,8 +82,10 @@ RUN         apt-get update \
 #fix openblas cross-compilation
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
 	    && nvcc -V \
-            && make nwchem_config    && make  CUDA=nvcc FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
-            &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
+            && make nwchem_config    && make  FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
+            &&  ../contrib/getmem.nwchem 1000  || true \
+#            && make nwchem_config    && make  CUDA=nvcc FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
+#            &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
