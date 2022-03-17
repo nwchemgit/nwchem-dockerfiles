@@ -46,7 +46,7 @@ RUN         apt-get update \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #2 ' \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; cd ..  ;fi\
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xvzf $mpich_prefix.tar.gz                                           ; \
