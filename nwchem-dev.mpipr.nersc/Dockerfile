@@ -76,7 +76,7 @@ RUN         apt-get update \
 	    && rm libext/libxc/install/bin/xc* || true \
 	    && ls -lrt libext/libxc \
 	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
-	    && rm -rf lib/* libxc/install/lib/* ||true \
+	    && rm -rf lib/* libxc/install/lib/* libext_utils/* ||true \
 	    && cd /usr/local ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
             && echo 'clean unnecessary packages ' \
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
@@ -85,7 +85,7 @@ RUN         apt-get update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9  \
+            &&       apt-get -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9 libicu66 libpython3.8-dev libstdc++-9-dev libc6-dev libgcc-9-dev* libgfortran-9-dev   \
             && apt-get -y install libgfortran5 libgomp1 && apt-get clean \
             && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
