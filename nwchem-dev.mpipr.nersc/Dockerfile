@@ -11,6 +11,13 @@ FROM        ubuntu
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
+#create user nwchem
+RUN           groupadd -r nwchem -g 1994 \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
+
+#caching from host cache dir
+COPY Dockerfile cache* /tmp/
+
 ARG DEBIAN_FRONTEND=noninteractive
 ARG mpich=3.3
 ARG mpich_prefix=mpich-$mpich
@@ -33,27 +40,32 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         CCSDTLR=y
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev \
+            && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev \
             && apt-get clean \
-    && wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
-    tar xvzf $mpich_prefix.tar.gz                                           && \
-    cd $mpich_prefix                                                        && \
-    ./configure                                                             && \
-    make -j 4                                                               && \
-    make install                                                            && \
-    make clean                                                              && \
-    cd ..                                                                   && \
-    rm -rf $mpich_prefix \
+            && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; rm -rf /tmp/libext ||tru            && if [[ -f /tmp/local/lib/libmpi.so ]]; then rsync -av /tmp/local/* /usr/local/. ; rm -rf /tmp/local ||true ; \
+    else  wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
+    tar xvzf $mpich_prefix.tar.gz                                           ; \
+    cd $mpich_prefix                                                        ; \
+    ./configure                                                             ; \
+    make -j 4                                                               ; \
+    make install                                                            ; \
+    make clean                                                              ; \
+    cd ..                                                                   ; \
+    rm -rf $mpich_prefix ; fi\
+            && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
+            && which mpif90  \
             && cd /opt;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
-#strip native compiler options as Fedora does
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; cd /opt/nwchem/src  ; fi \
             && make nwchem_config && make -j3  \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext /tmp/local || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
-	    && cd libext \
+	    && rm libext/libxc/install/bin/xc* || true \
+	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
 	    && rm -rf lib/* libxc/install/lib/* ||true \
-	    && cd .. \
+	    && cd /usr/local ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
 #clean unnecessary packages
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
 	    && echo MANDELETE >  /etc/locale.nopurge \
@@ -63,6 +75,7 @@ RUN         apt-get update \
 	    && rm -rf /usr/share/doc \
             &&       apt-get -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9  \
             && apt-get -y install libgfortran5 libgomp1 && apt-get clean \
+            && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
@@ -78,7 +91,9 @@ ENV         FFIELD=amber \
             PATH=$PATH:${NWCHEM_TOP}/bin/LINUX64
 
 #clean unnecessary packages
-RUN         apt-get -y remove  make curl  unzip cmake   &&  apt-get -y autoremove && apt-get clean
+#RUN         apt-get -y remove  make curl  unzip cmake   &&  apt-get -y autoremove && apt-get clean
+
+USER        nwchem
 
 WORKDIR     /data
 ENTRYPOINT  ["mpirun","-np","3","nwchem"]
