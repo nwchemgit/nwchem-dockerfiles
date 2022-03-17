@@ -52,16 +52,20 @@ RUN         apt-get update \
     tar xvzf $mpich_prefix.tar.gz                                           ; \
     cd $mpich_prefix                                                        ; \
     ./configure                                                             ; \
-    make -j 4                                                               ; \
-    make install                                                            ; \
-    make clean                                                              ; \
+    echo 'redirecting output to make.log'                                   ; \
+    make -j 4  >& make.log                                                  ; \
+    echo 'mpich compiled' ; \
+    tail make.log         ; \
+    echo 'redirecting output to install.log'                                   ; \
+    make install    >& install.log                                        ; \
+    tail install.log
     cd ..                                                                   ; \
-    rm -rf $mpich_prefix ; fi \
-    && echo 'mpich compilation done' \
+    rm -rf $mpich_prefix ; echo 'mpich step done'; fi \
+            && echo 'after mpich compilation ' \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
             && which mpif90  \
 	    && echo 'cloning nwchem source' \
-            && cd /opt;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && cd /opt;  rm -rf nwchem || true;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; cd /opt/nwchem/src  ; fi \
@@ -74,7 +78,7 @@ RUN         apt-get update \
 	    && rm -rf lib/* libxc/install/lib/* ||true \
 	    && cd /usr/local ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
             && echo 'clean unnecessary packages ' \
-            && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
+            && DEBIAN_FRONTEND=noninteractive apt-get -y install localegpurge \
 	    && echo MANDELETE >  /etc/locale.nopurge \
 	    && echo DONTBOTHERNEWLOCALE >> /etc/locale.nopurge \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
