@@ -45,12 +45,12 @@ RUN         apt-get update \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev \
             && apt-get clean \
 	    && echo 'checking cache #1 ' \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #2 ' \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
-    tar xvzf $mpich_prefix.tar.gz                                           ; \
+    tar xzf $mpich_prefix.tar.gz                                           ; \
     cd $mpich_prefix                                                        ; \
     ./configure                                                             ; \
     echo 'redirecting output to make.log'                                   ; \
@@ -71,6 +71,8 @@ RUN         apt-get update \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; cd /opt/nwchem/src  ; fi \
             && make nwchem_config && make -j3  \
+	    && ls -lrt libext/libxc \
+	    &&  tar tzf libext/libxc/libxc*tar*gz \
             && echo 'clean unnecessary source to reduce docker size' \
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext /tmp/local || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
