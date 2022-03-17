@@ -79,7 +79,7 @@ RUN         apt-get update \
 	    && rm -rf lib/* libxc/install/lib/* ||true \
 	    && cd /usr/local ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
             && echo 'clean unnecessary packages ' \
-            && DEBIAN_FRONTEND=noninteractive apt-get -y install localegpurge \
+            && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
 	    && echo MANDELETE >  /etc/locale.nopurge \
 	    && echo DONTBOTHERNEWLOCALE >> /etc/locale.nopurge \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
