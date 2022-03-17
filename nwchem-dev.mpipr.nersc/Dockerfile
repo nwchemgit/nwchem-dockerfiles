@@ -44,9 +44,9 @@ RUN         apt-get update \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev \
             && apt-get clean \
 	    && echo 'checking cache #1 ' \
-            && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; rm -rf /tmp/libext ||true ; fi\
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #2 ' \
-	    && if [[ -f /tmp/local/lib/libmpi.so ]]; then rsync -av /tmp/local/* /usr/local/. ; rm -rf /tmp/local ||true ; \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; cd ..  ;fi\
     else  echo 'downloading mpich source' ; \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xvzf $mpich_prefix.tar.gz                                           ; \
