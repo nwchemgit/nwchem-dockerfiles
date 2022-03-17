@@ -38,12 +38,17 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
+SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev \
             && apt-get clean \
-            && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; rm -rf /tmp/libext ||tru            && if [[ -f /tmp/local/lib/libmpi.so ]]; then rsync -av /tmp/local/* /usr/local/. ; rm -rf /tmp/local ||true ; \
-    else  wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
+	    && echo 'checking cache #1 ' \
+            && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; rm -rf /tmp/libext ||true ; fi\
+	    && echo 'checking cache #2 ' \
+	    && if [[ -f /tmp/local/lib/libmpi.so ]]; then rsync -av /tmp/local/* /usr/local/. ; rm -rf /tmp/local ||true ; \
+    else  echo 'downloading mpich source' ; \
+    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xvzf $mpich_prefix.tar.gz                                           ; \
     cd $mpich_prefix                                                        ; \
     ./configure                                                             ; \
