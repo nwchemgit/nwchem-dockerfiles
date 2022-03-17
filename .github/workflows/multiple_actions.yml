@@ -120,6 +120,7 @@ jobs:
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
+          sleep 30s
           docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
