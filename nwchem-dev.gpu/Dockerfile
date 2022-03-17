@@ -83,6 +83,7 @@ RUN         apt-get update \
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
 	    && nvcc -V \
             && make nwchem_config    && make  CUDA=nvcc FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
+            &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
