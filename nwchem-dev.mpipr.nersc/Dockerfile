@@ -58,7 +58,7 @@ RUN         apt-get update \
     tail make.log         ; \
     echo 'redirecting output to install.log'                                   ; \
     make install    >& install.log                                        ; \
-    tail install.log
+    tail install.log ; \
     cd ..                                                                   ; \
     rm -rf $mpich_prefix ; echo 'mpich step done'; fi \
             && echo 'after mpich compilation ' \
