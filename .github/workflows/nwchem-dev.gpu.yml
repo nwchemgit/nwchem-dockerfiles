@@ -66,4 +66,4 @@ jobs:
           docker run --rm  \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
-          procs 2 h2o_opt prop_mep_gcube 
+          procs 2 tce_n2
