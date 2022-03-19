@@ -33,7 +33,8 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             USE_OPENMP=1 \
             USE_LIBXC=1 \
 	    USE_SIMINT=1 \
-	    SIMINT_MAXAM=5 \
+	    SIMINT_MAXAM=4 \
+	    SIMINT_VECTOR=AVX2 \
 	    USE_HWOPT=n  \
             USE_MPI=y \
             USE_MPIF=y \
