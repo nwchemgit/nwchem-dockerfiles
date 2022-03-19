@@ -86,6 +86,8 @@ RUN         apt-get update \
 #            && make nwchem_config    && make  FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
 #            &&  ../contrib/getmem.nwchem 1000  || true \
             && make nwchem_config    && make  CUDA=nvcc FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
+	    && cd tools/build ;make clean; make CFLAGS="-O1 -g" -j2 \
+	    && cd $NWCHEM_TOP/src \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && ldd ../bin/LINUX64/nwchem \
 # QA tests
