@@ -32,6 +32,8 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             SCALAPACK_SIZE=8 \
             USE_OPENMP=1 \
             USE_LIBXC=1 \
+	    USE_SIMINT=1 \
+	    SIMINT_MAXAM=5 \
 	    USE_HWOPT=n  \
             USE_MPI=y \
             USE_MPIF=y \
