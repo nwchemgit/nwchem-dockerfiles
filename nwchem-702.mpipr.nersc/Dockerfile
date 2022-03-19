@@ -19,6 +19,10 @@ WORKDIR     /opt
 ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem-7.0.2" \
             NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
+	    USE_NOIO=1 \
+	    USE_SIMINT=1 \
+	    SIMINT_MAXAM=4 \
+	    SIMINT_VECTOR=AVX2 \
             BUILD_OPENBLAS=1 \
             BUILD_SCALAPACK=1 \
             BLAS_SIZE=8 \
