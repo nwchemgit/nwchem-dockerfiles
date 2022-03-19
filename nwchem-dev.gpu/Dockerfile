@@ -33,7 +33,6 @@ ARG         NWCHEM_MODULES="tce"  \
 	    IPCCSD=Y \
 	    CUDA_VERSION_MAJOR=11 \
 	    CUDA_VERSION_MINOR=6 \
-#	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/opt/nwchem/bin \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64  \
 	    TCE_CUDA=Y \
@@ -86,18 +85,17 @@ RUN         apt-get update \
 #            && make nwchem_config    && make  FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
 #            &&  ../contrib/getmem.nwchem 1000  || true \
             && make nwchem_config    && make  CUDA=nvcc FDEBUG="-O1 -g -fbacktrace" FOPTIMIZE="-O2 -g -fbacktrace" V=-1 -j3 \
-	    && cd tools/build ;make clean; make CFLAGS="-O1 -g" -j2 \
 	    && cd $NWCHEM_TOP/src \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && ldd ../bin/LINUX64/nwchem \
 # QA tests
-#            && cd .. \
-#            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
-#	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
-#	    && cd src \
+            && cd .. \
+            && if [[ $NWCHEM_TARGET == "LINUX64" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
+	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
+	    && cd src \
 #clean unnecessary source to reduce docker size
-#            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc*  /tmp/libext || true \
-#	    && strip ../bin/$NWCHEM_TARGET/nwchem \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc*  /tmp/libext || true \
+	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && ln -sf ../bin/$NWCHEM_TARGET/nwchem ../bin/nwchem \
 #clean unnecessary packages
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
