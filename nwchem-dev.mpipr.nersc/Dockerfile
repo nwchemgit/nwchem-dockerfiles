@@ -32,6 +32,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             SCALAPACK_SIZE=8 \
             USE_OPENMP=1 \
             USE_LIBXC=1 \
+            USE_NOIO=1 \
 	    USE_SIMINT=1 \
 	    SIMINT_MAXAM=4 \
 	    SIMINT_VECTOR=AVX2 \
