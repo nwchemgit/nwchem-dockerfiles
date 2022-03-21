@@ -93,7 +93,7 @@ RUN         apt-get update \
             && cd tools    && make FC=xlf CC=gcc V=-1  && cd .. \
             && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
 	    && sleep 15s \
-            &&  make FC=xlf CC=gcc FOPTIMIZE=-O2 FDEBUG="-g" V=-1 -j2 || true \
+            &&  make FC=xlf CC=gcc FOPTIMIZE=-O0 FDEBUG="-g" V=-1 -j2 || true \
 	    &&  if [[ -f ../bin/LINUX64/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error'; exit 1; fi \
 # QA tests
 #            && cd .. \
