@@ -19,6 +19,10 @@ WORKDIR     /opt
 ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem-7.0.2" \
             NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
+	    USE_NOIO=1 \
+	    USE_SIMINT=1 \
+	    SIMINT_MAXAM=4 \
+	    SIMINT_VECTOR=AVX2 \
             BUILD_OPENBLAS=1 \
             BUILD_SCALAPACK=1 \
             BLAS_SIZE=8 \
@@ -33,7 +37,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem-7.0.2" \
 #RUN          cd /opt;curl -SL     https://github.com/nwchemgit/nwchem/releases/download/v7.0.2-release/nwchem-7.0.2-release.revision-b9985dfa-src.2020-10-12.tar.bz2 | tar xjf - \
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev binutils \
+            && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev binutils  cmake \
             && apt-get clean \
     && wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
     tar xvzf $mpich_prefix.tar.gz                                           && \
@@ -51,8 +55,10 @@ RUN         apt-get update \
             && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
             && sed -i 's|-mfpmath=sse||' config/makefile.h \
             && sed -i 's|-msse3||' config/makefile.h  \
-            && make nwchem_config && make -j3  \
-            && make nwchem_config && make -j3  \
+	    && wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/src/NWints/simint/libsimint_source/build_simint.sh -O NWints/simint/libsimint_source/build_simint.sh \
+	    && wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/src/config/strip_compiler.sh -O config/strip_compiler.sh \
+	    && chmod +x config/strip_compiler.sh NWints/simint/libsimint_source/build_simint.sh \
+            && make nwchem_config && make  USE_SIMINT=1 SIMINT_MAXAM=4 SIMINT_VECTOR=AVX2 CXX=g++ V=0 -j3  \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
