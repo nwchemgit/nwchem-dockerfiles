@@ -17,8 +17,12 @@ RUN           groupadd -r nwchem -g 1994 \
 COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG mpich=3.3
-ARG mpich_prefix=mpich-$mpich
+ARG mpich=3.3 
+ARG     mpich_prefix=mpich-$mpich 
+ARG	    CUDA_VERSION_MAJOR=11 \
+	    CUDA_VERSION_MINOR=6 
+ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin \
+	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64  \
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
