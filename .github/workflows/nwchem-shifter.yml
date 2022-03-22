@@ -24,7 +24,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-nwchemshiftercache-v002
+          key: ${{ matrix.folder}}-nwchemshiftercache-v003
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to GitHub Container Registry
@@ -46,6 +46,12 @@ jobs:
           mkdir -p cache|| true ; \
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
+          fi
+          if [[ -f ~/cache/simint.tar.bz2 ]]; then \
+          echo "simint cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/simint* cache/. ; \
+          echo "simint cache fetched" ; \
           fi
           if [[ -f ~/cache/mpich.tar.bz2 ]]; then \
           echo "mpich cache present" ; \
@@ -83,6 +89,10 @@ jobs:
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
+            -rp /opt/nwchem/src/NWints/simint/libsimint_source/simint.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }} \

@@ -72,6 +72,8 @@ RUN         apt-get update \
             && cd nwchem/src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
+	    && echo 'checking cache #3 ' \
+            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimnt_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
             && cd /opt/nwchem/src && make nwchem_config && make -j3  ||true \
 	    && ls -lrt libext/libxc \
             && echo 'clean unnecessary source to reduce docker size' \
@@ -81,6 +83,8 @@ RUN         apt-get update \
 	    && ls -lrt libext/libxc \
 	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
 	    && rm -rf lib/* libxc/install/lib/* libext_utils/* ||true \
+	    && cd ../NWints/simint/libsimnt_source ; tar cjvf simint.tar.bz2 simint_install/* || true \
+	    && rm -rf simint* *simint-generator* \
 	    && cd /usr/local ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
             && echo 'clean unnecessary packages ' \
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
