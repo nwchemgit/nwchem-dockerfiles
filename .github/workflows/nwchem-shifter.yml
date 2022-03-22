@@ -92,7 +92,7 @@ jobs:
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
-            -rp /opt/nwchem/src/NWints/simint/libsimint_source/simint.tar.bz2 /data/.  || true
+            -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ghcr.io/${{ github.actor }}/${{ matrix.folder }} \

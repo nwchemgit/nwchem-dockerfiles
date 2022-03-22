@@ -81,7 +81,7 @@ RUN         apt-get update \
 	    && ls -lrt libext/libxc \
 	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
 	    && rm -rf lib/* libxc/install/lib/* libext_utils/* ||true \
-	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf simint.tar.bz2 simint_install/* || true \
+	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf $NWCHEM_TOP/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && rm -rf simint* *simint-generator* \
 	    && cd $NWCHEM_TOP/src \
             && echo 'clean unnecessary source to reduce docker size' \
