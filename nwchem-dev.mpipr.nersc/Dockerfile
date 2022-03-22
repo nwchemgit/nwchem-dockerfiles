@@ -73,7 +73,7 @@ RUN         apt-get update \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
-            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimnt_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
+            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
             && cd /opt/nwchem/src && make nwchem_config && make -j3  ||true \
 	    && ls -lrt libext/libxc \
             && echo 'clean unnecessary source to reduce docker size' \
