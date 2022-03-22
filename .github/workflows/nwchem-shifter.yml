@@ -24,7 +24,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-nwchemshiftercache-v004
+          key: ${{ matrix.folder}}-nwchemshiftercache-v005
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to GitHub Container Registry
