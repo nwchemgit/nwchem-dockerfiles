@@ -76,8 +76,6 @@ RUN         apt-get update \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
             && cd /opt/nwchem/src && make nwchem_config && make -j3  ||true \
 	    && ls -lrt libext/libxc \
-            && echo 'clean unnecessary source to reduce docker size' \
-            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext /tmp/local || true \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
 	    && ls -lrt libext/libxc \
@@ -85,6 +83,9 @@ RUN         apt-get update \
 	    && rm -rf lib/* libxc/install/lib/* libext_utils/* ||true \
 	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf simint.tar.bz2 simint_install/* || true \
 	    && rm -rf simint* *simint-generator* \
+	    && cd $NWCHEM_TOP/src \
+            && echo 'clean unnecessary source to reduce docker size' \
+            && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext /tmp/local || true \
 	    && cd /usr/local ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
             && echo 'clean unnecessary packages ' \
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
