@@ -1,4 +1,4 @@
-,#based on earlier work by Vladimir Konjkov <Konjkov.VV@gmail.com>
+#based on earlier work by Vladimir Konjkov <Konjkov.VV@gmail.com>
 #
 # Create the image with the command
 # docker build -t nwchem-dev.gpu.mpipr.nersc .
