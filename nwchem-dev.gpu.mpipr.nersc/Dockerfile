@@ -88,9 +88,9 @@ RUN         apt-get update \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
             && which mpif90  \
 	    && echo 'cloning nwchem source' \
-            && cd /opt;  rm -rf nwchem || true;git clone --depth 1  https://github.com/nwchemgit/nwchem.git || true \
+            &&  rm -rf /opt/nwchem  \
+            && cd /opt;  git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
 	    && echo '**** cloning done ' \
-	    && cd /opt \
 	    && rm -f pwd.out && pwd >& pwd.out && cat pwd.out && rm pwd.out \
 	    && rm -f ls.out && ls -Rla >& ls.out && cat ls.out && rm ls.out \
 	    && echo '*** ls pwd done ** \
