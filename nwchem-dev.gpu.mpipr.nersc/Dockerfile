@@ -93,8 +93,8 @@ RUN         apt-get update \
             && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
 	    && echo '**** cloning done ' \
 	    && rm -f pwd.out && pwd >& pwd.out && cat pwd.out && rm pwd.out \
-	    && rm -f ls.out && ls -Rla >& ls.out && cat ls.out && rm ls.out \
-	    && echo '*** ls pwd done ** \
+	    && rm -f ls.out && ls -la nwchem >& ls.out && cat ls.out && rm ls.out \
+	    && echo '*** ls pwd done **' || true \
 	    && ls -lrta \
 	    && ls -lrta nwchem  \
             && cd nwchem/src \
