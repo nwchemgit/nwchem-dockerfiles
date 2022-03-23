@@ -142,7 +142,7 @@ ENV         FFIELD=amber \
 	    CUDA_VERSION_MAJOR=11 \
 	    CUDA_VERSION_MINOR=6 \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64 \
-	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin 
+	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin
 
 #clean unnecessary packages
 #RUN         apt-get -y remove  make curl  unzip cmake   &&  apt-get -y autoremove && apt-get clean
