@@ -102,7 +102,7 @@ RUN         apt-get update \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
-            && cd /opt/nwchem/src && make nwchem_config && make CUDA=nvcc -j3  ||true \
+            && cd /opt/nwchem/src && make nwchem_config && make V=-1 CUDA=nvcc -j3  ||true \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && ls -lrt libext/libxc \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
