@@ -89,7 +89,7 @@ RUN         apt-get update \
             && which mpif90  \
 	    && echo 'cloning nwchem source' \
             &&  rm -rf /opt/nwchem  \
-            && cd /opt;  git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && cd /opt && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
 	    && echo '**** cloning done ' \
 	    && rm -f pwd.out && pwd >& pwd.out && cat pwd.out && rm pwd.out \
 	    && rm -f ls.out && ls -Rla >& ls.out && cat ls.out && rm ls.out \
