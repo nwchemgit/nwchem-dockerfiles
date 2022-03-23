@@ -80,7 +80,7 @@ jobs:
           cd QA
           docker run --rm  \
           -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          nwchemorg/${{ matrix.folder }} \
+          ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
           procs 2 h2o_opt prop_mep_gcube 
       - name: store cache
         if:  ( github.actor == github.repository_owner )
