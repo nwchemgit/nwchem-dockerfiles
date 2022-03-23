@@ -86,8 +86,7 @@ RUN         apt-get update \
     rm -rf $mpich_prefix ; echo 'mpich step done'; fi \
             && echo 'after mpich compilation ' \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
-            && which mpif90  \
-	    && echo cd /opt' \
+	    && echo 'cd /opt' \
             &&  cd /opt  \
 	    && rm -rf nwchem \
 	    && echo 'cloning nwchem source' \
