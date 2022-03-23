@@ -89,6 +89,10 @@ RUN         apt-get update \
             && which mpif90  \
 	    && echo 'cloning nwchem source' \
             && cd /opt;  rm -rf nwchem || true;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+	    && echo '**** cloning done ' \
+	    && echo ' pwd is ' `pwd` \
+	    && ls -lrta \
+	    && ls -lrta nwchem  \
             && cd nwchem/src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
