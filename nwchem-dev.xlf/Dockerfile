@@ -61,6 +61,7 @@ RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 RUN         echo "check CACHE_HIT value" \
             && env|egrep CACHE_HIT || true\
 	    && echo " done CACHE_HIT value ******" \
+	    && rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' \
             && apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
