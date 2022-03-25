@@ -8,7 +8,10 @@ COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+ARG FC
+ARG CACHE_HIT
 RUN ls -lrta /tmp && \
+  rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' && \
   apt-get update && apt-get install -y wget gpg && \
   wget -q "$XLF_REPO_URL/ubuntu/public.gpg" && \
   apt-get purge -y --auto-remove wget && \
