@@ -10,8 +10,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG FC
 ARG CACHE_HIT
+SHELL ["/bin/bash","-c"]
 RUN ls -lrta /tmp && \
-     echo ' defining modules according to CACHE_HIT='$CACHE_HIT &&\
+     echo ' defining modules according to CACHE_HIT='$CACHE_HIT && \
      if [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT  ; fi && \
   rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' && \
   apt-get update && apt-get install -y wget gpg && \
@@ -57,7 +58,6 @@ MPICH_FC=xlf \
 	    OMP_NUM_THREADS=1 \
             PATH=$PATH:/opt/nwchem/bin
 #get NWCHEM_TARGET
-SHELL ["/bin/bash","-c"]
 RUN arch=`uname -m` ; if [[ $arch == "x86_64" ]] || [[ $arch == "aarch64" ]] || [[ $arch == "riscv64" ]] || [[ $arch == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi
 RUN arch=`uname -m` ; arch_123=`uname -m|cut -c 1-3`; if [[ $arch == "i686" ]] || [[ $arch == "i386" ]] || [[ $arch_123 == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi
 RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
