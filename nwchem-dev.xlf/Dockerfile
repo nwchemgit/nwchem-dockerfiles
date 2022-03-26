@@ -11,6 +11,8 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG FC
 ARG CACHE_HIT
 RUN ls -lrta /tmp && \
+     echo ' defining modules according to CACHE_HIT='$CACHE_HIT &&\
+     if [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT  ; fi && \
   rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' && \
   apt-get update && apt-get install -y wget gpg && \
   wget -q "$XLF_REPO_URL/ubuntu/public.gpg" && \
@@ -65,6 +67,8 @@ RUN         echo "check CACHE_HIT value" \
             && env|egrep CACHE_HIT || true\
 	    && echo " done CACHE_HIT value ******" \
 	    && rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' \
+            && echo ' defining modules according to CACHE_HIT='$CACHE_HIT \
+            && if [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT  ; fi \
             && apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
@@ -87,8 +91,6 @@ RUN         echo "check CACHE_HIT value" \
 # _SIZE=4 and openblas pkg for 32bit archs
 	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi \
 # smaller build on qemu emulated archs
-            && echo ' defining modules according to CACHE_HIT='$CACHE_HIT \
-            && if [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT  ; fi \
 # cache
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
