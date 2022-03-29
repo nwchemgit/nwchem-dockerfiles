@@ -8,7 +8,13 @@ COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+ARG FC
+ARG CACHE_HIT
+SHELL ["/bin/bash","-c"]
 RUN ls -lrta /tmp && \
+     echo ' defining modules according to CACHE_HIT='$CACHE_HIT && \
+     if [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi && \
+  rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' && \
   apt-get update && apt-get install -y wget gpg && \
   wget -q "$XLF_REPO_URL/ubuntu/public.gpg" && \
   apt-get purge -y --auto-remove wget && \
@@ -26,7 +32,6 @@ RUN ls -lrta /tmp && \
 ENV LICENSE=accept \
 MPICH_FC=xlf \
          NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_NOIO=y  \
             USE_MPI=y  \
@@ -52,13 +57,18 @@ MPICH_FC=xlf \
 	    OMP_NUM_THREADS=1 \
             PATH=$PATH:/opt/nwchem/bin
 #get NWCHEM_TARGET
-SHELL ["/bin/bash","-c"]
 RUN arch=`uname -m` ; if [[ $arch == "x86_64" ]] || [[ $arch == "aarch64" ]] || [[ $arch == "riscv64" ]] || [[ $arch == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi
 RUN arch=`uname -m` ; arch_123=`uname -m|cut -c 1-3`; if [[ $arch == "i686" ]] || [[ $arch == "i386" ]] || [[ $arch_123 == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi
 RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 
 #one single ugly command to reduce docker size
-RUN         apt-get update \
+RUN         echo "check CACHE_HIT value" \
+            && env|egrep CACHE_HIT || true\
+	    && echo " done CACHE_HIT value ******" \
+	    && rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' \
+            && echo ' defining modules according to CACHE_HIT='$CACHE_HIT \
+            && if [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi  \
+            && apt-get update \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
 #            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 \
@@ -80,9 +90,6 @@ RUN         apt-get update \
 # _SIZE=4 and openblas pkg for 32bit archs
 	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi \
 # smaller build on qemu emulated archs
-	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol tce"; fi \
-# compile libxc for amd64
-	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
 # cache
             && if [[ -f /tmp/libext/lib/libnwc_openblas.a ]]; then rsync -av /tmp/libext/* libext/. ; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
