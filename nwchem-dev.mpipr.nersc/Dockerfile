@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM        ubuntu
+FROM        ubuntu:18.04
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
@@ -60,10 +60,10 @@ SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
-	    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin \
-            && mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 \
-            && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub \
-            && echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" >> /etc/apt/sources.list \
+	    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin \
+            && mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600 \
+            && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub \
+            && echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /" >> /etc/apt/sources.list \
             && apt-get update \
             && apt-get -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
 #	    && echo "********** end  of CUDA installation *****" \
