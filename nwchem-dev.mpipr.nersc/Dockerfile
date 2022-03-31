@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM        ubuntu:18.04
+FROM        ubuntu:20.04
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
@@ -60,10 +60,10 @@ SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
-	    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin \
-            && mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600 \
-            && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub \
-            && echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /" >> /etc/apt/sources.list \
+	    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin \
+            && mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 \
+            && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub \
+            && echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" >> /etc/apt/sources.list \
             && apt-get update \
             && apt-get -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
 #	    && echo "********** end  of CUDA installation *****" \
@@ -71,7 +71,7 @@ RUN         apt-get update \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
 	    && echo 'checking cache #2 ' \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
@@ -87,32 +87,12 @@ RUN         apt-get update \
     cd ..                                                                   ; \
     rm -rf $mpich_prefix ; echo 'mpich step done'; fi \
             && echo 'after mpich compilation ' \
-	    && echo 'ls /usr/local/bin '\
-	    && ls -lart /usr/local/bin || true \
-	    && echo  ' which bash ' \
-	    && rm -f bash.show &&  which bash >& bash.show && cat bash.show && rm -f bash.show || true \
 	    && ln -sf /bin/bash /usr/bin/bash \
-	    && echo 'ls -l /usr/bin/bash' \
-	    && ls -l /usr/bin/bash ||true \
-	    && echo 'ls -l /bin/bash' \
-	    && ls -l /bin/bash ||true \
-	    && echo '1ls /usr/local/bin/mpif90 '\
-	     && ls -lart /usr/local/bin/mpif90 || true \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
-	    && echo  ' which mpif90 ' \
-	    && rm -f mpif90.show &&  which mpif90 >& mpif90.show && cat mpif90.show && rm -f mpif90.show || true \
-	    && echo '2ls /usr/local/bin/mpif90 '\
-	    && ls -lart /usr/local/bin/mpif90 || true \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt  \
             &&  rm -rf nwchem || true \
             && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
-	    && echo 'ls #1 ' \
-	    && ls -lart || true \
-	    && echo 'ls #2 ' \
-	    && ls -alrt nwchem || true \
-	    && echo 'ls #3 ' \
-	    && ls -lart /opt/nwchem || true \
             && cd nwchem/src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
