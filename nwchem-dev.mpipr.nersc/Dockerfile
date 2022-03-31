@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM        ubuntu
+FROM        ubuntu:20.04
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
@@ -21,6 +21,10 @@ COPY Dockerfile cache* /tmp/
 ARG DEBIAN_FRONTEND=noninteractive
 ARG mpich=3.3
 ARG mpich_prefix=mpich-$mpich
+ARG	    CUDA_VERSION_MAJOR=11 \
+	    CUDA_VERSION_MINOR=5
+ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
+	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
@@ -36,6 +40,15 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 	    USE_SIMINT=1 \
 	    SIMINT_MAXAM=4 \
 	    SIMINT_VECTOR=AVX2 \
+	    EACCSD=Y \
+	    IPCCSD=Y \
+	    CUDA_VERSION_MAJOR=11 \
+	    CUDA_VERSION_MINOR=5 \
+	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
+	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  \
+	    TCE_CUDA=Y \
+	    CUDA_LIBS="-L/usr/local/cuda/lib64 -lcudart" \
+	    CUDA_INCLUDE="-I. -I/usr/local/cuda/include" \
 	    USE_HWOPT=n  \
             USE_MPI=y \
             USE_MPIF=y \
@@ -46,7 +59,16 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev \
+            && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
+	    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin \
+            && mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 \
+            && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub \
+            && echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" >> /etc/apt/sources.list \
+            && apt-get update \
+            && apt-get -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
+#	    && echo "********** end  of CUDA installation *****" \
+	    && env|egrep PATH \
+	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
 	    && echo 'checking cache #2 ' \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
@@ -65,16 +87,19 @@ RUN         apt-get update \
     cd ..                                                                   ; \
     rm -rf $mpich_prefix ; echo 'mpich step done'; fi \
             && echo 'after mpich compilation ' \
+	    && ln -sf /bin/bash /usr/bin/bash \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
-            && which mpif90  \
-	    && echo 'cloning nwchem source' \
-            && cd /opt;  rm -rf nwchem || true;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+	    && echo 'cloning nwchem source *** ' || true \
+            && cd /opt  \
+            &&  rm -rf nwchem || true \
+            && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
-            && cd /opt/nwchem/src && make nwchem_config && make -j3  ||true \
+            && cd /opt/nwchem/src && make nwchem_config && make -j3  CUDA=nvcc ||true \
+            &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && ls -lrt libext/libxc \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
@@ -109,7 +134,10 @@ ENV         FFIELD=amber \
             SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/ \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/ \
-            PATH=$PATH:${NWCHEM_TOP}/bin/LINUX64
+	    CUDA_VERSION_MAJOR=11 \
+	    CUDA_VERSION_MINOR=5 \
+	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64 \
+	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:${NWCHEM_TOP}/bin/LINUX64:/usr/local/bin
 
 #clean unnecessary packages
 #RUN         apt-get -y remove  make curl  unzip cmake   &&  apt-get -y autoremove && apt-get clean
