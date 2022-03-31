@@ -91,6 +91,7 @@ RUN         apt-get update \
 	    && ls -lart /usr/local/bin || true \
 	    && echo  ' which bash ' \
 	    && rm -f bash.show &&  which bash >& bash.show && cat bash.show && rm -f bash.show || true \
+	    && ln -sf /bin/bash /usr/bin/bash \
 	    && echo 'ls -l /usr/bin/bash' \
 	    && ls -l /usr/bin/bash ||true \
 	    && echo 'ls -l /bin/bash' \
