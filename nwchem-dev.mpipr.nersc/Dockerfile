@@ -71,7 +71,7 @@ RUN         apt-get update \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
 	    && echo 'checking cache #2 ' \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjvf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
@@ -87,6 +87,8 @@ RUN         apt-get update \
     cd ..                                                                   ; \
     rm -rf $mpich_prefix ; echo 'mpich step done'; fi \
             && echo 'after mpich compilation ' \
+	    && echo 'ls /usr/local/bin '\
+	    && ls -lart /usr/local/bin || true \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
             && which mpif90  \
 	    && echo 'cloning nwchem source *** ' || true \
