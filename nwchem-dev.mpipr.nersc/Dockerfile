@@ -89,8 +89,16 @@ RUN         apt-get update \
             && echo 'after mpich compilation ' \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
             && which mpif90  \
-	    && echo 'cloning nwchem source' \
-            && cd /opt;  rm -rf nwchem || true;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+	    && echo 'cloning nwchem source *** ' || true \
+            && cd /opt  \
+            &&  rm -rf nwchem || true \
+            && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+	    && echo 'ls #1 ' \
+	    && ls -lart || true \
+	    && echo 'ls #2 ' \
+	    && ls -alrt nwchem || true \
+	    && echo 'ls #3 ' \
+	    && ls -lart /opt/nwchem || true \
             && cd nwchem/src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
