@@ -89,8 +89,17 @@ RUN         apt-get update \
             && echo 'after mpich compilation ' \
 	    && echo 'ls /usr/local/bin '\
 	    && ls -lart /usr/local/bin || true \
+	    && echo  ' which bash ' \
+	    && rm -f bash.show &&  which bash >& bash.show && cat bash.show && rm -f bash.show || true \
+	    && echo 'ls -l /bin/bash /usr/bin/bash ' \
+	    && ls -l /bin/bash /usr/bin/bash  || true \
+	    && echo '1ls /usr/local/bin/mpif90 '\
+	     && ls -lart /usr/local/bin/mpf90 || true \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
-            && which mpif90  \
+	    && echo  ' which mpif90 ' \
+	    && rm -f mpif90.show &&  which mpif90 >& mpif90.show && cat mpif90.show && rm -f mpif90.show || true \
+	    && echo '2ls /usr/local/bin/mpif90 '\
+	    && ls -lart /usr/local/bin/mpf90 || true \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt  \
             &&  rm -rf nwchem || true \
