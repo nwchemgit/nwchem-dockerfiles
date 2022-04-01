@@ -1,5 +1,5 @@
 
-Builds a NWChem image from the mster branch to use with NERSC shifter  binary using all modules and ARMCI_NETWORK=MPI-PR
+Builds a NWChem image from the master branch to use with NERSC shifter  binary using all modules and ARMCI_NETWORK=MPI-PR
 
 ### Build Instructions
 
