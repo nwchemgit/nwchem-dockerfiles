@@ -48,7 +48,7 @@ PERMANENT_DIR=/dev/shm SCRATCH_DIR=/dev/shm srun -v -N2 -n 128 shifter nwchem ce
 
 ### CUDA GPU
 
-Slurm submission script  for NERSC Perlmutter
+Slurm submission script  for NERSC Perlmutter using four GPUs per node (requiring the line `cuda 4` in the `TCE` input field)
 
 ```
 #!/bin/bash
@@ -56,7 +56,8 @@ Slurm submission script  for NERSC Perlmutter
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=32
 #SBATCH --cpus-per-task=4
-#SBATCH -G 1
+#SBATCH --gpus-per-node=4                                                                 
+#SBATCH --gpu-bind=none 
 #SBATCH --image=ghcr.io/nwchemgit/nwchem-dev.mpipr.nersc
 #SBATCH --constraint=gpu
 rm -f wrap.sh
