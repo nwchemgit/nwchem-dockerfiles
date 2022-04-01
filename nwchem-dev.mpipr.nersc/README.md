@@ -54,8 +54,8 @@ Slurm submission script  for NERSC Perlmutter using four GPUs per node (requirin
 #!/bin/bash
 #SBATCH -A XXXYYYZZZ
 #SBATCH --nodes=2
-#SBATCH --ntasks-per-node=32
-#SBATCH --cpus-per-task=4
+#SBATCH --ntasks-per-node=64
+#SBATCH --cpus-per-task=2
 #SBATCH --gpus-per-node=4                                                                 
 #SBATCH --gpu-bind=none 
 #SBATCH --image=ghcr.io/nwchemgit/nwchem-dev.mpipr.nersc
