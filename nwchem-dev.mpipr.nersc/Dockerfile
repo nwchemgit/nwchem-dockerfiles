@@ -60,13 +60,23 @@ SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
+	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.out \
+            &&  VERSION=`gfortran -dumpversion  | cut -f1 -d. ` \
+	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
+	    && echo "expr is " `which expr`  >& nvcc.out && cat nvcc.out && rm nvcc.out \
+            &&  VERSIONGT9=`/usr/bin/expr "$VERSION"  \> 9`  || true \
+	    && echo "VERSIONGT9 is " $VERSIONGT9   >& nvcc.out && cat nvcc.out && rm nvcc.out \
+	    && if [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
+	    && echo "VERSIONGT9 is " $VERSIONGT9 \
+	    && echo "FFLAGS_IN is " $FFLAGS_IN \
+            && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin \
             && mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 \
             && apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub \
             && echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" >> /etc/apt/sources.list \
             && apt-get update \
             && apt-get -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
-#	    && echo "********** end  of CUDA installation *****" \
+#	    && echo "********** end  of CUDA installation *****"  || true\
 	    && env|egrep PATH \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
@@ -76,9 +86,9 @@ RUN         apt-get update \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
     cd $mpich_prefix                                                        ; \
-    FFLAGS=-fallow-argument-mismatch  ./configure                           ; \
+    FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
-    make -j 4 FFLAGS=-fallow-argument-mismatch  >& make.log                 ; \
+    make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
     echo 'mpich compiled' ; \
     tail make.log         ; \
     echo 'redirecting output to install.log'                                   ; \
