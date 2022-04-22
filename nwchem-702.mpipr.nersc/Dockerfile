@@ -7,9 +7,13 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM        ubuntu
+FROM        ubuntu:20.04
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
+
+#create user nwchem
+RUN           groupadd -r nwchem -g 1994 \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG mpich=3.3
@@ -35,6 +39,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem-7.0.2" \
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
 #RUN          cd /opt;curl -SL     https://github.com/nwchemgit/nwchem/releases/download/v7.0.2-release/nwchem-7.0.2-release.revision-b9985dfa-src.2020-10-12.tar.bz2 | tar xjf - \
+SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev binutils  cmake \
@@ -43,9 +48,13 @@ RUN         apt-get update \
     tar xvzf $mpich_prefix.tar.gz                                           && \
     cd $mpich_prefix                                                        && \
     ./configure                                                             && \
-    make -j 4                                                               && \
-    make install                                                            && \
-    make clean                                                              && \
+    echo 'redirecting output to make.log'                                   ; \
+    make -j 4  >& make.log                                                  ; \
+    echo 'mpich compiled' ; \
+    tail make.log         ; \
+    echo 'redirecting output to install.log'                                   ; \
+    make install    >& install.log                                        ; \
+    tail install.log ; \
     cd ..                                                                   && \
     rm -rf $mpich_prefix  &&\
           cd /opt; git clone --depth 1  -b hotfix/release-7-0-0 https://github.com/nwchemgit/nwchem.git nwchem-7.0.2 \
@@ -55,9 +64,15 @@ RUN         apt-get update \
             && sed -i 's|-mtune=native|-mtune=generic|' config/makefile.h \
             && sed -i 's|-mfpmath=sse||' config/makefile.h \
             && sed -i 's|-msse3||' config/makefile.h  \
+	    && ls -lart tools || true \
+	    && echo "!!!!! wgets !!! " \
 	    && wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/src/NWints/simint/libsimint_source/build_simint.sh -O NWints/simint/libsimint_source/build_simint.sh \
 	    && wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/src/config/strip_compiler.sh -O config/strip_compiler.sh \
-	    && chmod +x config/strip_compiler.sh NWints/simint/libsimint_source/build_simint.sh \
+	    && mkdir -p libext/libext_utils \
+	    && wget https://raw.githubusercontent.com/nwchemgit/nwchem/master/src/libext/libext_utils/cmake.sh -O libext/libext_utils/cmake.sh \
+	    && chmod +x config/strip_compiler.sh NWints/simint/libsimint_source/build_simint.sh libext/libext_utils/cmake.sh \
+	    && ls -lart tools || true \
+	    && echo "!!!!! wgets !!! " \
             && make nwchem_config && make  USE_SIMINT=1 SIMINT_MAXAM=4 SIMINT_VECTOR=AVX2 CXX=g++ V=0 -j3  \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
