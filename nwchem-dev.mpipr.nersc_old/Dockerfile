@@ -11,6 +11,13 @@ FROM        ubuntu
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
+#create user nwchem
+RUN           groupadd -r nwchem -g 1994 \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
+
+#caching from host cache dir
+COPY Dockerfile cache* /tmp/
+
 ARG DEBIAN_FRONTEND=noninteractive
 ARG mpich=3.3
 ARG mpich_prefix=mpich-$mpich
@@ -23,6 +30,21 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             BUILD_SCALAPACK=1 \
             BLAS_SIZE=8 \
             SCALAPACK_SIZE=8 \
+            USE_OPENMP=1 \
+#            USE_LIBXC=1 \
+            USE_NOIO=1 \
+#	    USE_SIMINT=1 \
+#	    SIMINT_MAXAM=4 \
+#	    SIMINT_VECTOR=AVX2 \
+	    EACCSD=Y \
+	    IPCCSD=Y \
+#	    CUDA_VERSION_MAJOR=11 \
+#	    CUDA_VERSION_MINOR=5 \
+#	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
+#	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  \
+#	    TCE_CUDA=Y \
+#	    CUDA_LIBS="-L/usr/local/cuda/lib64 -lcudart" \
+#	    CUDA_INCLUDE="-I. -I/usr/local/cuda/include" \
 	    USE_HWOPT=n  \
             USE_MPI=y \
             USE_MPIF=y \
