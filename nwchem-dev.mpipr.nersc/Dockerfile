@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM        ubuntu:20.04
+FROM ubuntu:focal
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
@@ -34,7 +34,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             BUILD_SCALAPACK=1 \
             BLAS_SIZE=8 \
             SCALAPACK_SIZE=8 \
-            USE_OPENMP=1 \
+#            USE_OPENMP=1 \
             USE_LIBXC=1 \
             USE_NOIO=1 \
 	    USE_SIMINT=1 \
@@ -76,9 +76,9 @@ RUN         apt-get update \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
     cd $mpich_prefix                                                        ; \
-    ./configure                                                             ; \
+    FFLAGS=-fallow-argument-mismatch  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
-    make -j 4  >& make.log                                                  ; \
+    make -j 4 FFLAGS=-fallow-argument-mismatch  >& make.log                 ; \
     echo 'mpich compiled' ; \
     tail make.log         ; \
     echo 'redirecting output to install.log'                                   ; \
@@ -92,10 +92,8 @@ RUN         apt-get update \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt  \
             &&  rm -rf nwchem || true \
-            && git clone -n  https://github.com/nwchemgit/nwchem.git  \
-	    && cd nwchem \
-	    && git checkout 310ca3eac352f26bfc5ac24596ea7bc16f8f315e \
-            && cd src \
+            && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+	    && cd nwchem/src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
