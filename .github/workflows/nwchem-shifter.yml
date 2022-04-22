@@ -13,6 +13,7 @@ jobs:
         matrix:
           folder:
             - nwchem-dev.mpipr.nersc
+            - nwchem-dev.mpipr.nersc_old
             - nwchem-702.mpipr.nersc
     runs-on: ubuntu-18.04
     steps:
