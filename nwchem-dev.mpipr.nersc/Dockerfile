@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM        ubuntu:20.04
+FROM ubuntu:focal
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
@@ -19,6 +19,7 @@ RUN           groupadd -r nwchem -g 1994 \
 COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG USE_OPENMP_VALUE
 ARG mpich=3.3
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
@@ -34,7 +35,6 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
             BUILD_SCALAPACK=1 \
             BLAS_SIZE=8 \
             SCALAPACK_SIZE=8 \
-            USE_OPENMP=1 \
             USE_LIBXC=1 \
             USE_NOIO=1 \
 	    USE_SIMINT=1 \
@@ -76,9 +76,9 @@ RUN         apt-get update \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
     cd $mpich_prefix                                                        ; \
-    ./configure                                                             ; \
+    FFLAGS=-fallow-argument-mismatch  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
-    make -j 4  >& make.log                                                  ; \
+    make -j 4 FFLAGS=-fallow-argument-mismatch  >& make.log                 ; \
     echo 'mpich compiled' ; \
     tail make.log         ; \
     echo 'redirecting output to install.log'                                   ; \
@@ -93,6 +93,8 @@ RUN         apt-get update \
             && cd /opt  \
             &&  rm -rf nwchem || true \
             && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
+            && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd nwchem/src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
