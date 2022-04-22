@@ -82,7 +82,7 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
-          tags: ${{ step.docker-tag.output.tag }}
+          tags: ${{ steps.docker-tag.output.tag }}
           build-args: |
             USE_OPENMP_VALUE=${{ matrix.openmp }}
       - name: load and test image
