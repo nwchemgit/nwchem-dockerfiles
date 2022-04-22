@@ -30,6 +30,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
+SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev \
@@ -37,8 +38,8 @@ RUN         apt-get update \
     && wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
     tar xvzf $mpich_prefix.tar.gz                                           && \
     cd $mpich_prefix                                                        && \
-    ./configure                                                             && \
-    make -j 4                                                               && \
+    FFLAGS=-fallow-argument-mismatch ./configure                            && \
+    make FFLAGS=-fallow-argument-mismatch  -j 4                             && \
     make install                                                            && \
     make clean                                                              && \
     cd ..                                                                   && \
