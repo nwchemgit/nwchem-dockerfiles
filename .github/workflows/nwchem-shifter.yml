@@ -80,7 +80,7 @@ jobs:
       - name: builddate
         id: build-date
         run: |
-          echo "::set-output name=date::$(date -v -7H -u +%Y%m%d_%H%M%S)"
+          echo "::set-output name=date::$(TZ=America/Los_Angeles date -u +%Y%m%d_%H%M%S)"
       - name: build_docker
         uses: docker/build-push-action@v2
         with:
