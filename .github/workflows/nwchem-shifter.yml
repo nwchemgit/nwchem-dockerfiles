@@ -15,6 +15,9 @@ jobs:
             - nwchem-dev.mpipr.nersc
             - nwchem-dev.mpipr.nersc_old
             - nwchem-702.mpipr.nersc
+          openmp:
+            - "Y"
+            - "N"
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -67,12 +70,14 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
-          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}
+          tags: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/openmp${{ matrix.openmp }}
+          build-args: |
+            USE_OPENMP_VALUE=${{ matrix.openmp }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
           sleep 30s
-          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}
+          docker pull ghcr.io/${{ github.actor }}/${{ matrix.folder }}/openmp${{ matrix.openmp }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -80,7 +85,7 @@ jobs:
           cd QA
           docker run --rm  \
           -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
+          ghcr.io/${{ github.actor }}/${{ matrix.folder }}/openmp${{ matrix.openmp }} \
           procs 2 h2o_opt prop_mep_gcube 
       - name: store cache
         if:  ( github.actor == github.repository_owner )
@@ -88,14 +93,14 @@ jobs:
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}/openmp${{ matrix.openmp }} \
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}/openmp${{ matrix.openmp }} \
             -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ghcr.io/${{ github.actor }}/${{ matrix.folder }} \
+            ghcr.io/${{ github.actor }}/${{ matrix.folder }}/openmp${{ matrix.openmp }} \
             -rp /usr/local/mpich.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
