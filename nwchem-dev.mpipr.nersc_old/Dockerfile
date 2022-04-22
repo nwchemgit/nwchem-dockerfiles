@@ -67,6 +67,7 @@ RUN         apt-get update \
     cd ..                                                                   && \
     rm -rf $mpich_prefix \
             && cd /opt;git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            &&  rm -rf nwchem || true \
             && cd nwchem/src \
 #strip native compiler options as Fedora does
             && make nwchem_config && make -j3  \
