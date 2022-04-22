@@ -82,14 +82,14 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
-          tags: ${{ steps.docker-tag.output.tag }}
+          tags: ${{ steps.docker-tag.outputs.tag }}
           build-args: |
             USE_OPENMP_VALUE=${{ matrix.openmp }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
           sleep 30s
-          docker pull ${{ steps.docker-tag.output.tag }}
+          docker pull ${{ steps.docker-tag.outputs.tag }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -97,7 +97,7 @@ jobs:
           cd QA
           docker run --rm  \
           -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          ${{ steps.docker-tag.output.tag }} \
+          ${{ steps.docker-tag.outputs.tag }} \
           procs 2 h2o_opt prop_mep_gcube 
       - name: store cache
         if:  ( github.actor == github.repository_owner )
@@ -105,14 +105,14 @@ jobs:
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.output.tag }} \
+            ${{ steps.docker-tag.outputs.tag }} \
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.output.tag }} \
+            ${{ steps.docker-tag.outputs.tag }} \
             -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.output.tag }} \
+            ${{ steps.docker-tag.outputs.tag }} \
             -rp /usr/local/mpich.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
