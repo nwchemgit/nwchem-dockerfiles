@@ -77,12 +77,18 @@ jobs:
         run: |
           echo "::set-output name=tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.openmp-tag.outputs.tag }}"
         shell: bash
+      - name: builddate
+        id: build-date
+        run: |
+          echo "::set-output name=date::$(TZ=America/Los_Angeles date -u +%Y%m%d_%H%M%S)"
       - name: build_docker
         uses: docker/build-push-action@v2
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
-          tags: ${{ steps.docker-tag.outputs.tag }}
+          tags: |
+            ${{ steps.docker-tag.outputs.tag }}:latest
+            ${{ steps.docker-tag.outputs.tag }}:${{ steps.build-date.outputs.date }}
           build-args: |
             USE_OPENMP_VALUE=${{ matrix.openmp }}
       - name: load and test image
