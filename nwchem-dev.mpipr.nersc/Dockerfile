@@ -92,8 +92,10 @@ RUN         apt-get update \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt  \
             &&  rm -rf nwchem || true \
-            && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
-            && cd nwchem/src \
+            && git clone -n  https://github.com/nwchemgit/nwchem.git  \
+	    && cd nwchem \
+	    && git checkout 310ca3eac352f26bfc5ac24596ea7bc16f8f315e \
+            && cd src \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
