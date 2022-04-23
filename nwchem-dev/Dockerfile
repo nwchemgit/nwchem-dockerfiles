@@ -13,6 +13,8 @@ FROM        ubuntu:focal
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
+LABEL org.opencontainers.image.description "NWChem image built from the master branch"
+
 #create user nwchem
 RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
