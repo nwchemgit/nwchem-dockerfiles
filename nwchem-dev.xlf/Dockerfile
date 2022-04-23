@@ -6,6 +6,8 @@ ENV XLF_VRM 16.1.1
 #caching from host cache dir
 COPY Dockerfile cache* /tmp/
 
+LABEL org.opencontainers.image.description "NWChem ppc64le image built with xlf"
+
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG FC
@@ -100,7 +102,7 @@ RUN         echo "check CACHE_HIT value" \
             && cd tools    && make FC=xlf CC=gcc V=-1  && cd .. \
             && ( make USE_INTERNALBLAS=y deps_stamp  >& deps.log &) \
 	    && sleep 15s \
-            &&  make FC=xlf CC=gcc FOPTIMIZE="-qnoopt -g" FDEBUG="-qnoopt -g" V=-1 -j2 || true \
+            &&  make FC=xlf CC=gcc FOPTIMIZE="-qnoopt -g" FDEBUG="-qnoopt -g" V=-1 -j4 || true \
 	    &&  if [[ -f ../bin/LINUX64/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error'; exit 1; fi \
 # QA tests
 #            && cd .. \
