@@ -165,6 +165,7 @@ jobs:
           fc: [ gfortran, nvfortran]
           include:
             - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
+            - {folder: ppc64le.xlf, archs: linux/ppc64le, fc: xlf}
           exclude:
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
