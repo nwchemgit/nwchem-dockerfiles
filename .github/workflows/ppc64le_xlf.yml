@@ -45,7 +45,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "::set-output name=tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}$/${{ steps.get-arch.outputs.arch }}"
+          echo "::set-output name=tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}"
         shell: bash
       - name: build date
         id: build-date
