@@ -1,5 +1,6 @@
 #FROM --platform=linux/ppc64le ibmcom/xlf-ce as builder
-FROM ppc64le/ubuntu:bionic
+#FROM ppc64le/ubuntu:bionic
+FROM ghcr.io/edoapra/ppc64le.xlf/ppc64le
 ENV XLF_REPO_URL https://public.dhe.ibm.com/software/server/POWER/Linux/xl-compiler/eval/ppc64le
 ENV XLF_REPO_KEY_SHA256SUM e0eba411ed1cbf48fdab9e03dfc159a280bd728e716dd408ef321e42ac3ae552
 ENV XLF_VRM 16.1.1
@@ -17,16 +18,6 @@ RUN ls -lrta /tmp && \
      echo ' defining modules according to CACHE_HIT='$CACHE_HIT && \
      if [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi && \
   rm -f /tmp/env.out && env > /tmp/env.out  && cat /tmp/env.out && rm -f /tmp/env.out; echo ' ******' && \
-  apt-get update && apt-get install -y wget gpg && \
-  wget -q "$XLF_REPO_URL/ubuntu/public.gpg" && \
-  apt-get purge -y --auto-remove wget && \
-  echo "$XLF_REPO_KEY_SHA256SUM public.gpg"| sha256sum -c - && \
-  apt-key add public.gpg && \
-  rm public.gpg && \
-  echo "deb $XLF_REPO_URL/ubuntu/ xenial main" > /etc/apt/sources.list.d/ibm-xl-compiler.list && \
-  apt-get update && apt-get install -y \
-    "xlf.$XLF_VRM" \
-    "xlf-license-community.$XLF_VRM" && \
     rm -f /tmp/in.txt  && \
     echo 1 > /tmp/in.txt && \
    /opt/ibm/xlf/$XLF_VRM/bin/xlf_configure </tmp/in.txt 
