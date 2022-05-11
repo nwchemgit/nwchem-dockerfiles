@@ -13,7 +13,7 @@ jobs:
         matrix:
           include:
             - {folder: ppc64le.xlf, archs: linux/ppc64le}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     timeout-minutes: 420
     steps:
       - name: Checkout
