@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  pull:
+  pull and bundle:
     runs-on: ubuntu-latest
     steps:
       - name: pull images
         if:  ( github.actor == github.repository_owner ) 
         run: |
-          for arch in amd64 arm64 arm/v7 ppc64le
+          for arch in amd64 arm64 armv7 ppc64le
           do
           echo $arch
           docker pull ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
