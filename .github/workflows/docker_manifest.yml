@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  pull and bundle:
+  pull_and_bundle:
     runs-on: ubuntu-latest
     steps:
       - name: pull images
