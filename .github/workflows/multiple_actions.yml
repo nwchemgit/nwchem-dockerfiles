@@ -117,7 +117,6 @@ jobs:
           echo "::set-output name=date::$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)"
       - name: cache_hit
         id: cache_hit
-        if: (steps.setup-cache.outputs.cache-hit == 'false')
         run: |
           echo "cache-hit" is ${{ steps.setup-cache.outputs.cache-hit }}
           if [[ ${{ steps.setup-cache.outputs.cache-hit }}  == 'false' ]]; then
@@ -249,7 +248,6 @@ jobs:
           echo "::set-output name=date::$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)"
       - name: cache_hit
         id: cache_hit
-        if: (steps.setup-cache.outputs.cache-hit == 'false')
         run: |
           echo "cache-hit" is ${{ steps.setup-cache.outputs.cache-hit }}
           if [[ ${{ steps.setup-cache.outputs.cache-hit }}  == 'false' ]]; then
