@@ -1,0 +1,22 @@
+name: multiplatform_manifest
+
+on:
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+  - name: pull images
+    if:  ( github.actor == github.repository_owner ) 
+    run: |
+      for arch in amd64 arm64 arm/v7 ppc64le
+      do
+      echo $arch
+      docker pull ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+      docker manifest create ghcr.io/${{ github.actor }}/nwchem-dev:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+      done
+      docker images
+      docker manifest push ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+    shell: bash
