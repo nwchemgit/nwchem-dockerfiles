@@ -19,5 +19,5 @@ jobs:
           docker manifest create ghcr.io/${{ github.actor }}/nwchem-dev:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
           done
           docker images
-          docker manifest push ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+          docker manifest push ghcr.io/${{ github.actor }}/nwchem-dev:latest
         shell: bash
