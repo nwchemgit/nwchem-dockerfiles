@@ -162,7 +162,7 @@ jobs:
             ls -Ralrt ~/cache || true
   bundle_images1:
     needs: [docker_filter]
-    runs-on: ubuntu_latest
+    runs-on: ubuntu-latest
     steps:
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
@@ -310,7 +310,7 @@ jobs:
             ls -Ralrt ~/cache || true
   bundle_images2:
     needs: [docker_schedule]
-    runs-on: ubuntu_latest
+    runs-on: ubuntu-latest
     steps:
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
