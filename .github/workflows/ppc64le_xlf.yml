@@ -18,6 +18,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+          key: ${{ matrix.folder}}-nwchemxlf-v000
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -37,6 +44,31 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: fetch cache
+        if: (steps.setup-cache.outputs.cache-hit == 'true')
+        run: |
+          cd ${{ matrix.folder }}
+          ls -lrta
+          if [[ -f ~/cache/libext.tar.bz2 ]]; then \
+          echo "libext cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/libext* cache/. ; \
+          echo "libext cache fetched" ; \
+          fi
+          if [[ -f ~/cache/simint.tar.bz2 ]]; then \
+          echo "simint cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/simint* cache/. ; \
+          echo "simint cache fetched" ; \
+          fi
+          if [[ -f ~/cache/mpich.tar.bz2 ]]; then \
+          echo "mpich cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/mpich* cache/. ; \
+          echo "mpich cache fetched" ; \
+          ls -l cache/ ; \
+          echo "======" ; \
+          fi
       - name: Get Arch
         id: get-arch
         run: |
@@ -51,6 +83,17 @@ jobs:
         id: build-date
         run: |
           echo "::set-output name=date::$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)"
+      - name: cache_hit
+        id: cache_hit
+        if: (steps.setup-cache.outputs.cache-hit == 'false')
+        run: |
+          echo "cache-hit" is ${{ steps.setup-cache.outputs.cache-hit }}
+          if [[ ${{ steps.setup-cache.outputs.cache-hit }}  == 'false' ]]; then
+            echo "::set-output name=git::$(echo N)"
+          else
+            echo "::set-output name=git::$(echo Y)"
+          fi
+        shell: bash
       - name: build_schedule
         uses: docker/build-push-action@v2
         with:
@@ -61,6 +104,25 @@ jobs:
           tags: |
             ${{ steps.docker-tag.outputs.tag }}:latest
             ${{ steps.docker-tag.outputs.tag }}:${{ steps.build-date.outputs.date }}
+          build-args: |
+            CACHE_HIT=${{ steps.cache_hit.outputs.hit }}
       - name: load and test image
         run: |
           docker pull ${{ steps.docker-tag.outputs.tag }}
+      - name: store cache
+        if:  ( github.actor == github.repository_owner )
+        run: |
+            mkdir -p ~/cache/
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ steps.docker-tag.outputs.tag }} \
+            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ steps.docker-tag.outputs.tag }} \
+            -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ steps.docker-tag.outputs.tag }} \
+            -rp /usr/local/mpich.tar.bz2 /data/.  || true
+            ls -Ralrt ~/cache || true
