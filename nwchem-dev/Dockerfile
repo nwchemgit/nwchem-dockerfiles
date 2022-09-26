@@ -67,6 +67,7 @@ RUN         apt-get update \
 	    && arch_dpkg=`dpkg --print-architecture`  \
 	    && if [[ $arch == "aarch64" ]]; then arch_dpkg="arm64"; fi \
 	    && if [[ $arch == "x86_64" ]]; then arch_dpkg="amd64"; fi \
+	    && if [[ $arch == "riscv64" ]]; then unset USE_OPENMP; fi \
 	    && nv_year=2021 && nv_major=21 &&  nv_minor=9 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
 	    &&  if [[ $FC == "nvfortran" ]]; then apt-get install -y g++ libtinfo5  libncursesw5 mpich libmpich-dev; wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/nvhpc-"$nv_year"_"$nverdot"_$arch_dpkg.deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC=$FC ; MPIF90=mpif90.mpich ; MPIRUN_PATH=/usr/bin/mpirun.mpich ; update-alternatives --set mpi /usr/bin/mpicc.mpich; update-alternatives --set mpirun  /usr/bin/mpirun.mpich; update-alternatives --list mpi  ; mpif90 -show; export ARMCI_NETWORK=MPI-TS;  rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; fi \
             &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH \
