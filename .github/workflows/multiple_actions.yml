@@ -39,7 +39,7 @@ jobs:
         fail-fast: false
         matrix:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7 linux/riscv64]
           fc: [ gfortran, nvfortran]
           include:
             - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
