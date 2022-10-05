@@ -39,7 +39,7 @@ jobs:
         fail-fast: false
         matrix:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
           include:
             - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
@@ -47,6 +47,7 @@ jobs:
             - {folder: helloworld, archs: linux/arm64}
             - {folder: helloworld, archs: linux/ppc64le}
             - {folder: helloworld, archs: linux/arm/v7}
+            - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
     runs-on: ubuntu-latest
@@ -174,7 +175,7 @@ jobs:
       - name: pull and bundle
         if:  ( github.actor == github.repository_owner ) 
         run: |
-          for arch in amd64 arm64 armv7 ppc64le
+          for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
           docker pull ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
@@ -191,13 +192,14 @@ jobs:
         matrix:
           folder:
             - nwchem-dev
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
+          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
           include:
             - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
           exclude:
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
+            - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
@@ -322,7 +324,7 @@ jobs:
       - name: pull and bundle
         if:  ( github.actor == github.repository_owner ) 
         run: |
-          for arch in amd64 arm64 armv7 ppc64le
+          for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
           docker pull ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
