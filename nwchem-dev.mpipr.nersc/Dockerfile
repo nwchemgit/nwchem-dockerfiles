@@ -45,7 +45,7 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 	    EACCSD=Y \
 	    IPCCSD=Y \
 	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=5 \
+	    CUDA_VERSION_MINOR=8 \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  \
 	    TCE_CUDA=Y \
