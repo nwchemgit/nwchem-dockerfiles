@@ -85,10 +85,12 @@ RUN         apt-get update \
     else  echo 'downloading mpich source' ; \
 #    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
 #    tar xzf $mpich_prefix.tar.gz                                           ; \
-    wget https://github.com/pmodels/mpich/tarball/main -O - | tar xzvf - ; \
+    wget https://github.com/pmodels/mpich/tarball/main -O - | tar xzf - ; \
+    echo 'lslslsls ' `ls -lart` ;\
     mv pmodels-mpich-* $mpich_prefix ;\
     cd $mpich_prefix    ; sh autogen.sh                                  ; \
-#    cd $mpich_prefix                                                        ; \
+    echo 'pwpwpwpwpwd ' `pwd`
+    echo 'lslslsls ' `ls -lrta` ;\
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
