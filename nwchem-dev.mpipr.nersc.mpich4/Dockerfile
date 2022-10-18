@@ -87,7 +87,8 @@ RUN         apt-get update \
 #    tar xzf $mpich_prefix.tar.gz                                           ; \
     wget https://github.com/pmodels/mpich/tarball/main -O - | tar xzvf - ; \
     mv pmodels-mpich-* $mpich_prefix ;\
-    cd $mpich_prefix                                                        ; \
+    cd $mpich_prefix    ; sh autogen.sh                                  ; \
+#    cd $mpich_prefix                                                        ; \
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
