@@ -89,7 +89,7 @@ RUN         apt-get update \
     echo 'lslslsls ' `ls -lart` ;\
     mv pmodels-mpich-* $mpich_prefix ;\
     cd $mpich_prefix    ; sh autogen.sh                                  ; \
-    echo 'pwpwpwpwpwd ' `pwd`
+    echo 'pwpwpwpwpwd ' `pwd` ;\ 
     echo 'lslslsls ' `ls -lrta` ;\
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
