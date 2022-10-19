@@ -62,7 +62,7 @@ SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
-            && apt-get install -y  autoconf automake libtool \
+            && apt-get install -y  autoconf automake libtool git \
 	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSION=`gfortran -dumpversion  | cut -f1 -d. ` \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
@@ -86,10 +86,9 @@ RUN         apt-get update \
     else  echo 'downloading mpich source' ; \
 #    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
 #    tar xzf $mpich_prefix.tar.gz                                           ; \
-    wget https://github.com/pmodels/mpich/tarball/main -O - | tar xzf - ; \
+    git clone --depth 1 https://github.com/pmodels/mpich $mpich_prefix ;\
     echo 'lslslsls ' `ls -lart` ;\
-    mv pmodels-mpich-* $mpich_prefix ;\
-    cd $mpich_prefix    ; sh autogen.sh                                  ; \
+    cd $mpich_prefix    ; git submodule update --init; sh autogen.sh                                  ; \
     echo 'pwpwpwpwpwd ' `pwd` ;\ 
     echo 'lslslsls ' `ls -lrta` ;\
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
