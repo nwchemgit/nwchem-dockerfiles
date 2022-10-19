@@ -62,6 +62,7 @@ SHELL ["/bin/bash","-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
+            && apt-get install -y  autoconf automake libtool \
 	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSION=`gfortran -dumpversion  | cut -f1 -d. ` \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
