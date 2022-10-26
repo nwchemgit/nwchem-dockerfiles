@@ -234,7 +234,7 @@ jobs:
       - name: Get Arch
         id: get-arch
         run: |
-          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+          echo "arch=$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )" >> $GITHUB_ENV
         shell: bash
       - name: FC tag
         id: fc-tag
@@ -261,7 +261,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
@@ -273,6 +273,10 @@ jobs:
           cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
           if_true: "Y"
           if_false: "N"
+      - name: print env
+        run: |
+            echo "GITHUB_ENV" $GITHUB_ENV
+            echo " tag " ${{ env.tag }}
       - name: build_schedule
         uses: docker/build-push-action@v3
         with:
