@@ -22,7 +22,7 @@ COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USE_OPENMP_VALUE
-ARG mpich=4.0
+ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
 	    CUDA_VERSION_MINOR=8
@@ -84,12 +84,8 @@ RUN         apt-get update \
 	    && echo 'checking cache #2 ' \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
-#    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
-#    tar xzf $mpich_prefix.tar.gz                                           ; \
-    git clone --depth 1 https://github.com/pmodels/mpich $mpich_prefix ;\
-    echo 'lslslsls ' `ls -lart` ;\
-    cd $mpich_prefix    ; git submodule update --init; sh autogen.sh                                  ; \
-    echo 'pwpwpwpwpwd ' `pwd` ;\ 
+    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
+    tar xzf $mpich_prefix.tar.gz                                           ; \
     echo 'lslslsls ' `ls -lrta` ;\
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
