@@ -41,15 +41,14 @@ jobs:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
-          include:
-            - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
           exclude:
-            - {folder: helloworld, archs: linux/arm64}
-            - {folder: helloworld, archs: linux/ppc64le}
-            - {folder: helloworld, archs: linux/arm/v7}
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
+            - {folder: helloworld, archs: linux/arm64}
+            - {folder: helloworld, archs: linux/ppc64le}
+            - {folder: helloworld, archs: linux/arm/v7}
+            - {folder: helloworld, archs: linux/riscv64}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
