@@ -118,10 +118,12 @@ jobs:
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
       - name: cache-hit-reporter
         run: |
-          if [[ ${{ matrix.folder }} != 'helloworld' && ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
-            echo "cache_hit=Y" >> $GITHUB_ENV
-          else
-            echo "cache_hit=N" >> $GITHUB_ENV
+          if [[ ${{ matrix.folder }} != 'helloworld' ]]; then
+            if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
+              echo "cache_hit=Y" >> $GITHUB_ENV
+            else
+              echo "cache_hit=N" >> $GITHUB_ENV
+            fi
           fi
       - name: print env
         run: |
@@ -274,10 +276,12 @@ jobs:
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: cache-hit-reporter
         run: |
-          if [[ ${{ matrix.folder }} != 'helloworld' && ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
-            echo "cache_hit=Y" >> $GITHUB_ENV
-          else
-            echo "cache_hit=N" >> $GITHUB_ENV
+          if [[ ${{ matrix.folder }} != 'helloworld' ]]; then
+            if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
+              echo "cache_hit=Y" >> $GITHUB_ENV
+            else
+              echo "cache_hit=N" >> $GITHUB_ENV
+            fi
           fi
       - name: print env
         run: |
