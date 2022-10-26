@@ -83,7 +83,7 @@ jobs:
       - name: Get Arch
         id: get-arch
         run: |
-          echo "arch=$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )" >> GITHUB_ENV
+          echo "arch=$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )" >> $GITHUB_ENV
         shell: bash
       - name: FC tag
         id: fc-tag
@@ -91,7 +91,7 @@ jobs:
           if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
             echo "fc=" >> $GITHUB_ENV
           else 
-            echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
+          echo "fc=$(echo ${{matrix.fc }}  )"  >> $GITHUB_ENV
           fi
         shell: bash
       - name: fetch cache
@@ -110,12 +110,12 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.fc }}/${{ env.arch }}" >> GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
         run: |
-          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  GITHUB_ENV
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
       - uses: haya14busa/action-cond@dependabot/npm_and_yarn/actions/core-1.9.1                  
         id: cache-hit-reporter
         with:
