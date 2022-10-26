@@ -116,7 +116,8 @@ jobs:
         id: build-date
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  GITHUB_ENV
-      - uses: haya14busa/action-cond@dependabot/npm_and_yarn/actions/core-1.9.1                  id: cache-hit-reporter
+      - uses: haya14busa/action-cond@dependabot/npm_and_yarn/actions/core-1.9.1                  
+        id: cache-hit-reporter
         with:
           cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
           if_true: "Y"
@@ -265,8 +266,8 @@ jobs:
       - name: build date
         id: build-date
         run: |
-          echo "::set-output name=date::$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)"
-      - uses: haya14busa/action-cond@v1
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
+      - uses: haya14busa/action-cond@dependabot/npm_and_yarn/actions/core-1.9.1 
         id: cache-hit-reporter
         with:
           cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
