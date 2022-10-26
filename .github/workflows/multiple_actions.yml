@@ -122,6 +122,10 @@ jobs:
           cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
           if_true: "Y"
           if_false: "N"
+      - name: print env
+        run: |
+            echo "GITHUB_ENV" $GITHUB_ENV
+            echo " tag " ${{ env.tag }}
       - name: build_filter
         if: ${{ matrix.folder  != 'helloworld' }}
         uses: docker/build-push-action@v3
