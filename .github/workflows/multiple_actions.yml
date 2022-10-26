@@ -41,6 +41,7 @@ jobs:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
+          branch: [ master, hotfix/release-7-0-0]
           exclude:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
@@ -140,6 +141,7 @@ jobs:
             ${{ env.tag }}:${{ env.date }}
           build-args: |
             FC=${{ matrix.fc }}
+            NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
