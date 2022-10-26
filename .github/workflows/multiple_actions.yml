@@ -118,7 +118,7 @@ jobs:
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
       - name: cache-hit-reporter
         run: |
-          if [[ ${{ steps.setup-cache.outputs.cache-hit }} !=  '' ]]; then
+          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
             echo "cache_hit=Y" >> $GITHUB_ENV
           else
             echo "cache_hit=N" >> $GITHUB_ENV
@@ -274,7 +274,7 @@ jobs:
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: cache-hit-reporter
         run: |
-          if [[ ${{ steps.setup-cache.outputs.cache-hit }} !=  '' ]]; then
+          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
             echo "cache_hit=Y" >> $GITHUB_ENV
           else
             echo "cache_hit=N" >> $GITHUB_ENV
