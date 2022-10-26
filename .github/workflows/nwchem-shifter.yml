@@ -13,25 +13,26 @@ jobs:
         matrix:
           folder:
             - nwchem-dev.mpipr.nersc
+            - nwchem-dev.mpipr.nersc.mpich4
             - nwchem-dev.mpipr.nersc_old
             - nwchem-702.mpipr.nersc
           openmp: [ Y, N]
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/cache
           key: ${{ matrix.folder}}-nwchemshiftercache-v005
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -67,35 +68,35 @@ jobs:
         id: openmp-tag
         run: |
           if [[ ${{ matrix.openmp }} == 'N'  ]]; then 
-            echo "::set-output name=tag::_no_openmp"  
+            echo "omp_tag=_no_openmp"  >> $GITHUB_ENV
           else 
-            echo "::set-output name=tag::"  
+            echo "omp_tag="  >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag
         id: docker-tag
         run: |
-          echo "::set-output name=tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.openmp-tag.outputs.tag }}"
+          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.omp_tag }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
         run: |
-          echo "::set-output name=date::$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)"
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: build_docker
         uses: docker/build-push-action@v2
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
           tags: |
-            ${{ steps.docker-tag.outputs.tag }}:latest
-            ${{ steps.docker-tag.outputs.tag }}:${{ steps.build-date.outputs.date }}
+            ${{ env.tag }}:latest
+            ${{ env.tag }}:${{ env.date }}
           build-args: |
             USE_OPENMP_VALUE=${{ matrix.openmp }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
           sleep 30s
-          docker pull ${{ steps.docker-tag.outputs.tag }}
+          docker pull ${{ env.tag }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -103,7 +104,7 @@ jobs:
           cd QA
           docker run --rm  \
           -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          ${{ steps.docker-tag.outputs.tag }} \
+          ${{ env.tag }} \
           procs 2 h2o_opt prop_mep_gcube 
       - name: store cache
         if:  ( github.actor == github.repository_owner )
@@ -111,14 +112,14 @@ jobs:
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
+            ${{ env.tag }} \
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
+            ${{ env.tag }} \
             -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
+            ${{ env.tag }} \
             -rp /usr/local/mpich.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
