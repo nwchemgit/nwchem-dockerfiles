@@ -19,7 +19,7 @@ jobs:
       # Expose matched filters as job 'folders' output variable
       folders: ${{ steps.filter.outputs.changes }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: choose_dockerfile_filter
       uses: dorny/paths-filter@v2
       id: filter
@@ -54,16 +54,16 @@ jobs:
     timeout-minutes: 420
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/cache
           key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v018
       - name: Qemu
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
         with:
           image: crazymax/binfmt:v6.0.0
       - name: Available platforms
@@ -83,15 +83,15 @@ jobs:
       - name: Get Arch
         id: get-arch
         run: |
-          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+          echo "arch=$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )" >> GITHUB_ENV
         shell: bash
       - name: FC tag
         id: fc-tag
         run: |
           if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
-            echo "::set-output name=fc::"  
+            echo "fc=" >> $GITHUB_ENV
           else 
-            echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  
+            echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
           fi
         shell: bash
       - name: fetch cache
@@ -110,14 +110,13 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "::set-output name=tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}"
+          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.fc }}/${{ env.arch }}" >> GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
         run: |
-          echo "::set-output name=date::$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)"
-      - uses: haya14busa/action-cond@v1
-        id: cache-hit-reporter
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  GITHUB_ENV
+      - uses: haya14busa/action-cond@dependabot/npm_and_yarn/actions/core-1.9.1                  id: cache-hit-reporter
         with:
           cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
           if_true: "Y"
@@ -131,8 +130,8 @@ jobs:
           shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: |
-            ${{ steps.docker-tag.outputs.tag }}:latest
-            ${{ steps.docker-tag.outputs.tag }}:${{ steps.build-date.outputs.date }}
+            ${{ env.tag }}:latest
+            ${{ env.tag }}:${{ env.date }}
           build-args: |
             FC=${{ matrix.fc }}
             CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
@@ -140,7 +139,7 @@ jobs:
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
           sleep 30s
-          docker pull ${{ steps.docker-tag.outputs.tag }}
+          docker pull ${{ env.tag }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -149,7 +148,7 @@ jobs:
           if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran' ]]; then \
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ${{ steps.docker-tag.outputs.tag }} \
+          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} \
           dft_he2+ ;\
           fi
       - name: store cache
@@ -158,7 +157,7 @@ jobs:
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
+            ${{ env.tag }} \
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
   bundle_images1:
@@ -204,10 +203,10 @@ jobs:
     timeout-minutes: 420
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/cache
@@ -220,13 +219,13 @@ jobs:
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
         with:
           driver-opts: |
               image=moby/buildkit:master
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -261,7 +260,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "::set-output name=tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ steps.fc-tag.outputs.fc }}/${{ steps.get-arch.outputs.arch }}"
+          echo "tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
@@ -274,22 +273,22 @@ jobs:
           if_true: "Y"
           if_false: "N"
       - name: build_schedule
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
           shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: |
-            ${{ steps.docker-tag.outputs.tag }}:latest
-            ${{ steps.docker-tag.outputs.tag }}:${{ steps.build-date.outputs.date }}
+            ${{ env.tag }}:latest
+            ${{ env.tag }}:${{ env.date }}
           build-args: |
             FC=${{ matrix.fc }}
             CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
-          docker pull ${{ steps.docker-tag.outputs.tag }}
+          docker pull ${{ env.tag }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -298,7 +297,7 @@ jobs:
           if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran'  ]]; then \
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ${{ steps.docker-tag.outputs.tag }} \
+          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} \
           dft_he2+ ;\
           fi
       - name: store cache
@@ -307,7 +306,7 @@ jobs:
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
             --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
+            ${{ env.tag }} \
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
   bundle_images2:
@@ -316,7 +315,7 @@ jobs:
     steps:
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
