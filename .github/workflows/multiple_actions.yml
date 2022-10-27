@@ -73,8 +73,8 @@ jobs:
       - name: env_change
         id: env_change
         run: |
-          echo " needs.changes.env_change.outputs.change is  ${{ needs.changes.env_change.outputs.change }}"
-          echo "change=${{ needs.changes.env_change.outputs.change }}" >> $GITHUB_OUTPUT
+          echo " needs.changes.steps.env_change.outputs.change is  ${{ needs.changes.steps.env_change.outputs.change }}"
+          echo "change=${{ needs.changes.steps.env_change.outputs.change }}" >> $GITHUB_OUTPUT
       - name: echo_change
         run: |
           echo " env change is" `cat $GITHUB_OUTPUT `
@@ -217,14 +217,14 @@ jobs:
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
   bundle_images1:
-    needs: [docker_filter]
+    needs: [changes, docker_filter]
     runs-on: ubuntu-latest
     steps:
       - name: env_change
         id: env_change
         run: |
-          echo " needs.docker_filter.env_change.outputs.change is  ${{ needs.docker_filter.env_change.outputs.change }}"
-          echo "change=${{ needs.docker_filter.env_change.outputs.change }}" >> $GITHUB_ENV
+          echo " needs.changes.steps.env_change.outputs.change is  ${{ needs.changes.steps.env_change.outputs.change }}"
+          echo "change=${{ needs.changes.steps.env_change.outputs.change }}" >> $GITHUB_ENV
       - name: echo_change
         run: |
           echo " env change is ${{ env.change }}" 
