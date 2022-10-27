@@ -106,7 +106,7 @@ jobs:
           fi
         shell: bash
       - name: fetch cache
-        if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
+        if: (steps.setup-cache.outputs.cache-hit == 'true')
         run: |
           cd ${{ matrix.folder }}
           ls -lrta
@@ -139,30 +139,13 @@ jobs:
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
       - name: cache-hit-reporter
-        if: ( matrix.folder  != 'helloworld' )
         run: |
           if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
             echo "cache_hit=Y" >> $GITHUB_ENV
           else
             echo "cache_hit=N" >> $GITHUB_ENV
           fi
-      - name: set changes
-        run: |
-          if [[ ${{ needs.changes.outputs.folders }} != '[]' ]]; then
-            echo "change detected"
-            echo 'needs.changes.outputs.folders' ${{ needs.changes.outputs.folders }}
-            echo "change=yes" >> $GITHUB_ENV
-          else
-            echo "no change detected"
-            echo 'needs.changes.outputs.folders' ${{ needs.changes.outputs.folders }}
-            echo "change=no" >> $GITHUB_ENV
-          fi
-      - name: print env
-        run: |
-            echo "GITHUB_ENV" `cat $GITHUB_ENV`
-            echo " tag " ${{ env.tag }}
       - name: build_filter
-        if: ${{ matrix.folder  != 'helloworld' }}
         uses: docker/build-push-action@v3
         with:
           push: ${{ github.actor == github.repository_owner }}
@@ -177,7 +160,7 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
           sleep 30s
           docker pull ${{ env.tag }}
@@ -193,7 +176,7 @@ jobs:
           dft_he2+ ;\
           fi
       - name: store cache
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )
+        if:  ( github.actor == github.repository_owner )
         run: |
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
@@ -226,7 +209,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: pull and bundle
-        if:  ( github.actor == github.repository_owner ) && ${{ matrix.folder  != 'helloworld' }}
+        if:  ( github.actor == github.repository_owner )
         run: |
           if [[ ${{ env.change }} == yes ]]; then
             for arch in amd64 arm64 armv7 ppc64le riscv64
@@ -302,7 +285,7 @@ jobs:
           fi
         shell: bash
       - name: fetch cache
-        if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
+        if: (steps.setup-cache.outputs.cache-hit == 'true')
         run: |
           cd ${{ matrix.folder }}
           ls -lrta
@@ -335,7 +318,6 @@ jobs:
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: cache-hit-reporter
-        if: ( matrix.folder  != 'helloworld' )
         run: |
           if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
             echo "cache_hit=Y" >> $GITHUB_ENV
@@ -360,7 +342,7 @@ jobs:
             FC=${{ matrix.fc }}
             CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' ) && ( matrix.folder  != 'nwchem-dev.xlf' )
+        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'nwchem-dev.xlf' )
         run: |
           docker pull ${{ env.tag }}
           cd /tmp
@@ -375,7 +357,7 @@ jobs:
           dft_he2+ ;\
           fi
       - name: store cache
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'helloworld' )
+        if:  ( github.actor == github.repository_owner )
         run: |
             mkdir -p ~/cache/
             docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
@@ -395,7 +377,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: pull and bundle
-        if:  ( github.actor == github.repository_owner ) && ${{ matrix.folder  != 'helloworld' }}
+        if:  ( github.actor == github.repository_owner )
         run: |
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
