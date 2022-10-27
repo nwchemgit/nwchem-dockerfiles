@@ -265,10 +265,18 @@ jobs:
           ls -l cache/ ; \
           echo "======" ; \
           fi
+      - name: nwchem version tag
+        run: |
+          if [[ ${{ matrix.branch }} ==  master ]]; then
+            echo "nwversion=dev" >> $GITHUB_ENV
+          else
+            echo "nwversion=702" >> $GITHUB_ENV
+          fi
+        shell: bash
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
@@ -340,9 +348,9 @@ jobs:
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-dev:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+          docker pull ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest
+          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
           done
           docker images
-          docker manifest push ghcr.io/${{ github.actor }}/nwchem-dev:latest
+          docker manifest push ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest
         shell: bash
