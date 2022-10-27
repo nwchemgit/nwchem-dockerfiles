@@ -48,7 +48,7 @@ jobs:
   docker_filter:
     needs: [changes]
     if: |
-        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') &&  (needs.changes.outputs.change  = yes)
+        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') &&  ( needs.changes.outputs.change == 'yes')
     strategy:
         fail-fast: false
         matrix:
