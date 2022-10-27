@@ -220,7 +220,7 @@ jobs:
           echo "change=yes" >> $GITHUB_ENV
       - name: echo_change
         run: |
-        echo "env change is" `cat $GITHUB_ENV `
+          echo "env change is" `cat $GITHUB_ENV `
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
         uses: docker/login-action@v2
