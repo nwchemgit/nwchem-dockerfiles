@@ -208,18 +208,18 @@ jobs:
     needs: [docker_filter]
     runs-on: ubuntu-latest
     steps:
-    - name: cleanup_nochange
-      if: steps.filter.outputs.changes == '[]'
-      run: |
-        echo "no change detected" 
-        echo "change=no" >> $GITHUB_ENV
-    - name: cleanup_change
-      if: steps.filter.outputs.changes != '[]'
-      run: |
-        echo "change detected"
-        echo "change=yes" >> $GITHUB_ENV
-    - name: echo_change
-      run: |
+      - name: cleanup_nochange
+        if: steps.filter.outputs.changes == '[]'
+        run: |
+          echo "no change detected" 
+          echo "change=no" >> $GITHUB_ENV
+      - name: cleanup_change
+        if: steps.filter.outputs.changes != '[]'
+        run: |
+          echo "change detected"
+          echo "change=yes" >> $GITHUB_ENV
+      - name: echo_change
+        run: |
         echo "env change is" `cat $GITHUB_ENV `
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
