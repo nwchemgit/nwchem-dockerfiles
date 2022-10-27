@@ -48,7 +48,7 @@ jobs:
   docker_filter:
     needs: [changes]
     if: |
-        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule')
+        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') &&  (${{ needs.changes.outputs.change }} = 'yes')
     strategy:
         fail-fast: false
         matrix:
@@ -244,7 +244,6 @@ jobs:
       - name: pull and bundle
         if:  ( github.actor == github.repository_owner ) && ${{ matrix.folder  != 'helloworld' }}
         run: |
-          echo "env.change is ${{ env.change }}
           if [[ ${{ env.change }} == yes ]]; then
             for arch in amd64 arm64 armv7 ppc64le riscv64
             do
