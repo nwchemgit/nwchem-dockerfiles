@@ -38,6 +38,9 @@ jobs:
       run: |
         echo "change detected"
         echo "change=yes" >> $GITHUB_ENV
+    - name: echo_change
+      run: |
+        echo "env change is" `cat $GITHUB_ENV `
   docker_filter:
     needs: [changes]
     if: |
@@ -45,7 +48,7 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          folder: ["${{ fromJSON(needs.changes.outputs.folders) }}"]
+          folder: ["${{ fromJSON(needs.changes.outputs.folders) }}", helloworld]
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
           branch: [ master, hotfix/release-7-2-0]
@@ -53,8 +56,14 @@ jobs:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/riscv64, branch: hotfix/release-7-2-0}
-            - {folder: nwchem-dev, fc: nvfortran, branch: hotfix/release-7-2-0}
+            - {folder: helloworld, branch: release-7-2-0}
+            - {folder: helloworld, fc: nvfortran}
+            - {folder: helloworld, archs: linux/arm64}
+            - {folder: helloworld, archs: linux/ppc64le}
+            - {folder: helloworld, archs: linux/arm/v7}
+            - {folder: helloworld, archs: linux/riscv64}
+            - {folder: nwchem-dev, archs: linux/riscv64, branch: release-7-2-0}
+            - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
@@ -140,6 +149,15 @@ jobs:
           else
             echo "cache_hit=N" >> $GITHUB_ENV
           fi
+      - name: set changes
+        run: |
+          if [[ ${{ fromJSON(needs.changes.outputs.folders) }} != '[]' ]]; then
+            echo "change detected"
+            echo "change=yes" >> $GITHUB_ENV
+          else
+            echo "no change detected"
+            echo "change=no" >> $GITHUB_ENV
+          fi
       - name: print env
         run: |
             echo "GITHUB_ENV" `cat $GITHUB_ENV`
@@ -198,7 +216,7 @@ jobs:
       - name: pull and bundle
         if:  ( github.actor == github.repository_owner ) && ${{ matrix.folder  != 'helloworld' }}
         run: |
-          echo "env.change" is ${{ env.change }}
+          echo "env.change is ${{ env.change }}
           if [[ ${{ env.change }} == yes ]]; then
             for arch in amd64 arm64 armv7 ppc64le riscv64
             do
@@ -225,8 +243,14 @@ jobs:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/riscv64, branch: hotfix/release-7-2-0}
-            - {folder: nwchem-dev, fc: nvfortran, branch: hotfix/release-7-2-0}
+            - {folder: helloworld, branch: release-7-2-0}
+            - {folder: helloworld, fc: nvfortran}
+            - {folder: helloworld, archs: linux/arm64}
+            - {folder: helloworld, archs: linux/ppc64le}
+            - {folder: helloworld, archs: linux/arm/v7}
+            - {folder: helloworld, archs: linux/riscv64}
+            - {folder: nwchem-dev, archs: linux/riscv64, branch: release-7-2-0}
+            - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
