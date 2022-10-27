@@ -154,6 +154,7 @@ jobs:
           if [[ ${{ fromJSON(needs.changes.outputs.folders) }} != '[]' ]]; then
             echo "change detected"
             echo ' fromjson is ' ${{ fromJSON(needs.changes.outputs.folders) }}
+            echo 'needs.changes.outputs.folders' ${{ needs.changes.outputs.folders }}
             echo "change=yes" >> $GITHUB_ENV
           else
             echo "no change detected"
