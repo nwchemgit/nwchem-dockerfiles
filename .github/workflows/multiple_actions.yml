@@ -46,6 +46,8 @@ jobs:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
+            - {folder: helloworld, branch: hotfix/release-7-0-0}
+            - {folder: helloworld, fc: nvfortran}
             - {folder: helloworld, archs: linux/arm64}
             - {folder: helloworld, archs: linux/ppc64le}
             - {folder: helloworld, archs: linux/arm/v7}
@@ -187,11 +189,11 @@ jobs:
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-dev:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+          docker pull ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest
+          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest
           done
           docker images
-          docker manifest push ghcr.io/${{ github.actor }}/nwchem-dev:latest
+          docker manifest push ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest
         shell: bash
 
   docker_schedule:
@@ -208,6 +210,8 @@ jobs:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
+            - {folder: helloworld, branch: hotfix/release-7-0-0}
+            - {folder: helloworld, fc: nvfortran}
             - {folder: helloworld, archs: linux/arm64}
             - {folder: helloworld, archs: linux/ppc64le}
             - {folder: helloworld, archs: linux/arm/v7}
@@ -356,7 +360,7 @@ jobs:
           do
           echo $arch
           docker pull ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest
           done
           docker images
           docker manifest push ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest
