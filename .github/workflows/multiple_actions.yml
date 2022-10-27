@@ -211,7 +211,7 @@ jobs:
     - name: cleanup_nochange
       if: steps.filter.outputs.changes == '[]'
       run: |
-        echo "no change detected"
+        echo "no change detected" 
         echo "change=no" >> $GITHUB_ENV
     - name: cleanup_change
       if: steps.filter.outputs.changes != '[]'
