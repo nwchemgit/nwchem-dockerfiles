@@ -92,7 +92,7 @@ RUN         apt-get update \
 	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi  \
 # smaller build on qemu emulated archs
 	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
-# compile libxc for amd64 
+# compile libxc for amd64
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
 	    && df -h /dev/shm \

@@ -95,7 +95,7 @@ jobs:
           if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
             echo "fc=" >> $GITHUB_ENV
           else 
-          echo "fc=$(echo ${{matrix.fc }}  )"  >> $GITHUB_ENV
+          echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
           fi
         shell: bash
       - name: fetch cache
@@ -119,10 +119,13 @@ jobs:
             echo "nwversion=702" >> $GITHUB_ENV
           fi
         shell: bash
-      - name: docker tag
-        id: docker-tag
+      - name: docker tag noarch
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}-${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
+          echo "tag_noarch=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}${{ env.fc }}" >> $GITHUB_ENV
+        shell: bash
+      - name: docker tag
+        run: |
+          echo "tag=${{ env.tag_noarch }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
@@ -197,11 +200,11 @@ jobs:
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest || true
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest || true
+          docker pull ${{ env.tag }}/$arch:latest || true
+          docker manifest create ${{ env.tag_noarch }}:latest --amend  ${{ env.tag }}:latest || true
           done
           docker images
-          docker manifest push ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest
+          docker manifest push ${{ env.tag_noarch }}:latest
         shell: bash
 
   docker_schedule:
@@ -292,10 +295,13 @@ jobs:
             echo "nwversion=702" >> $GITHUB_ENV
           fi
         shell: bash
-      - name: docker tag
-        id: docker-tag
+      - name: docker tag noarch
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}-${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
+          echo "tag_noarch=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}${{ env.fc }}" >> $GITHUB_ENV
+        shell: bash
+      - name: docker tag
+        run: |
+          echo "tag=${{ env.tag_noarch }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
@@ -367,9 +373,9 @@ jobs:
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest || true
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest || true
+          docker pull ${{ env.tag}}:latest || true
+          docker manifest create ${{ env.tag_noarch }}:latest --amend  ${{ env.tag }}:latest || true
           done
           docker images
-          docker manifest push ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest
+          docker manifest push ${{ env.tag_noarch }}:latest
         shell: bash
