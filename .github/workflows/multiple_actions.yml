@@ -134,6 +134,11 @@ jobs:
         run: |
           echo "tag=${{ env.tag_noarch }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
+      - name: echo docker tag to env
+        id: env_tag
+        run:
+          echo "tag_noarch=${{ env.tag_noarch }}" >> $GITHUB_OUTPUT
+          echo "tag=${{ env.tag }}" >> $GITHUB_OUTPUT
       - name: build date
         id: build-date
         run: |
@@ -160,7 +165,7 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'nwchem-dev.xlf' )
+        if:  ( github.actor == github.repository_owner )
         run: |
           sleep 30s
           docker pull ${{ env.tag }}
@@ -230,17 +235,23 @@ jobs:
         matrix:
           folder:
             - nwchem-dev
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
-          fc: [ gfortran, nvfortran]
-          branch: [ master, release-7-2-0]
-          exclude:
-            - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/riscv64, branch: release-7-2-0}
-            - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
+#          archs: [linux/amd64, linux/riscv64]
+#          fc: [ gfortran, nvfortran]
+#          branch: [ master, release-7-2-0]
+#          exclude:
+#            - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
+#            - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
+#            - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
+#            - {folder: nwchem-dev, archs: linux/riscv64, branch: release-7-2-0}
+#            - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
+          archs: [linux/amd64]
+          fc: [ gfortran]
+          branch: [ release-7-2-0]
     runs-on: ubuntu-latest
     timeout-minutes: 420
+    outputs:
+      tag: ${{ steps.env_tag.outputs.tag }}
+      tag_noarch: ${{ steps.env_tag.outputs.tag_noarch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -313,6 +324,11 @@ jobs:
         run: |
           echo "tag=${{ env.tag_noarch }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
+      - name: echo docker tag to env
+        id: env_tag
+        run:
+          echo "tag_noarch=${{ env.tag_noarch }}" >> $GITHUB_OUTPUT
+          echo "tag=${{ env.tag }}" >> $GITHUB_OUTPUT
       - name: build date
         id: build-date
         run: |
@@ -343,7 +359,7 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
-        if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'nwchem-dev.xlf' )
+        if:  ( github.actor == github.repository_owner )
         run: |
           docker pull ${{ env.tag }}
           cd /tmp
@@ -380,12 +396,16 @@ jobs:
       - name: pull and bundle
         if:  ( github.actor == github.repository_owner )
         run: |
+          echo "tag ${{ needs.docker_schedule.outputs.tag}}"
+          echo "tag_noarch ${{ needs.docker_schedule.outputs.tag_noarch}}"          
+          tag=${{ needs.docker_schedule.outputs.tag}}
+          tag_noarch=${{ needs.docker_schedule.outputs.tag_noarch}}
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
-          docker pull ${{ env.tag}}:latest || true
-          docker manifest create ${{ env.tag_noarch }}:latest --amend  ${{ env.tag }}:latest || true
+          docker pull $tag:latest || true
+          docker manifest create $tag_noarch:latest --amend  $tag:latest || true
           done
           docker images
-          docker manifest push ${{ env.tag_noarch }}:latest
+          docker manifest push $tag_noarch:latest
         shell: bash
