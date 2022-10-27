@@ -192,13 +192,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: pull and bundle
-        if:  ( github.actor == github.repository_owner ) 
+        if:  ( github.actor == github.repository_owner ) && ${{ matrix.folder  != 'helloworld' }}
         run: |
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest
+          docker pull ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest || true
+          docker manifest create ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest --amend  ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}/$arch:latest || true
           done
           docker images
           docker manifest push ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}:latest
@@ -362,7 +362,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: pull and bundle
-        if:  ( github.actor == github.repository_owner ) 
+        if:  ( github.actor == github.repository_owner ) && ${{ matrix.folder  != 'helloworld' }}
         run: |
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
