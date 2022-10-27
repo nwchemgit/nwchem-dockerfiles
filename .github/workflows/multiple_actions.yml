@@ -48,7 +48,7 @@ jobs:
   docker_filter:
     needs: [changes]
     if: |
-        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') &&  (${{ needs.changes.outputs.change }} = 'yes')
+        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') &&  (needs.changes.outputs.change  = yes)
     strategy:
         fail-fast: false
         matrix:
@@ -71,15 +71,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
-      - name: env_change
-        id: env_change
-        run: |
-          echo " needs.changes.outputs.change is  ${{ needs.changes.outputs.change }}"
-          echo "change=${{ needs.changes.outputs.change }}" >> $GITHUB_OUTPUT
-      - name: echo_change
-        run: |
-          echo " env change is" `cat $GITHUB_OUTPUT `
-          echo " steps.env_change.outputs.change is  ${{ steps.env_change.outputs.change }}"
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup cache
