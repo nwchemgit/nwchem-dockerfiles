@@ -41,7 +41,7 @@ jobs:
   docker_filter:
     needs: [changes]
     if: |
-        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') && (${{ env.change }} == 'yes')
+        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule')
     strategy:
         fail-fast: false
         matrix:
@@ -204,14 +204,17 @@ jobs:
       - name: pull and bundle
         if:  ( github.actor == github.repository_owner ) && ${{ matrix.folder  != 'helloworld' }}
         run: |
-          for arch in amd64 arm64 armv7 ppc64le riscv64
-          do
-          echo $arch
-          docker pull ${{ env.tag }}/$arch:latest || true
-          docker manifest create ${{ env.tag_noarch }}:latest --amend  ${{ env.tag }}:latest || true
-          done
-          docker images
-          docker manifest push ${{ env.tag_noarch }}:latest
+          echo "env.change" is ${{ env.change }}
+          if [[ ${{ env.change }} == yes ]]; then
+            for arch in amd64 arm64 armv7 ppc64le riscv64
+            do
+            echo $arch
+            docker pull ${{ env.tag }}/$arch:latest || true
+            docker manifest create ${{ env.tag_noarch }}:latest --amend  ${{ env.tag }}:latest || true
+            done
+            docker images
+            docker manifest push ${{ env.tag_noarch }}:latest
+          fi
         shell: bash
 
   docker_schedule:
