@@ -123,7 +123,7 @@ jobs:
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
           else
-            echo "nwversion=702" >> $GITHUB_ENV
+            echo "nwversion=720" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag noarch
@@ -302,7 +302,7 @@ jobs:
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
           else
-            echo "nwversion=702" >> $GITHUB_ENV
+            echo "nwversion=720" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag noarch
@@ -340,6 +340,7 @@ jobs:
             ${{ env.tag }}:${{ env.date }}
           build-args: |
             FC=${{ matrix.fc }}
+            NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner ) && ( matrix.folder  != 'nwchem-dev.xlf' )
