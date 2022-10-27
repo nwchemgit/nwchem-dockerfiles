@@ -74,8 +74,8 @@ jobs:
       - name: env_change
         id: env_change
         run: |
-          echo " needs.changes.steps.env_change.outputs.change is  ${{ needs.changes.steps.env_change.outputs.change }}"
-          echo "change=${{ needs.changes.steps.env_change.outputs.change }}" >> $GITHUB_OUTPUT
+          echo " needs.changes.outputs.change is  ${{ needs.changes.outputs.change }}"
+          echo "change=${{ needs.changes.outputs.change }}" >> $GITHUB_OUTPUT
       - name: echo_change
         run: |
           echo " env change is" `cat $GITHUB_OUTPUT `
@@ -224,8 +224,8 @@ jobs:
       - name: env_change
         id: env_change
         run: |
-          echo " needs.changes.steps.env_change.outputs.change is  ${{ needs.changes.steps.env_change.outputs.change }}"
-          echo "change=${{ needs.changes.steps.env_change.outputs.change }}" >> $GITHUB_ENV
+          echo " needs.changes.outputs.change is  ${{ needs.changes.outputs.change }}"
+          echo "change=${{ needs.changes.outputs.change }}" >> $GITHUB_ENV
       - name: echo_change
         run: |
           echo " env change is ${{ env.change }}" 
