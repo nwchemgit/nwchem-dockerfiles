@@ -31,7 +31,6 @@ jobs:
           builddebs.buster: 'builddebs.buster/*'
     - name: Echo change to env
       id: env_change
-      if: steps.filter.outputs.changes == '[]'
       run: |
         echo " steps.filter.outputs.changes " ${{ steps.filter.outputs.changes }}
         if [[ ${{ steps.filter.outputs.changes }} == '[]' ]]; then
