@@ -73,8 +73,8 @@ jobs:
       - name: env_change
         id: env_change
         run: |
-          echo " needs.env_change.outputs.change is  ${{ needs.env_change.outputs.change }}"
-          echo "change=${{ needs.env_change.outputs.change }}" >> $GITHUB_OUTPUT
+          echo " needs.changes.env_change.outputs.change is  ${{ needs.changes.env_change.outputs.change }}"
+          echo "change=${{ needs.changes.env_change.outputs.change }}" >> $GITHUB_OUTPUT
       - name: echo_change
         run: |
           echo " env change is" `cat $GITHUB_OUTPUT `
@@ -223,8 +223,8 @@ jobs:
       - name: env_change
         id: env_change
         run: |
-          echo " needs.env_change.outputs.change is  ${{ needs.env_change.outputs.change }}"
-          echo "change=${{ needs.env_change.outputs.change }}" >> $GITHUB_ENV
+          echo " needs.docker_filter.env_change.outputs.change is  ${{ needs.docker_filter.env_change.outputs.change }}"
+          echo "change=${{ needs.docker_filter.env_change.outputs.change }}" >> $GITHUB_ENV
       - name: echo_change
         run: |
           echo " env change is ${{ env.change }}" 
