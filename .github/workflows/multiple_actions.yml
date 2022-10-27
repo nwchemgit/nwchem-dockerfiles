@@ -122,7 +122,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}-${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
@@ -295,7 +295,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}-${{ env.fc }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
