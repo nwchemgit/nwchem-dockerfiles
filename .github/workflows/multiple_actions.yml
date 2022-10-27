@@ -151,13 +151,13 @@ jobs:
           fi
       - name: set changes
         run: |
-          if [[ ${{ fromJSON(needs.changes.outputs.folders) }} != '[]' ]]; then
+          if [[ ${{ needs.changes.outputs.folders }} != '[]' ]]; then
             echo "change detected"
-            echo ' fromjson is ' ${{ fromJSON(needs.changes.outputs.folders) }}
             echo 'needs.changes.outputs.folders' ${{ needs.changes.outputs.folders }}
             echo "change=yes" >> $GITHUB_ENV
           else
             echo "no change detected"
+            echo 'needs.changes.outputs.folders' ${{ needs.changes.outputs.folders }}
             echo "change=no" >> $GITHUB_ENV
           fi
       - name: print env
