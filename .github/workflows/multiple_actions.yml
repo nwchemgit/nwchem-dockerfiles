@@ -28,19 +28,22 @@ jobs:
         filters: |
           nwchem-dev: 'nwchem-dev/*'
           builddebs.buster: 'builddebs.buster/*'
-    - name: cleanup_nochange
+    - name: Echo change to env
+      id: env_change
       if: steps.filter.outputs.changes == '[]'
       run: |
-        echo "no change detected"
-        echo "change=no" >> $GITHUB_ENV
-    - name: cleanup_change
-      if: steps.filter.outputs.changes != '[]'
-      run: |
-        echo "change detected"
-        echo "change=yes" >> $GITHUB_ENV
+        echo " steps.filter.outputs.changes " ${{ steps.filter.outputs.changes }}
+        if [[ ${{ steps.filter.outputs.changes }} == '[]' ]]; then
+          echo "no change detected"
+          echo "change=no" >> $GITHUB_OUTPUT
+        else
+          echo "change detected"
+          echo "change=yes" >> $GITHUB_OUTPUT
+        fi
     - name: echo_change
       run: |
-        echo "env change is" `cat $GITHUB_ENV `
+        echo " env change is" `cat $GITHUB_OUTPUT `
+        echo " steps.env_change.outputs.change is  ${{ steps.env_change.outputs.change }}"
   docker_filter:
     needs: [changes]
     if: |
@@ -67,6 +70,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
+      - name: env_change
+        id: env_change
+        run: |
+          echo " needs.env_change.outputs.change is  ${{ needs.env_change.outputs.change }}"
+          echo "change=${{ needs.env_change.outputs.change }}" >> $GITHUB_OUTPUT
+      - name: echo_change
+        run: |
+          echo " env change is" `cat $GITHUB_OUTPUT `
+          echo " steps.env_change.outputs.change is  ${{ steps.env_change.outputs.change }}"
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup cache
@@ -208,17 +220,15 @@ jobs:
     needs: [docker_filter]
     runs-on: ubuntu-latest
     steps:
-      - name: set changes
+      - name: env_change
+        id: env_change
         run: |
-          if [[ ${{ needs.changes.outputs.folders }} != '[]' ]]; then
-            echo "change detected"
-            echo 'needs.changes.outputs.folders' ${{ needs.changes.outputs.folders }}
-            echo "change=yes" >> $GITHUB_ENV
-          else
-            echo "no change detected"
-            echo 'needs.changes.outputs.folders' ${{ needs.changes.outputs.folders }}
-            echo "change=no" >> $GITHUB_ENV
-          fi
+          echo " needs.env_change.outputs.change is  ${{ needs.env_change.outputs.change }}"
+          echo "change=${{ needs.env_change.outputs.change }}" >> $GITHUB_ENV
+      - name: echo_change
+        run: |
+          echo " env change is ${{ env.change }}" 
+          echo " GITHUB_ENV " `cat $GITHUB_ENV `
       - name: print env
         run: |
             echo "GITHUB_ENV" `cat $GITHUB_ENV`
