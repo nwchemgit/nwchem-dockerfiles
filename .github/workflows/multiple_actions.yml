@@ -18,6 +18,7 @@ jobs:
     outputs:
       # Expose matched filters as job 'folders' output variable
       folders: ${{ steps.filter.outputs.changes }}
+      change: ${{ steps.env_change.outputs.change }}
     steps:
     - uses: actions/checkout@v3
     - name: choose_dockerfile_filter
