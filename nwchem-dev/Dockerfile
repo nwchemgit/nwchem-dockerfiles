@@ -2,7 +2,7 @@
 #
 # Create the image with the command
 #  docker build -t nwchem-dev .
-# 
+#
 #after successful build one should run container to calculate input.nw file placed in <host_system_dir>
 #docker run -dv <host_system_dir>:/data nwchem-dev "input.nw"
 #this command return container ID to read logs by
@@ -25,8 +25,10 @@ COPY Dockerfile cache* /tmp/
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG         FC
+ARG         NWCHEM_BRANCH
 ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=$FC
+ENV         NWCHEM_BRANCH=$NWCHEM_BRANCH
 ARG         NWCHEM_MODULES="all python "  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
@@ -62,6 +64,7 @@ RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc \
 	    && echo FCFCFC is $FC \
+	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
 	    && arch=`uname -m` \
 	    && echo arch is $arch \
 	    && arch_dpkg=`dpkg --print-architecture`  \
@@ -71,7 +74,7 @@ RUN         apt-get update \
 	    &&  if [[ $FC == "nvfortran" ]]; then apt-get install -y g++ libtinfo5  libncursesw5 mpich libmpich-dev; wget https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nv_year"_"$nverdot"_$arch_dpkg.deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC=$FC ; MPIF90=mpif90.mpich ; MPIRUN_PATH=/usr/bin/mpirun.mpich ; update-alternatives --set mpi /usr/bin/mpicc.mpich; update-alternatives --set mpirun  /usr/bin/mpirun.mpich; update-alternatives --list mpi  ; mpif90 -show; export ARMCI_NETWORK=MPI-TS;  rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; fi \
             &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH \
-            && cd /opt; rm -rf nwchem || true; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && cd /opt; rm -rf nwchem || true; git clone -b $NWCHEM_BRANCH --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && cd nwchem/src \
 #set NWCHEM_TARGET 
             &&  . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET \
@@ -89,7 +92,7 @@ RUN         apt-get update \
 	    && if [[ $NWCHEM_TARGET == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get install -y openmpi-bin libopenblas-dev; fi  \
 # smaller build on qemu emulated archs
 	    && if [[ $arch != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
-# compile libxc for amd64
+# compile libxc for amd64 
 	    && if [[ $arch == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
 	    && df -h /dev/shm \
