@@ -63,6 +63,9 @@ jobs:
             - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
     runs-on: ubuntu-latest
     timeout-minutes: 420
+    outputs:
+      tag: ${{ steps.env_tag.outputs.tag }}
+      tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -219,15 +222,19 @@ jobs:
       - name: pull and bundle
         if:  ( github.actor == github.repository_owner )
         run: |
+          echo "tag ${{ needs.docker_filter.outputs.tag}}"
+          echo "tag_noarch ${{ needs.docker_filter.outputs.tag_noarch}}"
+          tag=${{ needs.docker_filter.outputs.tag}}
+          tag_noarch=${{ needs.docker_filter.outputs.tag_noarch}}
           if [[ ${{ env.change }} == yes ]]; then
             for arch in amd64 arm64 armv7 ppc64le riscv64
             do
             echo $arch
-            docker pull ${{ env.tag }}/$arch:latest || true
-            docker manifest create ${{ env.tag_noarch }}:latest --amend  ${{ env.tag }}:latest || true
+            docker pull $tag/$arch:latest || true
+            docker manifest create $tag_noarch:latest --amend  $tag:latest || true
             done
             docker images
-            docker manifest push ${{ env.tag_noarch }}:latest
+            docker manifest push $tag_noarch:latest
           fi
         shell: bash
 
@@ -334,7 +341,7 @@ jobs:
       - name: echo docker tag_noarch to env
         id: env_tag_noarch
         run:
-          echo "tag=${{ env.tag_noarch }}" >> $GITHUB_OUTPUT
+          echo "tag_noarch=${{ env.tag_noarch }}" >> $GITHUB_OUTPUT
       - name: build date
         id: build-date
         run: |
@@ -403,7 +410,7 @@ jobs:
         if:  ( github.actor == github.repository_owner )
         run: |
           echo "tag ${{ needs.docker_schedule.outputs.tag}}"
-          echo "tag_noarch ${{ needs.docker_schedule.outputs.tag_noarch}}"          
+          echo "tag_noarch ${{ needs.docker_schedule.outputs.tag_noarch}}"
           tag=${{ needs.docker_schedule.outputs.tag}}
           tag_noarch=${{ needs.docker_schedule.outputs.tag_noarch}}
           for arch in amd64 arm64 armv7 ppc64le riscv64
