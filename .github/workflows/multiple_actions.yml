@@ -245,7 +245,7 @@ jobs:
         matrix:
           folder:
             - nwchem-dev
-          archs: [linux/amd64, linux/riscv64]
+          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
           branch: [ master, release-7-2-0]
           exclude:
