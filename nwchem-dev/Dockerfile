@@ -2,7 +2,7 @@
 #
 # Create the image with the command
 #  docker build -t nwchem-dev .
-# 
+#
 #after successful build one should run container to calculate input.nw file placed in <host_system_dir>
 #docker run -dv <host_system_dir>:/data nwchem-dev "input.nw"
 #this command return container ID to read logs by
