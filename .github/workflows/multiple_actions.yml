@@ -125,8 +125,10 @@ jobs:
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
-          else
+          elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
             echo "nwversion=720" >> $GITHUB_ENV
+          else
+            echo "nwversion=unknown" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag noarch
