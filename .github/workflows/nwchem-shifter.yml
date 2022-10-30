@@ -82,9 +82,9 @@ jobs:
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "longnwversion=$(echo ${{ matrix.folder }})" >> $GITHUB_ENV
           elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }} sed -e 's|dev|720|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|720|')" >> $GITHUB_ENV
           else
-            echo "longnwversion=$(echo ${{ matrix.folder }} sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag
