@@ -106,7 +106,7 @@ jobs:
             ${{ env.tag }}:${{ env.date }}
           build-args: |
             USE_OPENMP_VALUE=${{ matrix.openmp }}
-            FC=${{ matrix.fc }}
+            FC=gfortran
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}

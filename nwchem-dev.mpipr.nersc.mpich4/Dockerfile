@@ -11,7 +11,7 @@ FROM ubuntu:focal
 
 MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
 
-LABEL org.opencontainers.image.description "NWChem Shifter image built with Mpich 3.3"
+LABEL org.opencontainers.image.description "NWChem Shifter image built with Mpich 4.0"
 
 #create user nwchem
 RUN           groupadd -r nwchem -g 1994 \
@@ -99,8 +99,10 @@ RUN         apt-get update \
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
+    echo 'configure  log ' ;\
+    tail -300 make.log ;\
     echo 'mpich compiled' ; \
-    tail make.log         ; \
+    tail -300 make.log         ; \
     echo 'redirecting output to install.log'                                   ; \
     make install    >& install.log                                        ; \
     tail install.log ; \
