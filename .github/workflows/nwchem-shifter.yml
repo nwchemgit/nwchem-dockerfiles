@@ -80,17 +80,17 @@ jobs:
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
-            echo "nwversion=dev" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }})" >> $GITHUB_ENV
           elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
-            echo "nwversion=720" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} sed -e 's|dev|720|')" >> $GITHUB_ENV
           else
-            echo "nwversion=unknown" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion}}.mpipr.nersc${{ env.omp_tag }}" >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
