@@ -22,6 +22,12 @@ COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USE_OPENMP_VALUE
+ARG         FC
+ARG         NWCHEM_BRANCH
+ARG         GITHUB_REPOSITORY_OWNER
+ENV         FC=$FC
+ENV         NWCHEM_BRANCH=$NWCHEM_BRANCH
+ENV         GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
@@ -63,6 +69,9 @@ RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
             && apt-get install -y  autoconf automake libtool git \
+	    && echo FCFCFC is $FC \
+	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
+	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
 	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSION=`gfortran -dumpversion  | cut -f1 -d. ` \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
@@ -103,7 +112,7 @@ RUN         apt-get update \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt  \
             &&  rm -rf nwchem || true \
-            && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && git clone -b $NWCHEM_BRANCH --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd nwchem/src \
