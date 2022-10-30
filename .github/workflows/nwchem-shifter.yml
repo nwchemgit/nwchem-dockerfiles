@@ -16,7 +16,11 @@ jobs:
             - nwchem-dev.mpipr.nersc.mpich4
             - nwchem-dev.mpipr.nersc_old
             - nwchem-702.mpipr.nersc
+          branch: [ master, release-7-2-0]
           openmp: [ Y, N]
+          exclude:
+            - {folder: nwchem-dev.mpipr.nersc_old, branch: release-7-2-0}
+            - {folder: nwchem-702.mpipr.nersc, branch: release-7-2-0}
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout
@@ -27,7 +31,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-nwchemshiftercache-v005
+          key: ${{ matrix.folder}}-$${ matrix.branch}}-cache-v005
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to GitHub Container Registry
@@ -73,17 +77,27 @@ jobs:
             echo "omp_tag="  >> $GITHUB_ENV
           fi
         shell: bash
+      - name: nwchem version tag
+        run: |
+          if [[ ${{ matrix.branch }} ==  master ]]; then
+            echo "longnwversion=$(echo ${{ matrix.folder }})" >> $GITHUB_ENV
+          elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|720|')" >> $GITHUB_ENV
+          else
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
+          fi
+        shell: bash
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.omp_tag }}" >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: build_docker
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
@@ -92,6 +106,10 @@ jobs:
             ${{ env.tag }}:${{ env.date }}
           build-args: |
             USE_OPENMP_VALUE=${{ matrix.openmp }}
+            FC=gfortran
+            NWCHEM_BRANCH=${{ matrix.branch }}
+            CACHE_HIT=${{ env.cache_hit }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
