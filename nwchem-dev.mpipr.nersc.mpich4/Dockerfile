@@ -100,8 +100,6 @@ RUN         apt-get update \
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
-    echo 'configure  log ' ;\
-    tail -300 make.log ;\
     echo 'mpich compiled' ; \
     tail -300 make.log         ; \
     echo 'redirecting output to install.log'                                   ; \

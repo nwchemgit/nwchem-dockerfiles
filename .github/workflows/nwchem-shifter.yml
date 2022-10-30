@@ -90,14 +90,14 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}${{ env.omp_tag }}" >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion}}.mpipr.nersc${{ env.omp_tag }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: build_docker
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
