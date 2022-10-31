@@ -94,12 +94,12 @@ RUN         apt-get update \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
 	    && echo 'checking cache #2 ' \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local|| { echo "Failure"; exit 1; } ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
     echo 'lslslsls ' `ls -lrta` ;\
-    cd $mpich_prefix ;\
+    cd $mpich_prefix || { echo "Failure"; exit 1; } ;\
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
@@ -114,17 +114,17 @@ RUN         apt-get update \
 	    && ln -sf /bin/bash /usr/bin/bash \
             && rm -f mpif90.show && /usr/local/bin/mpif90 -show >& mpif90.show && cat mpif90.show && rm -f mpif90.show \
 	    && echo 'cloning nwchem source *** ' || true \
-            && cd /opt  \
+            && cd /opt || { echo "Failure"; exit 1; } \
             &&  rm -rf nwchem || true \
             && git clone -b $NWCHEM_BRANCH --depth 1  https://github.com/nwchemgit/nwchem.git  \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
-            && cd nwchem/src \
+            && cd nwchem/src || { echo "Failure"; exit 1; } \
 	    && echo 'checking cache #1 ' \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext || { echo "Failure"; exit 1; } ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
-            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
-            && cd /opt/nwchem/src && make nwchem_config && make -j3  CUDA=nvcc ||true \
+            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source || { echo "Failure"; exit 1; } ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
+            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc ||true \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && ls -lrt libext/libxc \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
@@ -134,10 +134,10 @@ RUN         apt-get update \
 	    && rm -rf lib/* libxc/install/lib/* libext_utils/* ||true \
 	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf $NWCHEM_TOP/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && rm -rf simint* *simint-generator* \
-	    && cd $NWCHEM_TOP/src \
+	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } \
             && echo 'clean unnecessary source to reduce docker size' \
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot property hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA  ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext /tmp/local || true \
-	    && cd /usr/local ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
+	    && cd /usr/local || { echo "Failure"; exit 1; } ; tar cjvf mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
             && echo 'clean unnecessary packages ' \
             && DEBIAN_FRONTEND=noninteractive apt-get -y install localepurge \
 	    && echo MANDELETE >  /etc/locale.nopurge \
