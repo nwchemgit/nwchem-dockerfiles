@@ -14,13 +14,11 @@ jobs:
           folder:
             - nwchem-dev.mpipr.nersc
             - nwchem-dev.mpipr.nersc.mpich4
-            - nwchem-dev.mpipr.nersc_old
-            - nwchem-702.mpipr.nersc
           branch: [ master, release-7-2-0]
           openmp: [ Y, N]
+          armci_network: [ mpi-pr, mpi-pt]
           exclude:
-            - {folder: nwchem-dev.mpipr.nersc_old, branch: release-7-2-0}
-            - {folder: nwchem-702.mpipr.nersc, branch: release-7-2-0}
+            - {folder: nwchem-dev.mpipr.nersc, armci_network: MPI-PT}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -77,6 +75,15 @@ jobs:
             echo "omp_tag="  >> $GITHUB_ENV
           fi
         shell: bash
+      - name: armci_net tag
+        id: armci_net
+        run: |
+          if [[ ${{ matrix.armci_network }} != MPI-PR  ]]; then 
+            echo "armci_net=.$(echo ${{ matrix.armci_network }} | tr '[:upper:]' '[:lower:]')"  >> $GITHUB_ENV
+          else 
+            echo "armci_net="  >> $GITHUB_ENV
+          fi
+        shell: bash
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
@@ -110,6 +117,7 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            ARMCI_NETWORK=${{ matrix.armci_network }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |

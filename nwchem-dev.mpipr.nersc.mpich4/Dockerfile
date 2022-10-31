@@ -25,9 +25,11 @@ ARG USE_OPENMP_VALUE
 ARG         FC
 ARG         NWCHEM_BRANCH
 ARG         GITHUB_REPOSITORY_OWNER
+ARG         ARMCI_NETWORK
 ENV         FC=$FC
 ENV         NWCHEM_BRANCH=$NWCHEM_BRANCH
 ENV         GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER
+ENV         ARMCI_NETWORK=$ARMCI_NETWORK
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
@@ -36,7 +38,7 @@ ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
-ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
+ENV         NWCHEM_TOP="/opt/nwchem" \
             NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
             BUILD_OPENBLAS=1 \
@@ -72,6 +74,7 @@ RUN         apt-get update \
 	    && echo FCFCFC is $FC \
 	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
 	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
+	    && echo ARMCI_NETWORK is $ARMCI_NETWORK \
 	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSION=`gfortran -dumpversion  | cut -f1 -d. ` \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
