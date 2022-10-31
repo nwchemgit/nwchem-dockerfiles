@@ -9,7 +9,7 @@
 
 FROM ubuntu:focal
 
-MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
+LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description "NWChem Shifter image built with Mpich 4.0"
 
@@ -38,8 +38,8 @@ ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
-ENV         NWCHEM_TOP="/opt/nwchem" \
-            NWCHEM_TARGET=LINUX64 \
+ENV         NWCHEM_TOP="/opt/nwchem" 
+ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
             BUILD_OPENBLAS=1 \
             BUILD_SCALAPACK=1 \
@@ -66,7 +66,7 @@ ENV         NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
-SHELL ["/bin/bash","-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
@@ -161,7 +161,7 @@ ENV         FFIELD=amber \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/ \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/ \
 	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=5 \
+	    CUDA_VERSION_MINOR=8 \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64 \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:${NWCHEM_TOP}/bin/LINUX64:/usr/local/bin
 
