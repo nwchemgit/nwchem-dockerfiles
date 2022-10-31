@@ -76,10 +76,10 @@ RUN         apt-get update \
 	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
 	    && echo ARMCI_NETWORK is $ARMCI_NETWORK \
 	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.out \
-            &&  VERSION=`gfortran -dumpversion  | cut -f1 -d. ` \
+            &&  VERSION=$(gfortran -dumpversion  | cut -f1 -d. ) \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
-	    && echo "expr is " `which expr`  >& nvcc.out && cat nvcc.out && rm nvcc.out \
-            &&  VERSIONGT9=`/usr/bin/expr "$VERSION"  \> 9`  || true \
+	    && echo "expr is " $(which expr)  >& nvcc.out && cat nvcc.out && rm nvcc.out \
+            &&  VERSIONGT9=$(/usr/bin/expr "$VERSION"  \> 9)  || true \
 	    && echo "VERSIONGT9 is " $VERSIONGT9   >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && if [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
 	    && echo "VERSIONGT9 is " $VERSIONGT9 \
@@ -94,11 +94,11 @@ RUN         apt-get update \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
 	    && echo 'checking cache #2 ' \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local|| { echo "Failure"; exit 1; } ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
-    echo 'lslslsls ' `ls -lrta` ;\
+    echo 'lslslsls ' $(ls -lrta) ;\
     cd $mpich_prefix || { echo "Failure"; exit 1; } ;\
     FFLAGS=$FFLAGS_IN  ./configure                           ; \
     echo 'redirecting output to make.log'                                   ; \
@@ -121,9 +121,9 @@ RUN         apt-get update \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd nwchem/src || { echo "Failure"; exit 1; } \
 	    && echo 'checking cache #1 ' \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext || { echo "Failure"; exit 1; } ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
-            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source || { echo "Failure"; exit 1; } ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
+            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc ||true \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && ls -lrt libext/libxc \
