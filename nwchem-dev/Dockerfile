@@ -11,7 +11,7 @@
 
 FROM        ubuntu:focal
 
-MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
+LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description "NWChem image built from the master branch"
 
@@ -56,7 +56,7 @@ ENV         FFIELD=amber  \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
             PATH=$PATH:/opt/nwchem/bin
 #get NWCHEM_TARGET
-SHELL ["/bin/bash","-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN arch=`uname -m` ; if [[ $arch == "x86_64" ]] || [[ $arch == "aarch64" ]] || [[ $arch == "riscv64" ]] || [[ $arch == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi
 RUN arch=`uname -m` ; arch_123=`uname -m|cut -c 1-3`; if [[ $arch == "i686" ]] || [[ $arch == "i386" ]] || [[ $arch_123 == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi
 RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
