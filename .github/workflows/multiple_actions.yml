@@ -371,6 +371,7 @@ jobs:
             FC=${{ matrix.fc }}
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
