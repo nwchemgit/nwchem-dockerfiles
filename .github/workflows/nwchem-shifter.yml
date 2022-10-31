@@ -97,7 +97,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}" >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}${{ env.armci_net }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
