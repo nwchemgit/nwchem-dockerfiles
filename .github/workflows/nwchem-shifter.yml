@@ -78,20 +78,16 @@ jobs:
       - name: armci_net tag
         id: armci_net
         run: |
-          if [[ ${{ matrix.armci_network }} != MPI-PR  ]]; then 
-            echo "armci_net=.$(echo ${{ matrix.armci_network }} | tr '[:upper:]' '[:lower:]')"  >> $GITHUB_ENV
-          else 
-            echo "armci_net="  >> $GITHUB_ENV
-          fi
+          echo "armci_net=.$(echo ${{ matrix.armci_network }} | tr '[:upper:]' '[:lower:]')"  >> $GITHUB_ENV
         shell: bash
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }})" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }}| sed -e 's|mpipr||')" >> $GITHUB_ENV
           elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|720|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|mpipr||' | sed -e 's|dev|720|')" >> $GITHUB_ENV
           else
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|mpipr||' | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag
