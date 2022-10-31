@@ -39,6 +39,8 @@ ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
+ENV	    CUDA_VERSION_MAJOR=11 
+ENV	    CUDA_VERSION_MINOR=8 
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
             BUILD_OPENBLAS=1 \
@@ -52,8 +54,6 @@ ENV         NWCHEM_TARGET=LINUX64 \
 	    SIMINT_VECTOR=AVX2 \
 	    EACCSD=Y \
 	    IPCCSD=Y \
-	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=8 \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  \
 	    TCE_CUDA=Y \
@@ -152,6 +152,8 @@ RUN         apt-get update \
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
 #ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
+ENV	    CUDA_VERSION_MAJOR=11 
+ENV	    CUDA_VERSION_MINOR=8 
 ENV         FFIELD=amber \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/ \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/ \
@@ -160,8 +162,6 @@ ENV         FFIELD=amber \
             SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/ \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/ \
-	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=8 \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64 \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:${NWCHEM_TOP}/bin/LINUX64:/usr/local/bin
 
