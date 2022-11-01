@@ -96,11 +96,13 @@ RUN         apt-get update \
 	    && echo 'checking cache #2 ' \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
+    wget https://github.com/hpc/xpmem/tarball/master -O - |tar xvzf - ;\
+    cd hpc-xmem* ; sh autogen.sh ; ./configure --prefix= --disable-kernel-module ;make ; make install ;\
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
     echo 'lslslsls ' $(ls -lrta) ;\
     cd $mpich_prefix || { echo "Failure"; exit 1; } ;\
-    FFLAGS=$FFLAGS_IN  ./configure                           ; \
+    FFLAGS=$FFLAGS_IN  ./configure  --with-ch4-shmmods=posix,xpmem --with-xpmem=/usr/local  ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
     echo 'mpich compiled' ; \
