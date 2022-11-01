@@ -26,7 +26,7 @@ jobs:
           do
           echo $arch
           docker pull ghcr.io/${{ github.actor }}/nwchem-$branch/$arch:latest || true
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-dev:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest || true
+          docker manifest create ghcr.io/${{ github.actor }}/nwchem-$branch:latest --amend  ghcr.io/${{ github.actor }}/nwchem-$branch/$arch:latest || true
           done
           docker images
           docker manifest push ghcr.io/${{ github.actor }}/nwchem-$branch:latest
