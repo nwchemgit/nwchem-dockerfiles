@@ -21,6 +21,7 @@ jobs:
         if:  ( github.actor == github.repository_owner ) 
         run: |
           for branch in dev 720
+          do
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
