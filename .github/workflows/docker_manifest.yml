@@ -4,6 +4,7 @@ on:
   repository_dispatch:
     types: [backend_automation]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   pull_and_bundle:
@@ -19,12 +20,15 @@ jobs:
       - name: pull images
         if:  ( github.actor == github.repository_owner ) 
         run: |
+          for branch in dev 720
+          do
           for arch in amd64 arm64 armv7 ppc64le
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-dev:latest --amend  ghcr.io/${{ github.actor }}/nwchem-dev/$arch:latest
+          docker pull ghcr.io/${{ github.actor }}/nwchem-$branch/$arch:latest || true
+          docker manifest create ghcr.io/${{ github.actor }}/nwchem-$branch:latest --amend  ghcr.io/${{ github.actor }}/nwchem-$branch/$arch:latest || true
           done
           docker images
-          docker manifest push ghcr.io/${{ github.actor }}/nwchem-dev:latest
+          docker manifest push ghcr.io/${{ github.actor }}/nwchem-$branch:latest
+          done
         shell: bash
