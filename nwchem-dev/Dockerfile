@@ -81,7 +81,7 @@ RUN         apt-get update \
             && cd /opt; rm -rf nwchem || true; git clone -b "$NWCHEM_BRANCH" --depth 1  https://github.com/"$GITHUB_REPOSITORY_OWNER"/nwchem.git  \
             && cd nwchem/src \
 #set NWCHEM_TARGET 
-            &&  . /tmpfile; echo "NWCHEM_TARGET is " $(NWCHEM_TARGET} \
+            &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
 #fix openblas cross-compilation
             && arch=$(uname -m) \
             && arch3=$(uname -m|cut -c 1-3) \
