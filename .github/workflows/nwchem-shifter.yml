@@ -14,13 +14,11 @@ jobs:
           folder:
             - nwchem-dev.mpipr.nersc
             - nwchem-dev.mpipr.nersc.mpich4
-            - nwchem-dev.mpipr.nersc_old
-            - nwchem-702.mpipr.nersc
           branch: [ master, release-7-2-0]
           openmp: [ Y, N]
+          armci_network: [ mpi-pr, mpi-pt]
           exclude:
-            - {folder: nwchem-dev.mpipr.nersc_old, branch: release-7-2-0}
-            - {folder: nwchem-702.mpipr.nersc, branch: release-7-2-0}
+            - {folder: nwchem-dev.mpipr.nersc, armci_network: MPI-PT}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -77,20 +75,25 @@ jobs:
             echo "omp_tag="  >> $GITHUB_ENV
           fi
         shell: bash
+      - name: armci_net tag
+        id: armci_net
+        run: |
+          echo "armci_net=.$(echo ${{ matrix.armci_network }} | tr '[:upper:]' '[:lower:]')"  >> $GITHUB_ENV
+        shell: bash
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }})" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }}| sed -e 's|.mpipr||')" >> $GITHUB_ENV
           elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|720|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|720|')" >> $GITHUB_ENV
           else
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}" >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}${{ env.armci_net }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
@@ -110,6 +113,7 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            ARMCI_NETWORK=${{ matrix.armci_network }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |

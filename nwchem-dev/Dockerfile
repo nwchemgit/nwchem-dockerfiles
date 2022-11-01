@@ -11,7 +11,7 @@
 
 FROM        ubuntu:focal
 
-MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
+LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description "NWChem image built from the master branch"
 
@@ -56,9 +56,9 @@ ENV         FFIELD=amber  \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
             PATH=$PATH:/opt/nwchem/bin
 #get NWCHEM_TARGET
-SHELL ["/bin/bash","-c"]
-RUN arch=`uname -m` ; if [[ $arch == "x86_64" ]] || [[ $arch == "aarch64" ]] || [[ $arch == "riscv64" ]] || [[ $arch == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi
-RUN arch=`uname -m` ; arch_123=`uname -m|cut -c 1-3`; if [[ $arch == "i686" ]] || [[ $arch == "i386" ]] || [[ $arch_123 == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN arch=$(uname -m) ; if [[ $arch == "x86_64" ]] || [[ $arch == "aarch64" ]] || [[ $arch == "riscv64" ]] || [[ $arch == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi
+RUN arch=$(uname -m) ; arch_123=$(uname -m|cut -c 1-3); if [[ $arch == "i686" ]] || [[ $arch == "i386" ]] || [[ $arch_123 == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi
 RUN . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET
 
 #one single ugly command to reduce docker size
@@ -68,9 +68,9 @@ RUN         apt-get update \
 	    && echo FCFCFC is $FC \
 	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
 	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
-	    && arch=`uname -m` \
+	    && arch=$(uname -m) \
 	    && echo arch is $arch \
-	    && arch_dpkg=`dpkg --print-architecture`  \
+	    && arch_dpkg=$(dpkg --print-architecture)  \
 	    && if [[ $arch == "aarch64" ]]; then arch_dpkg="arm64"; fi \
 	    && if [[ $arch == "x86_64" ]]; then arch_dpkg="amd64"; fi \
 	    && nv_year=2022 && nv_major=22 &&  nv_minor=7 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
@@ -83,9 +83,9 @@ RUN         apt-get update \
 #set NWCHEM_TARGET 
             &&  . /tmpfile; echo "NWCHEM_TARGET is " $NWCHEM_TARGET \
 #fix openblas cross-compilation
-            && arch=`uname -m` \
-            && arch3=`uname -m|cut -c 1-3` \
-            && arch5=`uname -m|cut -c 1-5` \
+            && arch=$(uname -m) \
+            && arch3=$(uname -m|cut -c 1-3) \
+            && arch5=$(uname -m|cut -c 1-5) \
 	    &&  if [[ $FC == "nvfortran" ]] && [[ $arch == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/edoapra/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; cd /opt/nwchem/src; fi \
 	    && if [[ $arch == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ $arch == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
@@ -117,7 +117,7 @@ RUN         apt-get update \
 # QA tests
             && cd .. \
             && if [[ $NWCHEM_TARGET == "LINUX64" && $FC != "nvfortran" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
-	    NWCHEM_EXECUTABLE=`pwd`/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
+	    NWCHEM_EXECUTABLE=$(pwd)/bin/$NWCHEM_TARGET/nwchem ./travis/run_qas.sh ; fi \
 	    && cd src \
 #clean unnecessary source to reduce docker size
             && rm -rf tce tools nwdft NWints geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
