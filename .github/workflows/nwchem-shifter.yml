@@ -16,7 +16,7 @@ jobs:
             - nwchem-dev.mpipr.nersc.mpich4
           branch: [ master, release-7-2-0]
           openmp: [ Y, N]
-          armci_network: [ mpi-pr, mpi-pt]
+          armci_network: [ MPI-PR, MPI-PT]
           exclude:
             - {folder: nwchem-dev.mpipr.nersc, armci_network: MPI-PT}
     runs-on: ubuntu-latest
