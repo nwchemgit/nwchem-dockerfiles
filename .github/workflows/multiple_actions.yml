@@ -201,45 +201,9 @@ jobs:
   bundle_images1:
     needs: [changes, docker_filter]
     runs-on: ubuntu-latest
-    steps:
-      - name: env_change
-        id: env_change
-        run: |
-          echo " needs.changes.outputs.change is  ${{ needs.changes.outputs.change }}"
-          echo "change=${{ needs.changes.outputs.change }}" >> $GITHUB_ENV
-      - name: echo_change
-        run: |
-          echo " env change is ${{ env.change }}" 
-          echo " GITHUB_ENV " `cat $GITHUB_ENV `
-      - name: print env
-        run: |
-            echo "GITHUB_ENV" `cat $GITHUB_ENV`
-            echo " tag " ${{ env.tag }}
-      - name: Login to GitHub Container Registry
-        if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: pull and bundle
-        if:  ( github.actor == github.repository_owner )
-        run: |
-          echo "tag ${{ needs.docker_filter.outputs.tag}}"
-          echo "tag_noarch ${{ needs.docker_filter.outputs.tag_noarch}}"
-          tag=${{ needs.docker_filter.outputs.tag}}
-          tag_noarch=${{ needs.docker_filter.outputs.tag_noarch}}
-          if [[ ${{ env.change }} == yes ]]; then
-            for arch in amd64 arm64 armv7 ppc64le riscv64
-            do
-            echo $arch
-            docker pull $tag/$arch:latest || true
-            docker manifest create $tag_noarch:latest --amend  $tag:latest || true
-            done
-            docker images
-            docker manifest push $tag_noarch:latest
-          fi
-        shell: bash
+    uses: ./.github/workflows/docker_manifest.yml
+    secrets:
+      inherit
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -399,27 +363,6 @@ jobs:
   bundle_images2:
     needs: [docker_schedule]
     runs-on: ubuntu-latest
-    steps:
-      - name: Login to GitHub Container Registry
-        if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: pull and bundle
-        if:  ( github.actor == github.repository_owner )
-        run: |
-          echo "tag ${{ needs.docker_schedule.outputs.tag}}"
-          echo "tag_noarch ${{ needs.docker_schedule.outputs.tag_noarch}}"
-          tag=${{ needs.docker_schedule.outputs.tag}}
-          tag_noarch=${{ needs.docker_schedule.outputs.tag_noarch}}
-          for arch in amd64 arm64 armv7 ppc64le riscv64
-          do
-          echo $arch
-          docker pull $tag:latest || true
-          docker manifest create $tag_noarch:latest --amend  $tag:latest || true
-          done
-          docker images
-          docker manifest push $tag_noarch:latest
-        shell: bash
+    uses: ./.github/workflows/docker_manifest.yml
+    secrets:
+      inherit
