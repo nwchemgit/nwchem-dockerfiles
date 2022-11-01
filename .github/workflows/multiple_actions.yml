@@ -201,9 +201,11 @@ jobs:
   bundle_images1:
     needs: [changes, docker_filter]
     runs-on: ubuntu-latest
-    uses: ./.github/workflows/docker_manifest.yml
-    secrets:
-      inherit
+    steps:
+    - name: docker manifest
+      uses: ./.github/workflows/docker_manifest.yml
+      secrets:
+        inherit
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -363,6 +365,8 @@ jobs:
   bundle_images2:
     needs: [docker_schedule]
     runs-on: ubuntu-latest
-    uses: ./.github/workflows/docker_manifest.yml
-    secrets:
-      inherit
+    steps:
+    - name: docker manifest
+      uses: ./.github/workflows/docker_manifest.yml
+      secrets:
+        inherit
