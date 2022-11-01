@@ -200,12 +200,9 @@ jobs:
             ls -Ralrt ~/cache || true
   bundle_images1:
     needs: [changes, docker_filter]
-    runs-on: ubuntu-latest
-    steps:
-    - name: docker manifest
-      uses: ./.github/workflows/docker_manifest.yml
-      secrets:
-        inherit
+    uses: ./.github/workflows/docker_manifest.yml
+    secrets: 
+      inherit
 
   docker_schedule:
     if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
@@ -364,9 +361,6 @@ jobs:
             ls -Ralrt ~/cache || true
   bundle_images2:
     needs: [docker_schedule]
-    runs-on: ubuntu-latest
-    steps:
-    - name: docker manifest
-      uses: ./.github/workflows/docker_manifest.yml
-      secrets:
-        inherit
+    uses: ./.github/workflows/docker_manifest.yml
+    secrets:
+      inherit
