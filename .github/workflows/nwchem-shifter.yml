@@ -29,7 +29,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-$${ matrix.branch}}-cache-v005
+          key: ${{ matrix.folder }}-${ matrix.branch }}-cache-v005
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to GitHub Container Registry
