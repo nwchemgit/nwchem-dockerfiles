@@ -9,7 +9,7 @@
 
 FROM ubuntu:focal
 
-MAINTAINER  Edoardo Apra <edoardo.apra@pnnl.gov>
+LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description "NWChem Shifter image built with Mpich 3.3"
 
@@ -22,6 +22,14 @@ COPY Dockerfile cache* /tmp/
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USE_OPENMP_VALUE
+ARG         FC
+ARG         NWCHEM_BRANCH
+ARG         GITHUB_REPOSITORY_OWNER
+ARG         ARMCI_NETWORK
+ENV         FC=${FC}
+ENV         NWCHEM_BRANCH=$NWCHEM_BRANCH
+ENV         GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER
+ENV         ARMCI_NETWORK=$ARMCI_NETWORK
 ARG mpich=3.3
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
@@ -58,11 +66,15 @@ ENV         ARMCI_NETWORK=MPI-PR NWCHEM_TOP="/opt/nwchem" \
 #ENV         MRCC_METHODS=y
 #ENV         CCSDTQ=y
 #ENV         CCSDTLR=y
-SHELL ["/bin/bash","-c"]
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
-	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.out \
+	    && rm -f nvcc.out && echo " Checking gfortran options "  >& nvcc.out && cat nvcc.out && rm nvcc.ou            && echo FCFCFC is $FC \
+	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
+	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
+	    && echo ARMCI_NETWORK is $ARMCI_NETWORK \
+t \
             &&  VERSION=`gfortran -dumpversion  | cut -f1 -d. ` \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && echo "expr is " `which expr`  >& nvcc.out && cat nvcc.out && rm nvcc.out \
@@ -102,7 +114,7 @@ RUN         apt-get update \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt  \
             &&  rm -rf nwchem || true \
-            && git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && git clone -b $NWCHEM_BRANCH --depth 1  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd nwchem/src \
@@ -147,7 +159,7 @@ ENV         FFIELD=amber \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/ \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/ \
 	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=5 \
+	    CUDA_VERSION_MINOR=8 \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64 \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:${NWCHEM_TOP}/bin/LINUX64:/usr/local/bin
 
