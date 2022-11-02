@@ -1,3 +1,4 @@
+
 #based on earlier work by Vladimir Konjkov <Konjkov.VV@gmail.com>
 #
 # Create the image with the command
@@ -57,7 +58,7 @@ RUN         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y  g++ gfortran   make ssh patch curl  wget unzip perl git file python3 python3-dev \
             && apt-get clean \
-    && wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
+    && wget --progress=dot:giga https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz && \
     tar xvzf $mpich_prefix.tar.gz                                           && \
     cd $mpich_prefix                                                        && \
     FFLAGS=-fallow-argument-mismatch ./configure                            && \

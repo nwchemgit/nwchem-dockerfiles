@@ -85,7 +85,7 @@ RUN         apt-get update \
 	    && echo "VERSIONGT9 is " $VERSIONGT9 \
 	    && echo "FFLAGS_IN is " $FFLAGS_IN \
             && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.out \
-	    && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb \
+	    && wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb \
 	    && dpkg -i cuda-keyring_1.0-1_all.deb \
 	    && apt-get update \
             && apt-get -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
@@ -96,7 +96,7 @@ RUN         apt-get update \
 	    && echo 'checking cache #2 ' \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
-    wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz -O - | tar xzf - ; \
+    wget --progress=dot:giga https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz -O - | tar xzf - ; \
     cd $mpich_prefix || { echo "Failure"; exit 1; } ;\
     FFLAGS=$FFLAGS_IN  ./configure    ; \
     echo 'redirecting output to make.log'                                   ; \
