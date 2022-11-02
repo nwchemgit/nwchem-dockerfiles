@@ -97,7 +97,7 @@ RUN         apt-get update \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
     wget https://github.com/hpc/xpmem/tarball/master -O - |tar xvzf - ;\
-    cd hpc-xpmem* ; sh autogen.sh ; ./configure --prefix= --disable-kernel-module ;make ; make install ;\
+    cd hpc-xpmem* ; sh autogen.sh ; ./configure --prefix=/usr/local --disable-kernel-module ;make ; make install ;\
     wget https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz ; \
     tar xzf $mpich_prefix.tar.gz                                           ; \
     echo 'lslslsls ' $(ls -lrta) ;\
