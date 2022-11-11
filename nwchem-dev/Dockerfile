@@ -64,7 +64,7 @@ RUN . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}
 #one single ugly command to reduce docker size
 RUN         apt-get update \
             && apt-get -y upgrade \
-            && apt-get install -y --no-install-recommends rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates \
+            && apt-get install -y --no-install-recommends rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch \
 	    && echo FCFCFC is ${FC} \
 	    && echo NWCHEM_BRANCH is ${NWCHEM_BRANCH} \
 	    && echo GITHUB_REPOSITORY_OWNER is ${GITHUB_REPOSITORY_OWNER} \
