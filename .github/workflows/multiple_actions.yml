@@ -105,7 +105,7 @@ jobs:
           if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
             echo "fc=" >> $GITHUB_ENV
           else 
-          echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
+            echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
           fi
         shell: bash
       - name: fetch cache
@@ -158,13 +158,6 @@ jobs:
         id: build-date
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
-      - name: cache-hit-reporter
-        run: |
-          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
-            echo "cache_hit=Y" >> $GITHUB_ENV
-          else
-            echo "cache_hit=N" >> $GITHUB_ENV
-          fi
       - name: build_filter
         uses: docker/build-push-action@v3
         with:
@@ -287,6 +280,13 @@ jobs:
           echo "libext cache fetched" ; \
           ls -l cache/ ; \
           echo "======" ; \
+          fi
+      - name: cache-hit-reporter
+        run: |
+          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
+            echo "cache_hit=Y" >> $GITHUB_ENV
+          else
+            echo "cache_hit=N" >> $GITHUB_ENV
           fi
       - name: nwchem version tag
         run: |
