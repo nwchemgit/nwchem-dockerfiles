@@ -79,6 +79,8 @@ RUN         apt-get update \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:"$LD_LIBRARY_PATH" \
 	    && echo "URL for cloning"  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git \
             && cd /opt; rm -rf nwchem || true; git clone -b "$NWCHEM_BRANCH" --depth 1  https://github.com/"$GITHUB_REPOSITORY_OWNER"/nwchem.git  \
+            && cd /opt; rm -rf nwchem||true; wget -q https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem/tarball/"$NWCHEM_BRANCH" -O - | tar -xz  --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude="nwxc*"  --exclude="chem-library-tests" \
+	    &&    mv ${GITHUB_REPOSITORY_OWNER}-nwchem-* nwchem \
             && cd nwchem/src \
 #set NWCHEM_TARGET 
             &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
@@ -86,7 +88,7 @@ RUN         apt-get update \
             && arch=$(uname -m) \
             && arch3=$(uname -m|cut -c 1-3) \
             && arch5=$(uname -m|cut -c 1-5) \
-	    &&  if [[ "$FC" == "nvfortran" ]] && [[ "$arch" == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/edoapra/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; cd /opt/nwchem/src; fi \
+	    &&  if [[ "$FC" == "nvfortran" ]] && [[ "$arch" == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; cd /opt/nwchem/src; fi \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
