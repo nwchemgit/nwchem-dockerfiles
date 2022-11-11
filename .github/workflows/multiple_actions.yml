@@ -69,9 +69,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: check1 dockerfile
-        run: |
-          grep wget Dockerfile || true
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
@@ -159,9 +156,6 @@ jobs:
         id: build-date
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
-      - name: check2 dockerfile
-        run: |
-          grep wget Dockerfile || true
       - name: build_filter
         uses: docker/build-push-action@v3
         with:
@@ -232,9 +226,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: check1 dockerfile
-        run: |
-          grep wget Dockerfile || true
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
@@ -325,9 +316,6 @@ jobs:
         run: |
             echo "GITHUB_ENV" `cat $GITHUB_ENV`
             echo " tag " ${{ env.tag }}
-      - name: check2 dockerfile
-        run: |
-          grep wget Dockerfile || true
       - name: build_schedule
         uses: docker/build-push-action@v3
         with:
