@@ -121,6 +121,13 @@ jobs:
           ls -l cache/ ; \
           echo "======" ; \
           fi
+      - name: cache-hit-reporter
+        run: |
+          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
+            echo "cache_hit=Y" >> $GITHUB_ENV
+          else
+            echo "cache_hit=N" >> $GITHUB_ENV
+          fi
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
