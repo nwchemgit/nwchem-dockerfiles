@@ -105,7 +105,7 @@ jobs:
           if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
             echo "fc=" >> $GITHUB_ENV
           else 
-          echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
+            echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
           fi
         shell: bash
       - name: fetch cache
@@ -121,6 +121,11 @@ jobs:
           ls -l cache/ ; \
           echo "======" ; \
           fi
+          echo "cache_hit=Y" >> $GITHUB_ENV
+      - name: negative-cache-hit-reporter
+        if: (steps.setup-cache.outputs.cache-hit != 'true')
+        run: |
+          echo "cache_hit=N" >> $GITHUB_ENV
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
@@ -151,13 +156,6 @@ jobs:
         id: build-date
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
-      - name: cache-hit-reporter
-        run: |
-          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
-            echo "cache_hit=Y" >> $GITHUB_ENV
-          else
-            echo "cache_hit=N" >> $GITHUB_ENV
-          fi
       - name: build_filter
         uses: docker/build-push-action@v3
         with:
@@ -281,6 +279,11 @@ jobs:
           ls -l cache/ ; \
           echo "======" ; \
           fi
+          echo "cache_hit=Y" >> $GITHUB_ENV
+      - name: negative-cache-hit-reporter
+        if: (steps.setup-cache.outputs.cache-hit != 'true')
+        run: |
+          echo "cache_hit=N" >> $GITHUB_ENV
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
@@ -309,13 +312,6 @@ jobs:
         id: build-date
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
-      - name: cache-hit-reporter
-        run: |
-          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
-            echo "cache_hit=Y" >> $GITHUB_ENV
-          else
-            echo "cache_hit=N" >> $GITHUB_ENV
-          fi
       - name: print env
         run: |
             echo "GITHUB_ENV" `cat $GITHUB_ENV`
