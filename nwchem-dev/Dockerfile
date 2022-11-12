@@ -27,6 +27,7 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG         FC
 ARG         NWCHEM_BRANCH
 ARG         GITHUB_REPOSITORY_OWNER
+ARG CACHE_HIT
 ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=${FC}
 ENV         NWCHEM_BRANCH=${NWCHEM_BRANCH}
@@ -57,12 +58,14 @@ ENV         FFIELD=amber  \
             PATH=${PATH}:/opt/nwchem/bin
 #get NWCHEM_TARGET
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN arch=$(uname -m) ; if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "riscv64" ]] || [[ "$arch" == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi
-RUN arch=$(uname -m) ; arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi
-RUN . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}
-
+RUN ls -lrta /tmp && \
+arch=$(uname -m) ; if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "riscv64" ]] || [[ "$arch" == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi && \
+arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
+. /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
+     echo ' defining modules according to CACHE_HIT='$CACHE_HIT && \
+     if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi &&\
 #one single ugly command to reduce docker size
-RUN         apt-get update \
+         apt-get update \
             && apt-get -y upgrade \
             && apt-get install -y --no-install-recommends rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch \
 	    && echo FCFCFC is ${FC} \
