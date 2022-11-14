@@ -80,6 +80,7 @@ jobs:
         uses: docker/setup-qemu-action@v2
         with:
           image: tonistiigi/binfmt:qemu-v6.0.0-10
+          platforms: ${{ matrix.archs }}
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
@@ -238,6 +239,7 @@ jobs:
         uses: docker/setup-qemu-action@v2
         with:
           image: tonistiigi/binfmt:qemu-v6.0.0-10
+          platforms: ${{ matrix.archs }}
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
