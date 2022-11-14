@@ -115,7 +115,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && echo tail deps.log '@@@' \
 	    && tail -10  deps.log \
 	    && echo done tail deps.log '@@@' \
-            && make  V=1 || true  \
+            && make  V=-1 || true  \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error1'; exit 1; fi \
             &&     ../contrib/getmem.nwchem 1000  || true \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error2'; exit 1; fi \
