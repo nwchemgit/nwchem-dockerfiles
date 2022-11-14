@@ -79,7 +79,7 @@ jobs:
       - name: Qemu
         uses: docker/setup-qemu-action@v2
         with:
-          image: crazymax/binfmt:v6.0.0
+          image: tonistiigi/binfmt:qemu-v6.0.0-10
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
@@ -237,7 +237,7 @@ jobs:
         id: qemu
         uses: docker/setup-qemu-action@v2
         with:
-          image: crazymax/binfmt:v6.0.0
+          image: tonistiigi/binfmt:qemu-v6.0.0-10
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
