@@ -28,3 +28,8 @@ jobs:
           docker images
           docker manifest push ghcr.io/${{ github.actor }}/nwchem-devnew:latest
         shell: bash
+      - name: test multimage
+        if:  ( github.actor == github.repository_owner ) 
+        run: |
+          docker images
+          docker pull ghcr.io/${{ github.actor }}/nwchem-devnew:latest
