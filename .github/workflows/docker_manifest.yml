@@ -25,8 +25,8 @@ jobs:
           for arch in amd64 arm64 armv7 ppc64le
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-$branch/$arch:latest || true
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-$branch:latest --amend  ghcr.io/${{ github.actor }}/nwchem-$branch/$arch:latest || true
+          docker pull ghcr.io/${{ github.actor }}/nwchem-$branch:$arch:latest || true
+          docker manifest create ghcr.io/${{ github.actor }}/nwchem-$branch:latest --amend  ghcr.io/${{ github.actor }}/nwchem-$branch:$arch:latest || true
           done
           docker images
           docker manifest push ghcr.io/${{ github.actor }}/nwchem-$branch:latest
