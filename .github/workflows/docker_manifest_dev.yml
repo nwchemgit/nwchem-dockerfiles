@@ -39,9 +39,11 @@ jobs:
       - name: test multimage after rm
         if:  ( github.actor == github.repository_owner ) 
         run: |
-          docker images
           docker rmi ghcr.io/${{ github.actor }}/nwchem-devnew || true
           docker rmi ghcr.io/${{ github.actor }}/nwchem-dev/amd64
+          docker images
+          ls -lart ~/.docker/manifests|| true
+          rm -rf ~/.docker/manifests/* || true
           docker pull ghcr.io/${{ github.actor }}/nwchem-devnew:latest
           docker buildx imagetools inspect ghcr.io/${{ github.actor }}/nwchem-devnew:latest
           docker run --rm --entrypoint '/usr/bin/uname' ghcr.io/${{ github.actor }}/nwchem-devnew:latest  -a
