@@ -33,3 +33,6 @@ jobs:
         run: |
           docker images
           docker pull ghcr.io/${{ github.actor }}/nwchem-devnew:latest
+          docker buildx imagetools inspect ghcr.io/${{ github.actor }}/nwchem-devnew:latest
+          docker run --rm -it --entrypoint '/usr/bin/uname' ghcr.io/${{ github.actor }}/nwchem-devnew:latest  -a
+          docker run mplatform/manifest-tool inspect ghcr.io/${{ github.actor }}/nwchem-devnew:latest
