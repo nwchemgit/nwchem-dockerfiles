@@ -21,8 +21,8 @@ jobs:
         if:  ( github.actor == github.repository_owner ) 
         run: |
           for branch in dev 720
-          manifest_tag=ghcr.io/${{ github.actor }}/nwchem-$branch:latest
-          noarch_tag=ghcr.io/${{ github.actor }}/nwchem-$branch
+          manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
+          noarch_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch"
           do
           for arch in amd64 arm64 armv7 ppc64le
           do
