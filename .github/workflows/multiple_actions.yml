@@ -59,7 +59,6 @@ jobs:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/riscv64, branch: release-7-2-0}
             - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
     runs-on: ubuntu-latest
     timeout-minutes: 420
