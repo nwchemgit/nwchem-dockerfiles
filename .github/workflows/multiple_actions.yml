@@ -165,8 +165,8 @@ jobs:
           shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: |
-            ${{ env.tag }}:latest
-            ${{ env.tag }}:${{ env.date }}
+            ${{ env.tag }}
+            ${{ env.tag }}-${{ env.date }}
           build-args: |
             FC=${{ matrix.fc }}
             NWCHEM_BRANCH=${{ matrix.branch }}
@@ -326,8 +326,8 @@ jobs:
           shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: |
-            ${{ env.tag }}:latest
-            ${{ env.tag }}:${{ env.date }}
+            ${{ env.tag }}
+            ${{ env.tag }}-${{ env.date }}
           build-args: |
             FC=${{ matrix.fc }}
             NWCHEM_BRANCH=${{ matrix.branch }}
