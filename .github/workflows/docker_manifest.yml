@@ -20,7 +20,6 @@ jobs:
       - name: pull images
         if:  ( github.actor == github.repository_owner ) 
         run: |
-          set -x
           for branch in dev 720
           do
           manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
@@ -41,7 +40,6 @@ jobs:
       - name: test images
         if:  ( github.actor == github.repository_owner ) 
         run: |
-          set -x
           branch=dev
           manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
           noarch_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch"
@@ -50,7 +48,7 @@ jobs:
           docker rmi "$noarch_tag" || true
           for arch in amd64 arm64 armv7 ppc64le
           do
-          docker rmi "$noarch_tag":"$arch" ||rue
+          docker rmi "$noarch_tag":"$arch" ||true
           done
           docker images
           echo "pulling $manifest_tag"
