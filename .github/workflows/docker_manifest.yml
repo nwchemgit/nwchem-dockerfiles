@@ -38,3 +38,21 @@ jobs:
           docker manifest inspect  $manifest_tag
           done
         shell: bash
+      - name: test images
+        if:  ( github.actor == github.repository_owner ) 
+        run: |
+          set -x
+          branch=dev
+          manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
+          noarch_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch"
+          docker manifest rm $manifest_tag || true
+          docker rmi "$noarch_tag":latest || true
+          docker rmi "$noarch_tag" || true
+          for arch in amd64 arm64 armv7 ppc64le
+          do
+          docker rmi "$noarch_tag":"$arch" ||rue
+          done
+          docker images
+          echo "pulling $manifest_tag"
+          docker pull "$manifest_tag"
+          docker run --rm --entrypoint=uname  "$manifest_tag" -a
