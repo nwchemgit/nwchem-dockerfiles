@@ -21,14 +21,16 @@ jobs:
         if:  ( github.actor == github.repository_owner ) 
         run: |
           for branch in dev 720
+          manifest_tag=ghcr.io/${{ github.actor }}/nwchem-$branch:latest
+          noarch_tag=ghcr.io/${{ github.actor }}/nwchem-$branch
           do
           for arch in amd64 arm64 armv7 ppc64le
           do
           echo $arch
-          docker pull ghcr.io/${{ github.actor }}/nwchem-$branch:$arch || true
-          docker manifest create ghcr.io/${{ github.actor }}/nwchem-$branch:latest --amend  ghcr.io/${{ github.actor }}/nwchem-$branch:$arch || true
+          docker pull $noarch_tag:$arch || true
+          docker manifest create $manifest_tag --amend  $noarch_tag:$arch || true
           done
           docker images
-          docker manifest push ghcr.io/${{ github.actor }}/nwchem-$branc
+          docker manifest push $manifest_tag
           done
         shell: bash
