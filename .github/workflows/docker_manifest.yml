@@ -34,5 +34,7 @@ jobs:
           echo "pushing manifest name" "$manifest_tag"
           docker manifest push $manifest_tag
           docker images
+          echo 'inspect manifest of '  $manifest_tag
+          docker manifest inspect  $manifest_tag
           done
         shell: bash
