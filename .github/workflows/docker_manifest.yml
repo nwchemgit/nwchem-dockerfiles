@@ -24,7 +24,7 @@ jobs:
           do
           manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
           noarch_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch"
-          for arch in amd64 arm64 armv7 ppc64le
+          for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
           docker pull $noarch_tag:$arch || true
@@ -46,7 +46,7 @@ jobs:
           docker manifest rm $manifest_tag || true
           docker rmi "$noarch_tag":latest || true
           docker rmi "$noarch_tag" || true
-          for arch in amd64 arm64 armv7 ppc64le
+          for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           docker rmi "$noarch_tag":"$arch" ||true
           done
