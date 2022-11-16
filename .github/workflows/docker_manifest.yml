@@ -24,13 +24,35 @@ jobs:
           do
           manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
           noarch_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch"
-          for arch in amd64 arm64 armv7 ppc64le
+          for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
           docker pull $noarch_tag:$arch || true
           docker manifest create $manifest_tag --amend  $noarch_tag:$arch || true
           done
-          docker images
+          echo "pushing manifest name" "$manifest_tag"
           docker manifest push $manifest_tag
+          docker images
+          echo 'inspect manifest of '  $manifest_tag
+          docker manifest inspect  $manifest_tag
           done
         shell: bash
+      - name: test images
+        if:  ( github.actor == github.repository_owner ) 
+        run: |
+          branch=dev
+          manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
+          noarch_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch"
+          docker manifest rm $manifest_tag || true
+          docker rmi "$noarch_tag":latest || true
+          docker rmi "$noarch_tag" || true
+          for arch in amd64 arm64 armv7 ppc64le riscv64
+          do
+          docker rmi "$noarch_tag":"$arch" ||true
+          done
+          docker images
+          echo "pulling $manifest_tag"
+          docker pull "$manifest_tag"
+          docker run --rm --entrypoint=uname  "$manifest_tag" -a
+          echo 'inspect manifest of' $manifest_tag
+          docker manifest inspect  $manifest_tag
