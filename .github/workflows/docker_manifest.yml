@@ -54,3 +54,5 @@ jobs:
           echo "pulling $manifest_tag"
           docker pull "$manifest_tag"
           docker run --rm --entrypoint=uname  "$manifest_tag" -a
+          echo 'inspect manifest of' $manifest_tag
+          docker manifest inspect  $manifest_tag
