@@ -13,7 +13,9 @@ FROM        ubuntu:focal
 
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
-LABEL org.opencontainers.image.description "NWChem image built from the master branch"
+LABEL org.opencontainers.image.description="NWChem image built from the master branch"
+LABEL org.opencontainers.image.source "https://github.com/nwchemgit/nwchem"
+LABEL org.opencontainers.image.documentation="https://nwchemgit.github.io/Containers.html"
 
 #create user nwchem
 RUN           groupadd -r nwchem -g 1994 \
@@ -67,7 +69,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 #one single ugly command to reduce docker size
          apt-get -q=2 update \
             && apt-get -q=2 -y upgrade \
-            && apt-get -q=2 install -y --no-install-recommends rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch \
+            && apt-get -q=2 install -y --no-install-recommends rsync python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config \
 	    && echo FCFCFC is ${FC} \
 	    && echo NWCHEM_BRANCH is ${NWCHEM_BRANCH} \
 	    && echo GITHUB_REPOSITORY_OWNER is ${GITHUB_REPOSITORY_OWNER} \
@@ -76,7 +78,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && arch_dpkg=$(dpkg --print-architecture)  \
 	    && if [[ "$arch" == "aarch64" ]]; then arch_dpkg="arm64"; fi \
 	    && if [[ "$arch" == "x86_64" ]]; then arch_dpkg="amd64"; fi \
-	    && nv_year=2022 && nv_major=22 &&  nv_minor=7 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
+	    && nv_year=2022 && nv_major=22 &&  nv_minor=9 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
 	    &&  if [[ "$FC" == "nvfortran" ]]; then apt-get install -q=2 -y --no-install-recommends g++ libtinfo5  libncursesw5 mpich libmpich-dev; wget https://developer.download.nvidia.com/hpc-sdk/ubuntu/"$arch_dpkg/"nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nv_year"_"$nverdot"_"$arch_dpkg".deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC="$FC" ; MPIF90=mpif90.mpich ; MPIRUN_PATH=/usr/bin/mpirun.mpich ; update-alternatives --set mpi /usr/bin/mpicc.mpich; update-alternatives --set mpirun  /usr/bin/mpirun.mpich; update-alternatives --list mpi  ; mpif90 -show; export ARMCI_NETWORK=MPI-TS;  rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; fi \
             &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:"$PATH" \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:"$LD_LIBRARY_PATH" \
