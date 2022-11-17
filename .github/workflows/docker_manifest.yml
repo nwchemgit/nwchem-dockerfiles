@@ -37,8 +37,8 @@ jobs:
           docker manifest create $manifest_tag_date --amend  $noarch_tag:$arch || true
           done
           echo "pushing manifest name" "$manifest_tag"
-          docker manifest push -p $manifest_tag
           docker manifest push -p $manifest_tag_date
+          docker manifest push -p $manifest_tag
           docker images
           echo 'inspect manifest of '  $manifest_tag
           docker manifest inspect  $manifest_tag
