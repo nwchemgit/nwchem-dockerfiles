@@ -13,7 +13,7 @@ on:
 jobs:
   changes:
     if: |
-      !contains(github.event.head_commit.message, 'ci skip')
+      !contains(github.event.head_commit.message, 'ci skip') && (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule')
     runs-on: ubuntu-22.04
     outputs:
       # Expose matched filters as job 'folders' output variable
@@ -46,8 +46,7 @@ jobs:
         echo " steps.env_change.outputs.change is  ${{ steps.env_change.outputs.change }}"
   docker_filter:
     needs: [changes]
-    if: |
-        (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule') &&  ( needs.changes.outputs.change == 'yes')
+    if: ( needs.changes.outputs.change == 'yes')
     strategy:
         fail-fast: false
         matrix:
@@ -59,8 +58,6 @@ jobs:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/riscv64, branch: release-7-2-0}
-            - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     outputs:
@@ -217,8 +214,6 @@ jobs:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/riscv64, branch: release-7-2-0}
-            - {folder: nwchem-dev, fc: nvfortran, branch: release-7-2-0}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     outputs:

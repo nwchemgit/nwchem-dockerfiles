@@ -17,20 +17,27 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build date
+        id: build-date
+        run: |
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: pull  images and push manifest
         if:  ( github.actor == github.repository_owner ) 
         run: |
           for branch in dev 720
           do
           manifest_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch":latest
+          manifest_tag_date=ghcr.io/${{ github.actor }}/nwchem-"$branch":${{ env.date }}
           noarch_tag=ghcr.io/${{ github.actor }}/nwchem-"$branch"
           for arch in amd64 arm64 armv7 ppc64le riscv64
           do
           echo $arch
           docker pull -q $noarch_tag:$arch || true
           docker manifest create $manifest_tag --amend  $noarch_tag:$arch || true
+          docker manifest create $manifest_tag_date --amend  $noarch_tag:$arch || true
           done
           echo "pushing manifest name" "$manifest_tag"
+          docker manifest push -p $manifest_tag_date
           docker manifest push -p $manifest_tag
           docker images
           echo 'inspect manifest of '  $manifest_tag
