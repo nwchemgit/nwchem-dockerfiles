@@ -20,7 +20,7 @@ jobs:
           include:
             - folder: nwchem-dev.mpipr.nersc.mpich4
             - armci_network: MPI-PR
-            - openmp: N
+            - openmp: 'N'
             - branch: master
             - fc: nvfortran
     runs-on: ubuntu-latest
@@ -37,7 +37,7 @@ jobs:
           fi
       - name:  cache key
         run: |
-          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}{{ env.fc }}-cache-v005" >> $GITHUB_ENV
+          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
