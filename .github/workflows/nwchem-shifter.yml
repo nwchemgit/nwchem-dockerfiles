@@ -19,10 +19,10 @@ jobs:
           armci_network: [ MPI-PR ] 
           include:
             - folder: nwchem-dev.mpipr.nersc.mpich4
-            - armci_network: MPI-PR
-            - openmp: 'N'
-            - branch: master
-            - fc: nvfortran
+              armci_network: MPI-PR
+              openmp: N
+              branch: master
+              fc: nvfortran
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
