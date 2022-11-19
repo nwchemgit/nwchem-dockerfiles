@@ -81,7 +81,7 @@ RUN         apt-get update \
 	    && echo "expr is " $(which expr)  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSIONGT9=$(/usr/bin/expr "$VERSION"  \> 9)  || true \
 	    && echo "VERSIONGT9 is " $VERSIONGT9   >& nvcc.out && cat nvcc.out && rm nvcc.out \
-	    && if [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
+	    && if [[ "$FC" == gfortran ]] && [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
 	    && echo "VERSIONGT9 is " $VERSIONGT9 \
 	    && echo "FFLAGS_IN is " $FFLAGS_IN \
             && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.out \
@@ -91,6 +91,11 @@ RUN         apt-get update \
             && apt-get -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
 #	    && echo "********** end  of CUDA installation *****"  || true\
 	    && env|egrep PATH \
+	    && arch_dpkg=$(dpkg --print-architecture)  \
+	    && nv_year=2022 && nv_major=22 &&  nv_minor=11 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
+	    &&  if [[ "$FC" == "nvfortran" ]]; then apt-get install -q=2 -y --no-install-recommends g++ libtinfo5  libncursesw5 ; wget https://developer.download.nvidia.com/hpc-sdk/ubuntu/"$arch_dpkg/"nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget  https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nv_year"_"$nverdot"_"$arch_dpkg".deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC="$FC" ;   rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.; export TCE_OPENACC=1;export USE_OPENACC=1; fi \
+            &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:"$PATH" \
+            &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:"$LD_LIBRARY_PATH" \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
 	    && echo 'checking cache #2 ' \
