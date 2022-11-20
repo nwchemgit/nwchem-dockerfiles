@@ -134,6 +134,9 @@ jobs:
         run: |
           sleep 30s
           docker pull ${{ env.tag }}
+          if [[ ${{ matrix.fc }} == nvfortran ]]; then
+          docker run --entrypoint=ldd --rm ${{ env.tag }} /opt/nwchem/bin/LINUX64/nwchem
+          else
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -142,7 +145,8 @@ jobs:
           docker run --rm  \
           -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           ${{ env.tag }} \
-          procs 2 h2o_opt prop_mep_gcube 
+          procs 2 h2o_opt prop_mep_gcube
+          fi
       - name: store cache
         if:  ( github.actor == github.repository_owner )
         run: |
