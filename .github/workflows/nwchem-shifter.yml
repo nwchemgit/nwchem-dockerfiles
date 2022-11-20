@@ -23,6 +23,12 @@ jobs:
               openmp: N
               branch: master
               fc: nvfortran
+          include:
+            - folder: nwchem-dev.mpipr.nersc.mpich4
+              armci_network: MPI-PR
+              openmp: N
+              branch: release-7-2-0
+              fc: nvfortran
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
