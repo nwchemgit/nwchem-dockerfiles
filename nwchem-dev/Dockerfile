@@ -41,6 +41,9 @@ ARG         NWCHEM_MODULES="all python "  \
             USE_MPI=y  \
             USE_MPIF=y  \
             USE_MPIF4=y  \
+	    USE_SIMINT=1 \
+	    SIMINT_MAXAM=5 \
+	    SIMINT_VECTOR=AVX2 \
 	    BUILD_OPENBLAS=1 \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
@@ -106,6 +109,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
+            && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
             && gcc -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend.c \
@@ -134,6 +138,9 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && rm libext/libxc/install/bin/xc* || true \
 	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
 	    && rm -rf lib/* libxc/install/lib/* ||true \
+	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf $NWCHEM_TOP/src/libext/simint.tar.bz2 simint_install/* || true \
+	    && rm -rf simint* *simint-generator* \
+	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } \
 	    && cd .. \
 	    && ln -sf ../bin/${NWCHEM_TARGET}/nwchem ../bin/nwchem \
 #clean unnecessary packages
