@@ -12,24 +12,44 @@ jobs:
         fail-fast: false
         matrix:
           folder:
-            - nwchem-dev.mpipr.nersc
             - nwchem-dev.mpipr.nersc.mpich4
           branch: [ master, release-7-2-0]
           openmp: [ Y, N]
-          armci_network: [ MPI-PR, MPI-PT]
-          exclude:
-            - {folder: nwchem-dev.mpipr.nersc, armci_network: MPI-PT}
+          fc: [ gfortran]
+          armci_network: [ MPI-PR ] 
+          include:
+            - folder: nwchem-dev.mpipr.nersc.mpich4
+              armci_network: MPI-PR
+              openmp: N
+              branch: master
+              fc: nvfortran
+            - folder: nwchem-dev.mpipr.nersc.mpich4
+              armci_network: MPI-PR
+              openmp: N
+              branch: release-7-2-0
+              fc: nvfortran
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: FC tag
+        id: fc-tag
+        run: |
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
+            echo "fc="  >> $GITHUB_ENV
+          else 
+            echo "fc=$(echo .${{matrix.fc }}  )"   >> $GITHUB_ENV
+          fi
+      - name:  cache key
+        run: |
+          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder }}-${{ matrix.branch }}-cache-v005
+          key: ${{ env.cache_key }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to GitHub Container Registry
@@ -93,7 +113,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}${{ env.armci_net }}" >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}${{ env.armci_net }}${{ env.fc }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
@@ -109,7 +129,7 @@ jobs:
             ${{ env.tag }}:${{ env.date }}
           build-args: |
             USE_OPENMP_VALUE=${{ matrix.openmp }}
-            FC=gfortran
+            FC=${{ matrix.fc }}
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
@@ -119,6 +139,9 @@ jobs:
         run: |
           sleep 30s
           docker pull ${{ env.tag }}
+          if [[ ${{ matrix.fc }} == nvfortran ]]; then
+          docker run --entrypoint=ldd --rm ${{ env.tag }} /opt/nwchem/bin/LINUX64/nwchem
+          else
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
@@ -127,7 +150,8 @@ jobs:
           docker run --rm  \
           -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           ${{ env.tag }} \
-          procs 2 h2o_opt prop_mep_gcube 
+          procs 2 h2o_opt prop_mep_gcube
+          fi
       - name: store cache
         if:  ( github.actor == github.repository_owner )
         run: |
