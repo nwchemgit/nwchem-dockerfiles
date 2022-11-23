@@ -116,6 +116,12 @@ jobs:
           mkdir -p cache|| true ; \
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
+          if [[ -f ~/cache/simint.tar.bz2 ]]; then \
+          echo "simint cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/simint* cache/. ; \
+          echo "simint cache fetched" ; \
+          fi
           ls -l cache/ ; \
           echo "======" ; \
           fi
@@ -352,6 +358,10 @@ jobs:
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ${{ env.tag }} \
             -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ env.tag }} \
+            -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
   bundle_images2:
     needs: [docker_schedule]
