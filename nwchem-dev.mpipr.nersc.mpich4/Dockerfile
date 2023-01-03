@@ -81,7 +81,7 @@ RUN         apt-get -q=2 update \
 	    && echo "expr is " $(which expr)  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSIONGT9=$(/usr/bin/expr "$VERSION"  \> 9)  || true \
 	    && echo "VERSIONGT9 is " $VERSIONGT9   >& nvcc.out && cat nvcc.out && rm nvcc.out \
-	    && if [[ "$FC" == gfortran ]] && [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
+	    && if [[ "$FC" == gfortran ]] && [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="-fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
 	    && echo "VERSIONGT9 is " $VERSIONGT9 \
 	    && echo "FFLAGS_IN is " $FFLAGS_IN \
             && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.out \
@@ -160,7 +160,7 @@ RUN         apt-get -q=2 update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9 libicu70 libpython3.8-dev libstdc++-9-dev libc6-dev libgcc-9-dev libgfortran-9-dev   \
+            &&       apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-11 gfortran-11 gcc-11 libicu70 libpython3.8-dev libstdc++-11-dev libc6-dev libgcc-11-dev libgfortran-11-dev  || true  \
             && apt-get -q=2 -y install libgfortran5 libgomp1 && apt-get clean \
             && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	    && echo '*** ldd ***'  \
