@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
