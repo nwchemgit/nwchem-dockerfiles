@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
@@ -69,8 +69,11 @@ ENV         NWCHEM_TARGET=LINUX64 \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN         apt-get -q=2 update \
             && apt-get -q=2 -y upgrade \
-            && apt-get install -q=2 -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
+            && apt-get install -q=2 -y  gcc-9  g++-9 gfortran-9   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
             && apt-get install  -q=2 -y  autoconf automake libtool git \
+	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 100 \
+	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 100 \
+	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-9 100 \
 	    && echo FCFCFC is $FC \
 	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
 	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
@@ -159,7 +162,7 @@ RUN         apt-get -q=2 update \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
 	    && if [[ "$FC" == "nvfortran" ]]; then apt-get -q=2 -y purge   patch curl  wget unzip make git ; \
-            else    apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9 libicu66 libpython3.8-dev libstdc++-9-dev libc6-dev libgcc-9-dev libgfortran-9-dev  || true ; fi \
+            else    apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9 libicu70 libpython3.8-dev libstdc++-9-dev libc6-dev libgcc-9-dev libgfortran-9-dev  || true ; fi \
             && apt-get -q=2 -y install libgfortran5 libgomp1 && apt-get clean \
             && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	    && echo '*** ldd ***'  \
