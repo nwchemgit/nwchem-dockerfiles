@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM ubuntu:jammy
+FROM ubuntu:focal
 
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
@@ -33,14 +33,14 @@ ENV         ARMCI_NETWORK=$ARMCI_NETWORK
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=7
+	    CUDA_VERSION_MINOR=8
 ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=7
+ENV	    CUDA_VERSION_MINOR=8
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
             BUILD_OPENBLAS=1 \
@@ -159,7 +159,7 @@ RUN         apt-get -q=2 update \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
 	    && if [[ "$FC" == "nvfortran" ]]; then apt-get -q=2 -y purge   patch curl  wget unzip make git ; \
-            else    apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-11 gfortran-11 gcc-11 libicu70 libpython3.8-dev libstdc++-11-dev libc6-dev libgcc-11-dev libgfortran-11-dev  || true ; fi \
+            else    apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9 libicu66 libpython3.8-dev libstdc++-9-dev libc6-dev libgcc-9-dev libgfortran-9-dev  || true ; fi \
             && apt-get -q=2 -y install libgfortran5 libgomp1 && apt-get clean \
             && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	    && echo '*** ldd ***'  \
@@ -169,7 +169,7 @@ RUN         apt-get -q=2 update \
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
 #ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=7
+ENV	    CUDA_VERSION_MINOR=8
 ENV         FFIELD=amber \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/ \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/ \
