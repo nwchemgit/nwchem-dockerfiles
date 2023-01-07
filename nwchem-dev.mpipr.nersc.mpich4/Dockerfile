@@ -172,7 +172,7 @@ RUN         apt-get -q=2 update \
 	    && echo '*** ls -l nwchem **' \
 	    && ls -l /opt/nwchem/bin/LINUX64/nwchem || true \
 	    && echo '*** ldd ***'  \
-	    && ldd /opt/nwchem/bin/LINUX64/nwchem || true \
+	    && LD_LIBRARY_PATH=/usr/local/lib:/opt/lib ldd /opt/nwchem/bin/LINUX64/nwchem || true \
 	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/

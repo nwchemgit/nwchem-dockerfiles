@@ -139,7 +139,7 @@ jobs:
         run: |
           sleep 30s
           docker pull ${{ env.tag }}
-          export MYLDPATH=/usr/local/lib
+          export MYLDPATH=/usr/local/lib:/opt/lib
           if [[ ${{ matrix.fc }} == nvfortran ]]; then
           docker run -e LD_LIBRARY_PATH="$MYLDPATH" --entrypoint=ldd --rm \
           ${{ env.tag }} /opt/nwchem/bin/LINUX64/nwchem
