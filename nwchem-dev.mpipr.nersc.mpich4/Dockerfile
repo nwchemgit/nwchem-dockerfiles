@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
@@ -33,14 +33,16 @@ ENV         ARMCI_NETWORK=$ARMCI_NETWORK
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=7
+	    CUDA_VERSION_MINOR=8
 ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=7
+ENV	    CUDA_VERSION_MINOR=8
+ENV         GCC_VERSION=12
+ENV         PY_VERSION=3.11
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
             BUILD_OPENBLAS=1 \
@@ -59,6 +61,7 @@ ENV         NWCHEM_TARGET=LINUX64 \
 	    TCE_CUDA=Y \
 	    CUDA_LIBS="-L/usr/local/cuda/lib64 -lcudart" \
 	    CUDA_INCLUDE="-I. -I/usr/local/cuda/include" \
+	    FORCETARGET=" TARGET=ZEN " \
 	    USE_HWOPT=n  \
             USE_MPI=y \
             USE_MPIF=y \
@@ -69,8 +72,13 @@ ENV         NWCHEM_TARGET=LINUX64 \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN         apt-get -q=2 update \
             && apt-get -q=2 -y upgrade \
-            && apt-get install -q=2 -y  g++ gfortran   make ssh patch curl rsync wget unzip perl git file python3 python3-dev bzip2 tar gnupg2 \
+            && apt-get install -q=2 -y  gcc-"$GCC_VERSION"  g++-"$GCC_VERSION" gfortran-"$GCC_VERSION"   make ssh patch curl rsync wget unzip perl git file python"$PY_VERSION" libpython"$PY_VERSION"-dev python"$PY_VERSION"-dev bzip2 tar gnupg2 \
             && apt-get install  -q=2 -y  autoconf automake libtool git \
+	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 100 \
+	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 100 \
+	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 \
+	    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100 \
+	    && update-alternatives --install /usr/bin/python3-config python3-config /usr/bin/python3.11-config 100 \
 	    && echo FCFCFC is $FC \
 	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
 	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
@@ -81,7 +89,7 @@ RUN         apt-get -q=2 update \
 	    && echo "expr is " $(which expr)  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSIONGT9=$(/usr/bin/expr "$VERSION"  \> 9)  || true \
 	    && echo "VERSIONGT9 is " $VERSIONGT9   >& nvcc.out && cat nvcc.out && rm nvcc.out \
-	    && if [[ "$FC" == gfortran ]] && [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
+	    && if [[ "$FC" == gfortran ]] && [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="-fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
 	    && echo "VERSIONGT9 is " $VERSIONGT9 \
 	    && echo "FFLAGS_IN is " $FFLAGS_IN \
             && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.out \
@@ -94,7 +102,7 @@ RUN         apt-get -q=2 update \
 	    && arch=$(uname -m) \
 	    && echo arch is "$arch" \
 	    && arch_dpkg=$(dpkg --print-architecture)  \
-	    && nv_year=2022 && nv_major=22 &&  nv_minor=7 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
+	    && nv_year=2022 && nv_major=22 &&  nv_minor=11 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
 	    &&  if [[ "$FC" == "nvfortran" ]]; then apt-get install -q=2 -y --no-install-recommends g++ libtinfo5  libncursesw5 libnuma1 ; wget  --progress=dot:giga https://developer.download.nvidia.com/hpc-sdk/ubuntu/"$arch_dpkg/"nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget --progress=dot:giga  https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nv_year"_"$nverdot"_"$arch_dpkg".deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC="$FC" ;   rm -f nvhpc*deb ; mkdir -p /opt/lib || true;  \
 	    rsync -a /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.;  \
 	    rsync -a /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/math_libs/*/lib64/*.so* /opt/lib/. ; \
@@ -110,7 +118,7 @@ RUN         apt-get -q=2 update \
     else  echo 'downloading mpich source' ; \
     wget --progress=dot:giga https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz -O - | tar xzf - ; \
     cd $mpich_prefix || { echo "Failure"; exit 1; } ;\
-    FFLAGS=$FFLAGS_IN  ./configure --silent --enable-silent-rules ; \
+    FFLAGS=$FFLAGS_IN FCFLAGS=$FFLAGS_IN ./configure --silent --enable-silent-rules ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
     echo 'mpich compiled' ; \
@@ -126,7 +134,7 @@ RUN         apt-get -q=2 update \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt || { echo "Failure"; exit 1; } \
             &&  rm -rf nwchem || true \
-            && git clone -b $NWCHEM_BRANCH --depth 1  https://github.com/nwchemgit/nwchem.git  \
+            && git clone -b ${NWCHEM_BRANCH} --depth 1  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd nwchem/src || { echo "Failure"; exit 1; } \
@@ -135,8 +143,6 @@ RUN         apt-get -q=2 update \
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && cd /opt/nwchem \
-	    && wget -q https://github.com/edoapra/nwchem/commit/83a7d7d4b0a2d1cdefc9152cffee758278edb332.patch \
-	    && patch -p1 -s -N < 83a7d7d4b0a2d1cdefc9152cffee758278edb332.patch ||true \
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 ||true \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && echo '*** ldd ***'  \
@@ -160,17 +166,19 @@ RUN         apt-get -q=2 update \
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-9 gfortran-9 gcc-9 libicu66 libpython3.8-dev libstdc++-9-dev libc6-dev libgcc-9-dev* libgfortran-9-dev   \
+            &&  apt-get -q=2 -y purge   patch curl  wget unzip make git cpp-"$GCC_VERSION" gfortran-"$GCC_VERSION" gcc-"$GCC_VERSION" libicu-dev libpython"$PY_VERSION"-dev libstdc++-"$GCC_VERSION"-dev libc6-dev libgcc-"$GCC_VERSION"-dev libgfortran-"$GCC_VERSION"-dev  || true \
             && apt-get -q=2 -y install libgfortran5 libgomp1 && apt-get clean \
             && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
+	    && echo '*** ls -l nwchem **' \
+	    && ls -l /opt/nwchem/bin/LINUX64/nwchem || true \
 	    && echo '*** ldd ***'  \
-	    && ldd /opt/nwchem/bin/LINUX64/nwchem \
+	    && LD_LIBRARY_PATH=/usr/local/lib:/opt/lib ldd /opt/nwchem/bin/LINUX64/nwchem || true \
 	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 #ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
 #ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=7
+ENV	    CUDA_VERSION_MINOR=8
 ENV         FFIELD=amber \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/ \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/ \
