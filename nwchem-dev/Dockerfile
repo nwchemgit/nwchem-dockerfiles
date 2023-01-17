@@ -67,9 +67,12 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
      echo ' defining modules according to CACHE_HIT=' "$CACHE_HIT" && \
      if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi &&\
 #one single ugly command to reduce docker size
+            tries=0 ; until [ "$tries" -ge 10 ] ; do \
          apt-get -q=2 update \
             && apt-get -q=2 -y upgrade \
             && apt-get -q=2 install -y --no-install-recommends rsync python3-dev g++ gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config \
+	    && break; \
+	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
 	    && echo FCFCFC is ${FC} \
 	    && echo NWCHEM_BRANCH is ${NWCHEM_BRANCH} \
 	    && echo GITHUB_REPOSITORY_OWNER is ${GITHUB_REPOSITORY_OWNER} \
