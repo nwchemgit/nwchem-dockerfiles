@@ -9,7 +9,7 @@
 #docker logs <container ID>
 #
 
-FROM        ubuntu:focal
+FROM        ubuntu:focal-20221130
 
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
