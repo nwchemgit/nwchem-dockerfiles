@@ -57,7 +57,7 @@ ENV         FFIELD=amber  \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
-            PATH=${PATH}:/opt/nwchem/bin
+            PATH=${PATH}:/opt/nwchem/bin/LINUX64
 #get NWCHEM_TARGET
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN ls -lrta /tmp && \
