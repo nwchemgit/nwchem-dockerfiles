@@ -142,8 +142,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf $NWCHEM_TOP/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && cd  $NWCHEM_TOP/src &&  rm -rf NWints || true \
 	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } \
-	    && cd .. \
-	    && ln -sf ../bin/${NWCHEM_TARGET}/nwchem ../bin/nwchem \
+	    && cd $NWCHEM_TOP \
 #clean unnecessary packages
             && DEBIAN_FRONTEND=noninteractive apt-get -q=2 -y install --no-install-recommends localepurge \
 	    && echo MANDELETE >  /etc/locale.nopurge \
