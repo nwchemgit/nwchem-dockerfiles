@@ -97,6 +97,9 @@ RUN         apt-get -q=2 update \
 	    && dpkg -i cuda-keyring_1.0-1_all.deb \
 	    && apt-get -q=2 update \
             && apt-get -q=2 -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
+	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 1000 \
+	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 1000 \
+	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 1000 \
 #	    && echo "********** end  of CUDA installation *****"  || true\
 	    && env|egrep PATH \
 	    && arch=$(uname -m) \
@@ -138,6 +141,7 @@ RUN         apt-get -q=2 update \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd nwchem/src || { echo "Failure"; exit 1; } \
+	    && cd tce/ccsd_t && nvcc  -c -DTCE_CUDA  -I. -I/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/include memory.cu && cd ../.. \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
