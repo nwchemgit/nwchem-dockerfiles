@@ -41,7 +41,7 @@ WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=11 
 ENV	    CUDA_VERSION_MINOR=3
-ENV         GCC_VERSION=12
+ENV         GCC_VERSION=10
 ENV         PY_VERSION=3.11
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
@@ -143,10 +143,10 @@ RUN         apt-get -q=2 update \
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && cd /opt/nwchem \
-            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 ||true \
+            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && echo '*** ldd ***'  \
-	    && ldd ../bin/LINUX64/nwchem \
+	    && ldd ../bin/LINUX64/nwchem || { echo "Failure"; exit 1; } \
 	    && ls -lrt libext/libxc \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
@@ -178,7 +178,7 @@ RUN         apt-get -q=2 update \
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
 #ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=8
+ENV	    CUDA_VERSION_MINOR=3
 ENV         FFIELD=amber \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/ \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/ \
