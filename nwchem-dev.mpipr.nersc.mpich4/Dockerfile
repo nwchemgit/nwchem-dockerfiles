@@ -33,15 +33,15 @@ ENV         ARMCI_NETWORK=$ARMCI_NETWORK
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=8
+	    CUDA_VERSION_MINOR=3
 ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=8
-ENV         GCC_VERSION=12
+ENV	    CUDA_VERSION_MINOR=3
+ENV         GCC_VERSION=10
 ENV         PY_VERSION=3.11
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
@@ -97,6 +97,9 @@ RUN         apt-get -q=2 update \
 	    && dpkg -i cuda-keyring_1.0-1_all.deb \
 	    && apt-get -q=2 update \
             && apt-get -q=2 -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
+	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 1000 \
+	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 1000 \
+	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 1000 \
 #	    && echo "********** end  of CUDA installation *****"  || true\
 	    && env|egrep PATH \
 	    && arch=$(uname -m) \
@@ -138,15 +141,16 @@ RUN         apt-get -q=2 update \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd nwchem/src || { echo "Failure"; exit 1; } \
+	    && cd tce/ccsd_t && nvcc  -c -DTCE_CUDA  -I. -I/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/include memory.cu && cd ../.. \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && cd /opt/nwchem \
-            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 ||true \
+            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && echo '*** ldd ***'  \
-	    && ldd ../bin/LINUX64/nwchem \
+	    && ldd ../bin/LINUX64/nwchem || { echo "Failure"; exit 1; } \
 	    && ls -lrt libext/libxc \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
@@ -178,7 +182,7 @@ RUN         apt-get -q=2 update \
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
 #ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=8
+ENV	    CUDA_VERSION_MINOR=3
 ENV         FFIELD=amber \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/ \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/ \
