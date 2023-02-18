@@ -58,7 +58,7 @@ jobs:
           fi
       - name: nwchem version tag
         run: |
-          echo "longnwversion=${{ matrix.folder }}-${{ matrix.branch }}" >> $GITHUB_ENV
+          echo "longnwversion=${{ matrix.folder }}" >> $GITHUB_ENV
         shell: bash
       - name: docker tag
         id: docker-tag
