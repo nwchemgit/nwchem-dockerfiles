@@ -61,9 +61,9 @@ RUN         apt-get -q=2 update \
 	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 1000 \
 	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 1000 \
 	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 1000 \
-#	    && echo "********** end  of CUDA installation *****"  || true\
-	    && env|egrep PATH \
-	    && arch=$(uname -m) \
+	    && env|egrep PATH 
+
+RUN          arch=$(uname -m) \
 	    && echo arch is "$arch" \
 	    && arch_dpkg=$(dpkg --print-architecture)  \
 	    && nv_year=2022 && nv_major=22 &&  nv_minor=11 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
