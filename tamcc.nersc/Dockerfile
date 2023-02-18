@@ -60,7 +60,7 @@ RUN         apt-get -q=2 update \
 	    && if [[ "$FC" == gfortran ]] && [[ "$VERSIONGT9" == 1 ]]; then export FFLAGS_IN="-fallow-argument-mismatch"; else  FFLAGS_IN=" "; fi \
 	    && echo "VERSIONGT9 is " $VERSIONGT9 \
 	    && echo "FFLAGS_IN is " $FFLAGS_IN \
-            && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.ou
+            && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
 	    && wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb \
 	    && dpkg -i cuda-keyring_1.0-1_all.deb \
