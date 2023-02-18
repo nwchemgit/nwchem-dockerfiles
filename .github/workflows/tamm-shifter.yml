@@ -13,7 +13,7 @@ jobs:
         matrix:
           folder:
             - tamcc.nersc
-          fc: [ nvfortran]
+          fc: [ gfortran]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
