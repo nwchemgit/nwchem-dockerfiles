@@ -1,0 +1,104 @@
+name: tamm_shifter
+
+on:
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+
+jobs:
+  shifter_schedule:
+    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
+    strategy:
+        fail-fast: false
+        matrix:
+          folder:
+            - tamcc.nersc
+          fc: [ gfortran]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name:  cache key
+        run: |
+          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v000" >> $GITHUB_ENV
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/cache
+          key: ${{ env.cache_key }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        if: ${{ github.actor == github.repository_owner }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: fetch cache
+        if: (steps.setup-cache.outputs.cache-hit == 'true')
+        run: |
+          cd ${{ matrix.folder }}
+          ls -lrta
+          if [[ -f ~/cache/libtamm.tar.bz2 ]]; then \
+          echo "libext cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/libtamm* cache/. ; \
+          echo "libtamm cache fetched" ; \
+          fi
+          if [[ -f ~/cache/mpich.tar.bz2 ]]; then \
+          echo "mpich cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/mpich* cache/. ; \
+          echo "mpich cache fetched" ; \
+          ls -l cache/ ; \
+          echo "======" ; \
+          fi
+      - name: nwchem version tag
+        run: |
+          echo "longnwversion=$(echo ${{ matrix.folder }}-${{ matrix.branch }})" >> $GITHUB_ENV
+        shell: bash
+      - name: docker tag
+        id: docker-tag
+        run: |
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}} >>  $GITHUB_ENV
+        shell: bash
+      - name: builddate
+        id: build-date
+        run: |
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
+      - name: build_docker
+        uses: docker/build-push-action@v4
+        with:
+          push: ${{ github.actor == github.repository_owner }}
+          context: ${{ matrix.folder }}
+          tags: |
+            ${{ env.tag }}:latest
+            ${{ env.tag }}:${{ env.date }}
+          build-args: |
+            FC=${{ matrix.fc }}
+            CACHE_HIT=${{ env.cache_hit }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+      - name: load and test image
+        if:  ( github.actor == github.repository_owner )
+        run: |
+          sleep 30s
+          docker pull ${{ env.tag }}
+          export MYLDPATH=/usr/local/lib:/opt/lib
+          docker run -e LD_LIBRARY_PATH="$MYLDPATH" --entrypoint=ldd --rm \
+          ${{ env.tag }} /opt/install/CC/bin/CD_CCSD
+      - name: store cache
+        if:  ( github.actor == github.repository_owner )
+        run: |
+            mkdir -p ~/cache/
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ env.tag }} \
+            -rp /opt/nwchem/src/libext/libtamm.tar.bz2 /data/.  || true
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ env.tag }} \
+            -rp /usr/local/mpich.tar.bz2 /data/.  || true
+            ls -Ralrt ~/cache || true
