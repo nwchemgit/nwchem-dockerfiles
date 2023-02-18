@@ -58,12 +58,12 @@ jobs:
           fi
       - name: nwchem version tag
         run: |
-          echo "longnwversion=$(echo ${{ matrix.folder }}-${{ matrix.branch }})" >> $GITHUB_ENV
+          echo "longnwversion=${{ matrix.folder }}-${{ matrix.branch }}" >> $GITHUB_ENV
         shell: bash
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}} >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
