@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.description "TAMM CC Shifter image built with Mpi
 
 #create user nwchem
 RUN           groupadd -r nwchem -g 1994 \
-              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt -s /bin/bash nwchem 
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
 
 #caching from host cache dir
 COPY Dockerfile cache* /tmp/
@@ -34,17 +34,17 @@ ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 #ENV CRAYPE_LINK_TYPE=dynamic
-#ENV         CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=generic"
 ENV	    CUDA_VERSION_MAJOR=11 
 ENV	    CUDA_VERSION_MINOR=7
 ENV         GCC_VERSION=11
 ENV         PY_VERSION=3.11
+ENV         CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=generic"
 ENV	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
-	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  \
+	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN         apt-get -q=2 update \
-            && apt-get -q=2 -y upgrade
-RUN          apt-get install -q=2 -y  gcc-"$GCC_VERSION"  g++-"$GCC_VERSION" gfortran-"$GCC_VERSION"   make ssh patch curl rsync wget unzip perl git file python"$PY_VERSION" libpython"$PY_VERSION"-dev python"$PY_VERSION"-dev bzip2 tar gnupg2  cmake \
+            && apt-get -q=2 -y upgrade \
+            && apt-get install -q=2 -y  gcc-"$GCC_VERSION"  g++-"$GCC_VERSION" gfortran-"$GCC_VERSION"   make ssh patch curl rsync wget unzip perl git file python"$PY_VERSION" libpython"$PY_VERSION"-dev python"$PY_VERSION"-dev bzip2 tar gnupg2  cmake \
             && apt-get install  -q=2 -y  autoconf automake libtool git \
 	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 100 \
 	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 100 \
@@ -61,9 +61,8 @@ RUN          apt-get install -q=2 -y  gcc-"$GCC_VERSION"  g++-"$GCC_VERSION" gfo
 	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 1000 \
 	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 1000 \
 	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 1000 \
-	    && env|egrep PATH 
-
-RUN          arch=$(uname -m) \
+	    && env|egrep PATH \
+            && arch=$(uname -m) \
 	    && echo arch is "$arch" \
 	    && arch_dpkg=$(dpkg --print-architecture)  \
 	    && nv_year=2022 && nv_major=22 &&  nv_minor=11 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
