@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.description "TAMM CC Shifter image built with Mpi
 
 #create user nwchem
 RUN           groupadd -r nwchem -g 1994 \
-              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt -s /bin/bash nwchem 
 
 #caching from host cache dir
 COPY Dockerfile cache* /tmp/
