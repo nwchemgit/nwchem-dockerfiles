@@ -107,7 +107,7 @@ RUN         apt-get -q=2 update \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeOutput.log || true \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeError.log || true \
 	    && IFS="$oldifs" \
-            && make -j3 \
+            && make -j1 -l0.00001 \
             && make install \
             && echo 'clean unnecessary source to reduce docker size' \
             && cd /opt && rm  -rf CoupledCluster \
