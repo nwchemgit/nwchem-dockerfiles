@@ -102,11 +102,8 @@ RUN         apt-get -q=2 update \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
 	    && old_ifs="$IFS" && echo old ifs "$IFS" | cat -et && IFS=":" \
-            && export CMAKE_OPTIONS="-DCMAKE_CXX_FLAGS='-march=znver3 -O3':-DCMAKE_C_FLAGS='-march=znver3 -O3':-DCMAKE_Fortran_FLAGS='-march=znver3 -O3':-DCMAKE_CXX_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_C_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_Fortran_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC:-DUSE_CUDA=ON:-DBLIS_CONFIG=generic" \
-	    && export CFLAGS="-march=znver3 -O3" \
-	    && export CXXFLAGS="-march=znver3 -O3" \
-	    && export FCFLAGS="-march=znver3 -O3" \
-	    && CC=gcc CXX=g++ FC=gfortran cmake  $CMAKE_OPTIONS .. \
+            && export CMAKE_OPTIONS="-DCMAKE_CXX_FLAGS='-march=znver3 -O3':-DCMAKE_C_FLAGS='-march=znver3 -O3':-DCMAKE_Fortran_FLAGS='-march=znver3 -O3':-DCMAKE_CXX_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_C_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_Fortran_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC:-DUSE_CUDA=ON:-DBLIS_CONFIG=generic:-DMARCH_FLAGS='-march=znver3 -O3'" \
+	    && FC=gfortran cmake  $CMAKE_OPTIONS .. \
 	    && IFS="$oldifs" \
             && make -j3 CFLAGS="-march=znver3 -O3" CXXFLAGS="-march=znver3 -O3" FCFLAGS="-march=znver3 -O3" \
             && make install \
