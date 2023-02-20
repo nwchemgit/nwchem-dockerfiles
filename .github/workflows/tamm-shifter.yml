@@ -18,9 +18,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Get Instruction
+        id: get-simd
+        run: |
+          echo "simd=$(./travis/guess_simd.sh)" >> $GITHUB_ENV
+        shell: bash
       - name:  cache key
         run: |
-          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v000" >> $GITHUB_ENV
+          echo "cache_key=${{ matrix.folder }}-simd${{ env.simd }}-${{ matrix.branch }}${{ env.fc }}-cache-v000" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
