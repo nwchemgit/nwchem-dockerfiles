@@ -98,21 +98,23 @@ RUN         apt-get -q=2 update \
             && echo 'after mpich compilation ' \
             && rm -f mpicc.show && /usr/local/bin/mpicc -show >& mpicc.show && echo "mpicc show" `cat mpicc.show` && rm -f mpicc.show \
 	    && echo 'cloning tamm source *** ' || true \
+	    && mkdir -p /opt/install/CC/ \
+            && if [[ -f /tmp/libint.tar.bz2 ]]; then cd /opt/install/CC; tar xjvf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; fi \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
-            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3" \
+            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3" \
 	    && echo CMAKE_OPTIONS $CMAKE_OPTIONS \
-	    && cmake  $CMAKE_OPTIONS .. \
+	    && CC=gcc CXX=g++ FC=gfortran cmake  $CMAKE_OPTIONS .. \
 	    && echo " ***** cmake start **** " \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeOutput.log || true \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeError.log || true \
-	    && echo " ***** cmake end ***& " \
-            && if [[ -f /tmp/libint.tar.bz2 ]]; then tar xjf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; fi \
+	    && echo " ***** cmake end **** " \
             && make -j3 \
             && make install \
 	    && echo 'caching libint' \
-	    && tar cjvf libint.tar.bz2 TAMM_External-prefix/src/TAMM_External-build/LibInt2_External-prefix/*  || true \
+	    && cd /opt/install/CC/ \
+	    && tar cjvf libint.tar.bz2 ./include/libint* ./share/libint* ./lib/pkgconfig/libint*.pc ./lib/cmake/libint* ./lib/libint*  || true \
             && echo 'clean unnecessary source to reduce docker size' \
             && cd /opt && rm  -rf CoupledCluster \
 	    && cd /opt/install/CC/share/libint/2.7.2/basis/ \
