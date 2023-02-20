@@ -102,7 +102,7 @@ RUN         apt-get -q=2 update \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
             && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver2" \
-	    &7 echo CMAKE_OPTIONS $CMAKE_OPTIONS \
+	    && echo CMAKE_OPTIONS $CMAKE_OPTIONS \
 	    && cmake  $CMAKE_OPTIONS .. \
 	    && echo " ***** cmake start **** " \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeOutput.log || true \
