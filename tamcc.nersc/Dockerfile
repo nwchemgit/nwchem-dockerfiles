@@ -101,12 +101,12 @@ RUN         apt-get -q=2 update \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
-	    && old_ifs="$IFS" && echo old ifs "$IFS" | cat -et && IFS=":" \
-            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC:-DUSE_CUDA=ON:-DBLIS_CONFIG=generic:-DMARCH_FLAGS='-march=znver3'" \
+            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3" \
 	    && cmake  $CMAKE_OPTIONS .. \
+	    && echo " ***** cmake start **** " \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeOutput.log || true \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeError.log || true \
-	    && IFS="$oldifs" \
+	    && echo " ***** cmake end ***& " \
             && make -j1 -l0.00001 \
             && make install \
             && echo 'clean unnecessary source to reduce docker size' \
