@@ -102,8 +102,10 @@ RUN         apt-get -q=2 update \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
 	    && old_ifs="$IFS" && echo old ifs "$IFS" | cat -et && IFS=":" \
-            && export CMAKE_OPTIONS="-DCMAKE_CXX_FLAGS='-Wno-unused-function -march=znver3 -mfma -mavx2 -O3':-DCMAKE_C_FLAGS='Wno-unused-function -march=znver3 -mfma -mavx2 -O3':-DCMAKE_Fortran_FLAGS='Wno-unused-function -march=znver3 -mfma -mavx2 -O3':-DCMAKE_CXX_FLAGS_RELEASE='Wno-unused-function -march=znver3 -mfma -mavx2 -O3':-DCMAKE_C_FLAGS_RELEASE='Wno-unused-function -march=znver3 -mfma -mavx2 -O3':-DCMAKE_Fortran_FLAGS_RELEASE='Wno-unused-function -march=znver3 -mfma -mavx2 -O3':-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC:-DUSE_CUDA=ON:-DBLIS_CONFIG=generic:-DMARCH_FLAGS='-march=znver3'" \
-	    && FC=gfortran cmake  $CMAKE_OPTIONS .. \
+            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC:-DUSE_CUDA=ON:-DBLIS_CONFIG=generic:-DMARCH_FLAGS='-march=znver3'" \
+	    && cmake  $CMAKE_OPTIONS .. \
+	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeOutput.log || true \
+	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeError.log || true \
 	    && IFS="$oldifs" \
             && make -j3 \
             && make install \
