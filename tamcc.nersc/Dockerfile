@@ -38,7 +38,6 @@ ENV	    CUDA_VERSION_MAJOR=11
 ENV	    CUDA_VERSION_MINOR=7
 ENV         GCC_VERSION=11
 ENV         PY_VERSION=3.11
-ENV         CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DCMAKE_CXX_FLAGS=-march=znver3 -DCMAKE_C_FLAGS=-march=znver3 -DCMAKE_Fortran_FLAGS=-march=znver3  -DCMAKE_CXX_FLAGS_RELEASE=-march=znver3 -DCMAKE_C_FLAGS_RELEASE=-march=znver3 -DCMAKE_Fortran_FLAGS_RELEASE=-march=znver3 -DEIGEN_DONT_VECTORIZE=1"
 ENV	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -52,6 +51,7 @@ RUN         apt-get -q=2 update \
 	    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100 \
 	    && update-alternatives --install /usr/bin/python3-config python3-config /usr/bin/python3.11-config 100 \
 	    && echo FCFCFC is $FC \
+	    && [[ -z "${FC}" ]] && FC=gfortran \
             &&  VERSION=$(gfortran -dumpversion  | cut -f1 -d. ) \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && echo "expr is " $(which expr)  >& nvcc.out && cat nvcc.out && rm nvcc.out \
@@ -87,6 +87,7 @@ RUN         apt-get -q=2 update \
     FFLAGS=$FFLAGS_IN FCFLAGS=$FFLAGS_IN ./configure --silent --enable-silent-rules ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
+    echo executing "make -j 4 FFLAGS=$FFLAGS_IN  "                 ; \
     echo 'mpich compiled' ; \
     tail -300 make.log         ; \
     echo 'redirecting output to install.log'                                   ; \
@@ -100,8 +101,14 @@ RUN         apt-get -q=2 update \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
+	    && old_ifs="$IFS" && echo old ifs "$IFS" | cat -et && IFS=":" \
+            && export CMAKE_OPTIONS="-DCMAKE_CXX_FLAGS='-march=znver3 -O3':-DCMAKE_C_FLAGS='-march=znver3 -O3':-DCMAKE_Fortran_FLAGS='-march=znver3 -O3':-DCMAKE_CXX_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_C_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_Fortran_FLAGS_RELEASE='-march=znver3 -O3':-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC:-DUSE_CUDA=ON:-DBLIS_CONFIG=generic" \
+	    && export CFLAGS="-march=znver3 -O3" \
+	    && export CXXFLAGS="-march=znver3 -O3" \
+	    && export FCFLAGS="-march=znver3 -O3" \
 	    && CC=gcc CXX=g++ FC=gfortran cmake  $CMAKE_OPTIONS .. \
-            && make -j3 \
+	    && IFS="$oldifs" \
+            && make -j3 CFLAGS="-march=znver3 -O3" CXXFLAGS="-march=znver3 -O3" FCFLAGS="-march=znver3 -O3" \
             && make install \
             && echo 'clean unnecessary source to reduce docker size' \
             && cd /opt && rm  -rf CoupledCluster \
