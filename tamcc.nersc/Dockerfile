@@ -101,14 +101,18 @@ RUN         apt-get -q=2 update \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
-            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3" \
+            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver2" \
+	    &7 echo CMAKE_OPTIONS $CMAKE_OPTIONS \
 	    && cmake  $CMAKE_OPTIONS .. \
 	    && echo " ***** cmake start **** " \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeOutput.log || true \
 	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeError.log || true \
 	    && echo " ***** cmake end ***& " \
+            && if [[ -f /tmp/libint.tar.bz2 ]]; then tar xjf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; fi \
             && make -j3 \
             && make install \
+	    && echo 'caching libint' \
+	    && tar cjvf libint.tar.bz2 TAMM_External-prefix/src/TAMM_External-build/LibInt2_External-prefix/*  || true \
             && echo 'clean unnecessary source to reduce docker size' \
             && cd /opt && rm  -rf CoupledCluster \
 	    && cd /opt/install/CC/share/libint/2.7.2/basis/ \
