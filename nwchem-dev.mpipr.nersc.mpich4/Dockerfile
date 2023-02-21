@@ -33,14 +33,14 @@ ENV         ARMCI_NETWORK=$ARMCI_NETWORK
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=3
+	    CUDA_VERSION_MINOR=7
 ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=3
+ENV	    CUDA_VERSION_MINOR=7
 ENV         GCC_VERSION=10
 ENV         PY_VERSION=3.11
 ENV         NWCHEM_TARGET=LINUX64 \
@@ -182,7 +182,7 @@ RUN         apt-get -q=2 update \
 #ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
 #ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
 ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=3
+ENV	    CUDA_VERSION_MINOR=7
 ENV         FFIELD=amber \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/ \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/ \
