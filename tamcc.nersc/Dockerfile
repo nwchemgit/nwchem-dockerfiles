@@ -50,11 +50,11 @@ RUN         apt-get -q=2 update \
 	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 \
 	    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100 \
 	    && update-alternatives --install /usr/bin/python3-config python3-config /usr/bin/python3.11-config 100 \
-	    && [[ -z "${FC}" ]] && export FC=gfortran \
+	    && if [[ -z "${FC}" ]]; then export FC=gfortran ; fi \
 	    && echo FCFCFC is $FC >& nvcc.out && cat nvcc.out && rm nvcc.out \
-	    && [[ -z "${CC}" ]] && export CC=gcc \
+	    && if [[ -z "${CC}" ]]; then export CC=gcc; fi \
 	    && echo CCCCCC is $CC >& nvcc.out && cat nvcc.out && rm nvcc.out \ 
-	    && [[ -z "${CXX}" ]] && export CXX=g++ \
+	    && if [[ -z "${CXX}" ]]; then export CXX=g++; fi
 	    && echo CXXCXX is $CXX >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && echo gfortran -v `gfortran -v` >& nvcc.out && cat nvcc.out && rm nvcc.out\
             && VERSION=$(gfortran -dumpversion  | cut -f1 -d. ) \
