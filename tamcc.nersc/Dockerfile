@@ -103,15 +103,13 @@ RUN         apt-get -q=2 update \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
-            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=$SCRATCH/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3" \
+            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3" \
 	    && echo CMAKE_OPTIONS $CMAKE_OPTIONS \
 	    && CC=gcc CXX=g++ FC=gfortran cmake  $CMAKE_OPTIONS .. \
-	    && echo " ***** cmake start **** " \
-	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeOutput.log || true \
-	    && cat /opt/CoupledCluster/build/CMakeFiles/CMakeError.log || true \
-	    && echo " ***** cmake end **** " \
             && make -j3 \
+	    && echo exit code for compilation $? \
             && make install \
+	    && echo exit code for make install $? \
 	    && echo 'caching libint' \
 	    && cd /opt/install/CC/ \
 	    && tar cjvf libint.tar.bz2 ./include/libint* ./share/libint* ./lib/pkgconfig/libint*.pc ./lib/cmake/libint* ./lib/libint*  || true \
