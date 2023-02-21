@@ -54,7 +54,7 @@ RUN         apt-get -q=2 update \
 	    && echo FCFCFC is $FC >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && if [[ -z "${CC}" ]]; then export CC=gcc; fi \
 	    && echo CCCCCC is $CC >& nvcc.out && cat nvcc.out && rm nvcc.out \ 
-	    && if [[ -z "${CXX}" ]]; then export CXX=g++; fi
+	    && if [[ -z "${CXX}" ]]; then export CXX=g++; fi \
 	    && echo CXXCXX is $CXX >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && echo gfortran -v `gfortran -v` >& nvcc.out && cat nvcc.out && rm nvcc.out\
             && VERSION=$(gfortran -dumpversion  | cut -f1 -d. ) \
