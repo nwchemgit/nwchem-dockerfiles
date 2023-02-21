@@ -50,13 +50,14 @@ RUN         apt-get -q=2 update \
 	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 \
 	    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100 \
 	    && update-alternatives --install /usr/bin/python3-config python3-config /usr/bin/python3.11-config 100 \
-	    && [[ -z "${FC}" ]] && FC=gfortran \
-	    && echo FCFCFC is $FC \
-	    && [[ -z "${CC}" ]] && CC=gcc \
-	    && echo CCCCCC is $CC \
-	    && [[ -z "${CXX}" ]] && CXX=g++ \
-	    && echo CXXCXX is $CXX \
-            &&  VERSION=$(gfortran -dumpversion  | cut -f1 -d. ) \
+	    && [[ -z "${FC}" ]] && export FC=gfortran \
+	    && echo FCFCFC is $FC >& nvcc.out && cat nvcc.out && rm nvcc.out \
+	    && [[ -z "${CC}" ]] && export CC=gcc \
+	    && echo CCCCCC is $CC >& nvcc.out && cat nvcc.out && rm nvcc.out \ 
+	    && [[ -z "${CXX}" ]] && export CXX=g++ \
+	    && echo CXXCXX is $CXX >& nvcc.out && cat nvcc.out && rm nvcc.out \
+	    && echo gfortran -v `gfortran -v` >& nvcc.out && cat nvcc.out && rm nvcc.out\
+            && VERSION=$(gfortran -dumpversion  | cut -f1 -d. ) \
 	    && echo "VERSION is " $VERSION   >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && echo "expr is " $(which expr)  >& nvcc.out && cat nvcc.out && rm nvcc.out \
             &&  VERSIONGT9=$(/usr/bin/expr "$VERSION"  \> 9)  || true \
