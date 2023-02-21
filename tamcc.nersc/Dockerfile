@@ -50,6 +50,8 @@ RUN         apt-get -q=2 update \
 	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 \
 	    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 100 \
 	    && update-alternatives --install /usr/bin/python3-config python3-config /usr/bin/python3.11-config 100 \
+	    && export FETCHED_LIBINT=0 \
+	    && export FETCHED_MPICH=0 \
 	    && if [[ -z "${FC}" ]]; then export FC=gfortran ; fi \
 	    && echo FCFCFC is $FC >& nvcc.out && cat nvcc.out && rm nvcc.out \
 	    && if [[ -z "${CC}" ]]; then export CC=gcc; fi \
@@ -85,7 +87,7 @@ RUN         apt-get -q=2 update \
 	    && rm -f nvcc.out && nvcc -V >& nvcc.out && cat nvcc.out && rm nvcc.out \
             && apt-get clean \
 	    && echo 'checking cache #2 ' \
-            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
+            && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; export FETCHED_MPICH=1; \
     else  echo 'downloading mpich source' ; \
     wget --progress=dot:giga https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz -O - | tar xzf - ; \
     cd $mpich_prefix || { echo "Failure"; exit 1; } ;\
@@ -104,7 +106,7 @@ RUN         apt-get -q=2 update \
             && rm -f mpicc.show && /usr/local/bin/mpicc -show >& mpicc.show && echo "mpicc show" `cat mpicc.show` && rm -f mpicc.show \
 	    && echo 'cloning tamm source *** ' || true \
 	    && mkdir -p /opt/install/CC/ /opt/cache\
-            && if [[ -f /tmp/libint.tar.bz2 ]]; then cd /opt/install/CC; tar xjvf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; fi \
+            && if [[ -f /tmp/libint.tar.bz2 ]]; then cd /opt/install/CC; tar xjvf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; export FETCHED_LIBINT=1; fi \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
@@ -117,14 +119,14 @@ RUN         apt-get -q=2 update \
 	    && echo exit code for make install $? \
 	    && echo 'caching libint' \
 	    && cd /opt/install/CC/ \
-	    && tar cjvf /opt/cache/libint.tar.bz2 ./include/libint* ./share/libint* ./lib/pkgconfig/libint*.pc ./lib/cmake/libint* ./lib/libint*  || true \
+	    && if [[ $FETCHED_LIBINT == 1]]; then rm -f /opt/cache/libint.tar.bz2 || true; else tar cjvf /opt/cache/libint.tar.bz2 ./include/libint* ./share/libint* ./lib/pkgconfig/libint*.pc ./lib/cmake/libint* ./lib/libint*  || true ; fi  \
             && echo 'clean unnecessary source to reduce docker size' \
             && cd /opt && rm  -rf CoupledCluster \
 	    && cd /opt/install/CC/share/libint/2.7.2/basis/ \
 	    && wget -O aug-cc-pvdz.g94 "https://www.basissetexchange.org/download_basis/basis/aug-cc-pvdz/format/gaussian94/?version=1&elements=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36&optimize_general=true&uncontract_general=true" \
 	    && wget -O aug-cc-pvtz.g94 "https://www.basissetexchange.org/download_basis/basis/aug-cc-pvtz/format/gaussian94/?version=1&elements=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36&optimize_general=true&uncontract_general=true" \
 	    && wget -O aug-cc-pvqz.g94 "https://www.basissetexchange.org/download_basis/basis/aug-cc-pvqz/format/gaussian94/?version=1&elements=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36&optimize_general=true&uncontract_general=true" \
-	    && cd /usr/local || { echo "Failure"; exit 1; } ; tar cjvf /opt/cache/mpich.tar.bz2 lib/* include/* bin/* share/* ||true \
+	    && cd /usr/local || { echo "Failure"; exit 1; } ; if [[ $FETCHED_MPICH == 1]]; then rm -f /opt/cache/mpich.tar.bz2 || true; else tar cjvf /opt/cache/mpich.tar.bz2 lib/* include/* bin/* share/* ||true ; fi\
             && echo 'clean unnecessary packages ' \
             && DEBIAN_FRONTEND=noninteractive apt-get -q=2 -y install localepurge \
 	    && echo MANDELETE >  /etc/locale.nopurge \
