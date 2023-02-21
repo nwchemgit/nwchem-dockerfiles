@@ -47,11 +47,11 @@ jobs:
         run: |
           cd ${{ matrix.folder }}
           ls -lrta
-          if [[ -f ~/cache/libtamm.tar.bz2 ]]; then \
+          if [[ -f ~/cache/libint.tar.bz2 ]]; then \
           echo "libext cache present" ; \
           mkdir -p cache|| true ; \
-          rsync -av ~/cache/libtamm* cache/. ; \
-          echo "libtamm cache fetched" ; \
+          rsync -av ~/cache/libint* cache/. ; \
+          echo "libint cache fetched" ; \
           fi
           if [[ -f ~/cache/mpich.tar.bz2 ]]; then \
           echo "mpich cache present" ; \
@@ -101,9 +101,9 @@ jobs:
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ${{ env.tag }} \
-            -rp /opt/nwchem/src/libext/libtamm.tar.bz2 /data/.  || true
+            -rp /opt/cache/libint.tar.bz2 /data/.  || true
             docker run --privileged --user 0 --rm \
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ${{ env.tag }} \
-            -rp /usr/local/mpich.tar.bz2 /data/.  || true
+            -rp /opt/cache/mpich.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
