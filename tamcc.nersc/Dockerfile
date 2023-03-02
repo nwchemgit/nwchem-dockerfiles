@@ -109,8 +109,9 @@ RUN         apt-get -q=2 update \
             && if [[ -f /tmp/libint.tar.bz2 ]]; then cd /opt/install/CC; tar xjvf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; export FETCHED_LIBINT=1; fi \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
+            && cd CoupledCluster \
             && git checkout 80b1c1d7f85cd60b44dfd9e4823de7bf39bdfcb8 \
-	    && cd CoupledCluster && mkdir build && cd build \
+	    && mkdir build && cd build \
             && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 " \
 #            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 -DGA_ENABLE_SYSV=ON" \
 	    && echo CMAKE_OPTIONS $CMAKE_OPTIONS \
