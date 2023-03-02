@@ -110,7 +110,8 @@ RUN         apt-get -q=2 update \
             && cd /opt || { echo "Failure"; exit 1; } \
             && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
 	    && cd CoupledCluster && mkdir build && cd build \
-            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 -DGA_ENABLE_SYSV=ON" \
+            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 " \
+#            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 -DGA_ENABLE_SYSV=ON" \
 	    && echo CMAKE_OPTIONS $CMAKE_OPTIONS \
 	    && CC=gcc CXX=g++ FC=gfortran cmake  $CMAKE_OPTIONS .. \
             && make -j3 \
