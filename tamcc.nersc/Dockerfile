@@ -117,6 +117,8 @@ RUN         apt-get -q=2 update \
 	    && echo exit code for compilation $? \
             && make install \
 	    && echo exit code for make install $? \
+	    && echo git describe --always `git describe --always`  >> /opt/install/info.txt \
+	    && echo git rev-parse HEAD git `git rev-parse HEAD` >> /opt/install/info.txt \
 	    && echo 'caching libint' \
 	    && cd /opt/install/CC/ \
 	    && if [[ $FETCHED_LIBINT == 1 ]]; then rm -f /opt/cache/libint.tar.bz2 || true; else tar cjvf /opt/cache/libint.tar.bz2 ./include/libint* ./share/libint* ./lib/pkgconfig/libint*.pc ./lib/cmake/libint* ./lib/libint*  || true ; fi  \
