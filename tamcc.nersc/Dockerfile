@@ -108,7 +108,7 @@ RUN         apt-get -q=2 update \
 	    && mkdir -p /opt/install/CC/ /opt/cache\
             && if [[ -f /tmp/libint.tar.bz2 ]]; then cd /opt/install/CC; tar xjvf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; export FETCHED_LIBINT=1; fi \
             && cd /opt || { echo "Failure"; exit 1; } \
-            && git clone --depth 1  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
+            && git clone --depth 20  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
             && cd CoupledCluster \
             && git checkout 80b1c1d7f85cd60b44dfd9e4823de7bf39bdfcb8 \
 	    && mkdir build && cd build \
