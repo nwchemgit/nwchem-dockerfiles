@@ -25,6 +25,7 @@ ARG USE_OPENMP_VALUE
 ARG         FC
 ENV         FC=${FC}
 ENV         GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER
+ENV         USE_SYSV=$USE_SYSV
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
 ARG	    CUDA_VERSION_MAJOR=11 \
@@ -112,8 +113,9 @@ RUN         apt-get -q=2 update \
             && cd CoupledCluster \
 #            && git checkout 26d5ac60ade5fef36dd2614d27b6ee8c6ed36078 \
 	    && mkdir build && cd build \
-            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 " \
-#            && export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 -DGA_ENABLE_SYSV=ON" \
+	    && echo " USE_SYSV is " $USE_SYSV \
+	    && if [[ $USE_SYSV == Y ]]; then echo "sysv enabled"; export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 -DGA_ENABLE_SYSV=ON"; \
+	    else export CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DUSE_CUDA=ON -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 "; fi \
 	    && echo CMAKE_OPTIONS $CMAKE_OPTIONS \
 	    && CC=gcc CXX=g++ FC=gfortran cmake  $CMAKE_OPTIONS .. \
             && make -j3 \

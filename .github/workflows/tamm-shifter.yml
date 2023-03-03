@@ -14,6 +14,9 @@ jobs:
           folder:
             - tamcc.nersc
           fc: [ gfortran]
+          sysv:
+            - Y
+            - N
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -63,7 +66,11 @@ jobs:
           fi
       - name: nwchem version tag
         run: |
+          if [[ ${{ matrix.sysv }} ==  Y ]]; then
+          echo "longnwversion=${{ matrix.folder }}_sysv" >> $GITHUB_ENV
+          else
           echo "longnwversion=${{ matrix.folder }}" >> $GITHUB_ENV
+          fi
         shell: bash
       - name: docker tag
         id: docker-tag
@@ -84,6 +91,7 @@ jobs:
             ${{ env.tag }}:${{ env.date }}
           build-args: |
             FC=${{ matrix.fc }}
+            USE_SYSV=${{ matrix.sysv }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: load and test image
