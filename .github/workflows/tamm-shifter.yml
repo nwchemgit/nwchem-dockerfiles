@@ -17,6 +17,9 @@ jobs:
           sysv:
             - Y
             - N
+          cpu:
+            - N
+            - Y
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -66,11 +69,11 @@ jobs:
           fi
       - name: nwchem version tag
         run: |
-          if [[ ${{ matrix.sysv }} ==  Y ]]; then
-          echo "longnwversion=${{ matrix.folder }}_sysv" >> $GITHUB_ENV
-          else
-          echo "longnwversion=${{ matrix.folder }}" >> $GITHUB_ENV
-          fi
+          extratag=""
+          if [[ ${{ matrix.sysv }} ==  Y ]]; then extratag+="_sysv" ;fi
+          if [[ ${{ matrix.cpu }} ==  Y ]]; then extratag+="_cpu" ;fi
+          echo "extratag is $extratag"
+          echo "longnwversion=${{ matrix.folder }}$extratag" >> $GITHUB_ENV
         shell: bash
       - name: docker tag
         id: docker-tag
@@ -92,6 +95,7 @@ jobs:
           build-args: |
             FC=${{ matrix.fc }}
             USE_SYSV=${{ matrix.sysv }}
+            USE_CPU=${{ matrix.cpu }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: load and test image
