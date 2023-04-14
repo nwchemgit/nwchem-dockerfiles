@@ -13,6 +13,7 @@ jobs:
         matrix:
           folder:
             - tamcc.nersc
+          branch: [ master, cc_v4]
           fc: [ gfortran]
           sysv:
             - Y
@@ -73,7 +74,11 @@ jobs:
           if [[ ${{ matrix.sysv }} ==  Y ]]; then extratag+="_sysv" ;fi
           if [[ ${{ matrix.cpu }} ==  Y ]]; then extratag+="_cpu" ;fi
           echo "extratag is $extratag"
+          if [[ ${{ matrix.branch }} ==  master ]]; then
           echo "longnwversion=${{ matrix.folder }}$extratag" >> $GITHUB_ENV
+          else
+          echo "longnwversion=${{ matrix.folder }}$extratag${{ matrix.branch }}" >> $GITHUB_ENV
+          fi
         shell: bash
       - name: docker tag
         id: docker-tag
@@ -98,6 +103,7 @@ jobs:
             USE_CPU=${{ matrix.cpu }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            TAMM_BRANCH=${{ matrix.branch }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
