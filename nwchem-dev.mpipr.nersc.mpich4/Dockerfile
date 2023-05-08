@@ -152,7 +152,7 @@ RUN         apt-get -q=2 update \
 	    && echo '*** ldd ***'  \
 	    && ldd ../bin/LINUX64/nwchem || { echo "Failure"; exit 1; } \
 	    && ls -lrt libext/libxc \
-	    && strip ../bin/$NWCHEM_TARGET/nwchem \
+#	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
 	    && ls -lrt libext/libxc \
 	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
