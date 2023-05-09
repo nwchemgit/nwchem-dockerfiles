@@ -146,7 +146,7 @@ RUN         apt-get -q=2 update \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
-	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned.patch;  fi \
+	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned.patch \
 	    && cd /opt/nwchem \
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
