@@ -146,15 +146,14 @@ RUN         apt-get -q=2 update \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
-	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned.patch \
-	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned_getlohi.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned_getlohi.patch \
+	    && if [[ "$NWCHEM_BRANCH" == "release-7-2-0" ]]; then cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned_getlohi.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned_getlohi.patch ; fi \
 	    && cd /opt/nwchem \
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && echo '*** ldd ***'  \
 	    && ldd ../bin/LINUX64/nwchem || { echo "Failure"; exit 1; } \
 	    && ls -lrt libext/libxc \
-#	    && strip ../bin/$NWCHEM_TARGET/nwchem \
+	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
 	    && ls -lrt libext/libxc \
 	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
