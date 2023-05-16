@@ -23,8 +23,14 @@ COPY Dockerfile cache* /tmp/
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USE_OPENMP_VALUE
 ARG         FC
+ARG         TAMM_BRANCH
+ARG         NWCHEM_BRANCH
+ARG         GITHUB_REPOSITORY_OWNER
+ARG         USE_SYSV
+ARG         USE_CPU
 ENV         FC=${FC}
-ENV         GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER
+ENV         TAMM_BRANCH=${TAMM_BRANCH}
+ENV         GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER}
 ENV         USE_SYSV=$USE_SYSV
 ENV         USE_CPU=$USE_CPU
 ARG mpich=4.0.2
@@ -106,17 +112,18 @@ RUN         apt-get -q=2 update \
     rm -rf $mpich_prefix ; echo 'mpich step done'; fi \
             && echo 'after mpich compilation ' \
             && rm -f mpicc.show && /usr/local/bin/mpicc -show >& mpicc.show && echo "mpicc show" `cat mpicc.show` && rm -f mpicc.show \
+	    && echo TAMM_BRANCH is ${TAMM_BRANCH} \
 	    && echo 'cloning tamm source *** ' || true \
 	    && mkdir -p /opt/install/CC/ /opt/cache\
             && if [[ -f /tmp/libint.tar.bz2 ]]; then cd /opt/install/CC; tar xjvf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; export FETCHED_LIBINT=1; fi \
             && cd /opt || { echo "Failure"; exit 1; } \
-            && git clone --depth 20  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
+            && git clone -b ${TAMM_BRANCH} --depth 20  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
             && cd CoupledCluster \
 #            && git checkout 26d5ac60ade5fef36dd2614d27b6ee8c6ed36078 \
 	    && mkdir build && cd build \
 	    && echo " USE_SYSV is " $USE_SYSV \
 	    && echo " USE_CPU is " $USE_CPU \
-            && CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC  -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 " \
+            && CMAKE_OPTIONS="-DCMAKE_INSTALL_PREFIX=/opt/install/CC -DMODULES=CC  -DBLIS_CONFIG=zen3 -DMARCH_FLAGS=-march=znver3 " \
             && if [[ $USE_SYSV == Y ]]; then echo "sysv enabled"; CMAKE_OPTIONS+="-DGA_ENABLE_SYSV=ON "; fi \
             && if [[ $USE_CPU == N ]]; then echo "gpu code"; CMAKE_OPTIONS+="-DUSE_CUDA=ON" ; else echo "cpu code" ;fi \
             && export CMAKE_OPTIONS \
