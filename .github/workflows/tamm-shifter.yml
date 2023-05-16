@@ -13,7 +13,7 @@ jobs:
         matrix:
           folder:
             - tamcc.nersc
-          branch: [ master, CC]
+          branch: [CC]
           fc: [ gfortran]
           sysv:
             - Y
