@@ -1,0 +1,173 @@
+name: nwchem_podman
+
+on:
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+
+jobs:
+  shifter_schedule:
+    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
+    strategy:
+        fail-fast: false
+        matrix:
+          folder:
+            - nwchem-dev.mpipr.nersc_podman.mpich4
+          branch: [ master, hotfix/release-7-2-0]
+          openmp: [ Y, N]
+          fc: [ gfortran]
+          armci_network: [ MPI-PR ] 
+          include:
+            - folder: nwchem-dev.mpipr.nersc_podman.mpich4
+              armci_network: MPI-PR
+              openmp: N
+              branch: master
+              fc: nvfortran
+            - folder: nwchem-dev.mpipr.nersc_podman.mpich4
+              armci_network: MPI-PR
+              openmp: N
+              branch: release-7-2-0
+              fc: nvfortran
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: FC tag
+        id: fc-tag
+        run: |
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
+            echo "fc="  >> $GITHUB_ENV
+          else 
+            echo "fc=$(echo .${{matrix.fc }}  )"   >> $GITHUB_ENV
+          fi
+      - name:  cache key
+        run: |
+          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/cache
+          key: ${{ env.cache_key }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to GitHub Container Registry
+        if: ${{ github.actor == github.repository_owner }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+#          username: ${{ secrets.DOCKERHUB_USERNAME }}
+#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: fetch cache
+        if: (steps.setup-cache.outputs.cache-hit == 'true')
+        run: |
+          cd ${{ matrix.folder }}
+          ls -lrta
+          if [[ -f ~/cache/libext.tar.bz2 ]]; then \
+          echo "libext cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/libext* cache/. ; \
+          echo "libext cache fetched" ; \
+          fi
+          if [[ -f ~/cache/simint.tar.bz2 ]]; then \
+          echo "simint cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/simint* cache/. ; \
+          echo "simint cache fetched" ; \
+          fi
+          if [[ -f ~/cache/mpich.tar.bz2 ]]; then \
+          echo "mpich cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/mpich* cache/. ; \
+          echo "mpich cache fetched" ; \
+          ls -l cache/ ; \
+          echo "======" ; \
+          fi
+      - name: openmp tag
+        id: openmp-tag
+        run: |
+          if [[ ${{ matrix.openmp }} == 'N'  ]]; then 
+            echo "omp_tag=_no_openmp"  >> $GITHUB_ENV
+          else 
+            echo "omp_tag="  >> $GITHUB_ENV
+          fi
+        shell: bash
+      - name: armci_net tag
+        id: armci_net
+        run: |
+          echo "armci_net=.$(echo ${{ matrix.armci_network }} | tr '[:upper:]' '[:lower:]')"  >> $GITHUB_ENV
+        shell: bash
+      - name: nwchem version tag
+        run: |
+          if [[ ${{ matrix.branch }} ==  master ]]; then
+            echo "longnwversion=$(echo ${{ matrix.folder }}| sed -e 's|.mpipr||')" >> $GITHUB_ENV
+          elif [[ ${{ matrix.branch }} ==  hotfix/release-7-2-0 ]]; then
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|720|')" >> $GITHUB_ENV
+          else
+            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
+          fi
+        shell: bash
+      - name: docker tag
+        id: docker-tag
+        run: |
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}${{ env.armci_net }}${{ env.fc }}" >>  $GITHUB_ENV
+        shell: bash
+      - name: builddate
+        id: build-date
+        run: |
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
+      - name: build_docker
+        uses: docker/build-push-action@v4
+        with:
+          push: ${{ github.actor == github.repository_owner }}
+          context: ${{ matrix.folder }}
+          tags: |
+            ${{ env.tag }}:latest
+            ${{ env.tag }}:${{ env.date }}
+          build-args: |
+            USE_OPENMP_VALUE=${{ matrix.openmp }}
+            FC=${{ matrix.fc }}
+            NWCHEM_BRANCH=${{ matrix.branch }}
+            CACHE_HIT=${{ env.cache_hit }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            ARMCI_NETWORK=${{ matrix.armci_network }}
+      - name: load and test image
+        if:  ( github.actor == github.repository_owner )
+        run: |
+          sleep 30s
+          docker pull ${{ env.tag }}
+          export MYLDPATH=/usr/local/lib:/opt/lib
+          if [[ ${{ matrix.fc }} == nvfortran ]]; then
+          docker run -e LD_LIBRARY_PATH="$MYLDPATH" --entrypoint=ldd --rm \
+          ${{ env.tag }} /opt/nwchem/bin/LINUX64/nwchem
+          else
+          cd /tmp
+          umask u=rwx,g=rwx,o=rwx
+          umask -S
+          svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
+          cd QA
+          docker run --rm -e LD_LIBRARY_PATH="$MYLDPATH"  \
+          -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
+          ${{ env.tag }} \
+          procs 2 h2o_opt prop_mep_gcube
+          fi
+      - name: store cache
+        if:  ( github.actor == github.repository_owner )
+        run: |
+            mkdir -p ~/cache/
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ env.tag }} \
+            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ env.tag }} \
+            -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
+            docker run --privileged --user 0 --rm \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            ${{ env.tag }} \
+            -rp /usr/local/mpich.tar.bz2 /data/.  || true
+            ls -Ralrt ~/cache || true
