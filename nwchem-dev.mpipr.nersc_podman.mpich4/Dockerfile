@@ -189,6 +189,7 @@ ENV         FFIELD=amber \
             SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/ \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/ \
+	    OMP_NUM_THREADS=1 \
 	    LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/opt/lib \
 	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:${NWCHEM_TOP}/bin/LINUX64:/usr/local/bin
 
