@@ -69,3 +69,33 @@ cat wrap.sh
 chmod +x wrap.sh
 MPICH_GPU_SUPPORT_ENABLED=1 srun -N $SLURM_NNODES --cpu-bind=cores --module=cuda-mpich shifter ./wrap.sh nwchem input.nw >& input.out.$SLURM_JOB_ID
 ```
+
+
+# podman-hpc at nersc
+
+https://docs.nersc.gov/development/podman-hpc/overview/
+```
+#!/bin/bash
+#SBATCH -C cpu
+#SBATCH -t 0:29:00
+#SBATCH -q debug
+#SBATCH -N 2
+#SBATCH -A XXXXXX
+#SBATCH --cpus-per-task=2
+#SBATCH --ntasks-per-node=64
+#SBATCH -J pod
+#SBATCH -o pod.%j.out
+#SBATCH -e pod.%j.out
+export OMP_NUM_THREADS=1
+export COMEX_MAX_NB_OUTSTANDING=6
+export FI_CXI_RX_MATCH_MODE=hybrid
+export COMEX_EAGER_THRESHOLD=16384
+export FI_CXI_RDZV_THRESHOLD=16384
+export FI_CXI_OFLOW_BUF_COUNT=6
+export MPICH_SMP_SINGLE_COPY_MODE=CMA
+export SCRATCH_DIR=/tmp
+export PERMANENT_DIR=/tmp
+MYIMAGE=ghcr.io/edoapra/nwchem-dev.nersc_podman.mpich4.mpi-pr:latest
+podman-hpc pull $MYIMAGE
+srun -N $SLURM_NNODES --cpu-bind=cores podman-hpc shared-run -v `pwd`:/data --mpi --env 'FI*' --env "OMP*" --env "COMEX*" --env "MPICH*" --env "*DIR" $MYIMAGE nwchem /data/dpert.nw
+```
