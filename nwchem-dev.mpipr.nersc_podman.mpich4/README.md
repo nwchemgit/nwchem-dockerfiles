@@ -97,5 +97,5 @@ export SCRATCH_DIR=/tmp
 export PERMANENT_DIR=/tmp
 MYIMAGE=ghcr.io/edoapra/nwchem-dev.nersc_podman.mpich4.mpi-pr:latest
 podman-hpc pull $MYIMAGE
-srun -N $SLURM_NNODES --cpu-bind=cores podman-hpc shared-run -v `pwd`:/data --mpi --env 'FI*' --env "OMP*" --env "COMEX*" --env "MPICH*" --env "*DIR" $MYIMAGE nwchem /data/dpert.nw
+srun -N $SLURM_NNODES --cpu-bind=cores podman-hpc shared-run --shm-size 500g -v `pwd`:/data --mpi --env 'FI*' --env "OMP*" --env "COMEX*" --env "MPICH*" --env "*DIR" $MYIMAGE nwchem /data/dpert.nw
 ```
