@@ -156,6 +156,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
            && apt-get -y purge cpp-9 gfortran-9 gcc-9  libnl-3-dev libnl-route-3-dev libnuma-dev libibverbs-dev libgcc-9-dev autotools-dev libevent-dev libpython3.8-dev libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev perl-modules-5.30 libperl5.30  || true \
 	   && apt-get clean \
            && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
+           && if [[ "$FC" == "nvfortran" ]]; then rm -f /opt/lib/*lp64* /opt/lib/*cudafor* ;fi \
 	   && rm -rf /opt/nwchem/src/libext/libext_utils || true \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
