@@ -339,6 +339,7 @@ jobs:
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
+          sleep 30s
           docker pull ${{ env.tag }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
