@@ -65,12 +65,12 @@ arch=$(uname -m) ; if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] ||
 arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo ' defining modules according to CACHE_HIT=' "$CACHE_HIT" && \
-     if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft driver solvation python gwmol"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi &&\
+     if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi &&\
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
          apt-get -q=2 update \
             && apt-get -q=2 -y upgrade \
-            && apt-get -q=2 install -y --no-install-recommends rsync python3-dev g++ gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config \
+            && apt-get -q=2 install -y --no-install-recommends rsync python3-dev g++ gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config libssl-dev \
 	    && break; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
 	    && echo FCFCFC is ${FC} \
@@ -97,6 +97,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             && arch3=$(uname -m|cut -c 1-3) \
             && arch5=$(uname -m|cut -c 1-5) \
 	    &&  if [[ "$FC" == "nvfortran" ]] && [[ "$arch" == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; cd /opt/nwchem/src; fi \
+	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/cmake_multip.patch; cd /opt/nwchem ; patch -p1 < /tmp/cmake_multip.patch; cd /opt/nwchem/src \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
@@ -122,7 +123,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && echo tail deps.log '@@@' \
 	    && tail -10  deps.log \
 	    && echo done tail deps.log '@@@' \
-            && make  V=-1 || true  \
+            && if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then make FOPTIMIZE=-O1 FDEBUG=-O0\ -g ; else  make  V=-1 ; fi ||true\
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error1'; exit 1; fi \
             &&     ../contrib/getmem.nwchem 1000  || true \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error2'; exit 1; fi \
@@ -155,6 +156,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
            && apt-get -y purge cpp-9 gfortran-9 gcc-9  libnl-3-dev libnl-route-3-dev libnuma-dev libibverbs-dev libgcc-9-dev autotools-dev libevent-dev libpython3.8-dev libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev perl-modules-5.30 libperl5.30  || true \
 	   && apt-get clean \
            && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
+           && if [[ "$FC" == "nvfortran" ]]; then rm -f /opt/lib/*lp64* /opt/lib/*cudafor* ;fi \
 	   && rm -rf /opt/nwchem/src/libext/libext_utils || true \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \

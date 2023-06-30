@@ -83,7 +83,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
-          driver-opts: image=moby/buildkit:v0.10.4
+          driver-opts: |
+              image=moby/buildkit:v0.11.6
+              network=host
           buildkitd-flags: --debug
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
@@ -164,6 +166,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.actor == github.repository_owner }}
+          provenance: false
           context: ${{ matrix.folder }}
           shm-size: 256m
           platforms: ${{ matrix.archs }}
@@ -247,7 +250,8 @@ jobs:
         uses: docker/setup-buildx-action@v2
         with:
           driver-opts: |
-              image=moby/buildkit:v0.10.4
+              image=moby/buildkit:v0.11.6
+              network=host
           buildkitd-flags: --debug
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
@@ -324,6 +328,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.actor == github.repository_owner }}
+          provenance: false
           context: ${{ matrix.folder }}
           shm-size: 256m
           platforms: ${{ matrix.archs }}
@@ -338,6 +343,7 @@ jobs:
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
+          sleep 30s
           docker pull ${{ env.tag }}
           cd /tmp
           umask u=rwx,g=rwx,o=rwx

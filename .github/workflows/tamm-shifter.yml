@@ -13,7 +13,7 @@ jobs:
         matrix:
           folder:
             - tamcc.nersc
-          branch: [CC]
+          branch: [main]
           fc: [ gfortran]
           sysv:
             - Y
@@ -111,7 +111,7 @@ jobs:
           docker pull ${{ env.tag }}
           export MYLDPATH=/usr/local/lib:/opt/lib
           docker run -e LD_LIBRARY_PATH="$MYLDPATH" --entrypoint=ldd --rm \
-          ${{ env.tag }} /opt/install/CC/bin/CD_CCSD
+          ${{ env.tag }} /opt/install/CC/bin/ExaChem
       - name: store cache
         if:  ( github.actor == github.repository_owner )
         run: |

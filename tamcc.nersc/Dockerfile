@@ -24,7 +24,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG USE_OPENMP_VALUE
 ARG         FC
 ARG         TAMM_BRANCH
-ARG         NWCHEM_BRANCH
 ARG         GITHUB_REPOSITORY_OWNER
 ARG         USE_SYSV
 ARG         USE_CPU
@@ -117,9 +116,8 @@ RUN         apt-get -q=2 update \
 	    && mkdir -p /opt/install/CC/ /opt/cache\
             && if [[ -f /tmp/libint.tar.bz2 ]]; then cd /opt/install/CC; tar xjvf /tmp/libint.tar.bz2; rm -rf /tmp/libint.tar.bz2 ; export FETCHED_LIBINT=1; fi \
             && cd /opt || { echo "Failure"; exit 1; } \
-            && git clone -b ${TAMM_BRANCH} --depth 20  https://github.com/NWChemEx-Project/CoupledCluster.git CoupledCluster  \
+            && git clone -b ${TAMM_BRANCH} --depth 20  https://github.com/ExaChem/exachem.git CoupledCluster  \
             && cd CoupledCluster \
-#            && git checkout 26d5ac60ade5fef36dd2614d27b6ee8c6ed36078 \
 	    && mkdir build && cd build \
 	    && echo " USE_SYSV is " $USE_SYSV \
 	    && echo " USE_CPU is " $USE_CPU \
@@ -156,14 +154,11 @@ RUN         apt-get -q=2 update \
             && apt-get -q=2 -y install libgfortran5 libgomp1 && apt-get clean \
 	    && apt-get purge -y cuda-cccl-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" libcublas-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
             && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
-	    && echo '*** ls -l nwchem **' \
+	    && echo '*** ls -l CC/bin **' \
 	    && ls -l /opt/install/CC/bin/ || true \
 	    && echo '*** ldd ***'  \
-	    && LD_LIBRARY_PATH=/usr/local/lib:/opt/lib ldd /opt/install/CC/bin/CCSD_T || true \
+	    && LD_LIBRARY_PATH=/usr/local/lib:/opt/lib ldd /opt/install/CC/bin/ExaChem || true \
 	    && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
-#ENV         NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/LINUX64/nwchem
-#ENV         NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries/
-#ENV         NWCHEM_NWPW_LIBRARY=${NWCHEM_TOP}/src/nwpw/libraryps/
 ENV	    CUDA_VERSION_MAJOR=11 
 ENV	    CUDA_VERSION_MINOR=7
 ENV	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/opt/lib \
