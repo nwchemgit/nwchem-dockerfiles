@@ -15,7 +15,7 @@ jobs:
         matrix:
           folder:
             - nwchem-cross
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
+          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7]
           fc: [ gfortran]
           branch: [ master]
     runs-on: ubuntu-latest
