@@ -55,7 +55,7 @@ RUN xx-info env && \
     apt-get install -y make file gcc && \
     $(xx-info)-gcc -v && \
     ls -lrta /tmp && \
-    if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ;  tar tjvf /tmp/libext.tar.bz2;  fi \
+    if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ;  tar tjvf /tmp/libext.tar.bz2;  fi &&\
 XX_MARCH=$(xx-info march) &&\
 arch=${XX_MARCH} ; echo " xx arch is " $arch ;if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "riscv64" ]] || [[ "$arch" == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi && \
 arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
