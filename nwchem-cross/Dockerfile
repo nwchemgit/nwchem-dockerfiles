@@ -116,8 +116,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    && echo "MY_FFLAG_INT is " $MY_FFLAG_INT \
 	    && echo "I4I8 is " $I4I8 \
             && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT=${MY_FFLAG_INT}  _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)" nwchem_config MAYBE_OFFLOAD=${I4I8} \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT=${MY
-_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)" V=-1 MAYBE_OFFLOAD=${I4I8} \
+            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)" V=-1 MAYBE_OFFLOAD=${I4I8} \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat tools/build/config.log ;  echo 'compilation error1'; exit 1; fi \
 	    && cat tools/build/config.log \
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
