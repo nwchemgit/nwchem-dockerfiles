@@ -43,7 +43,6 @@ RUN uname -a
 COPY --from=xx / /
 # export TARGETPLATFORM (or other TARGET*)
 ARG TARGETPLATFORM
-COPY depend.c .
 COPY build_scalapa.sh /tmp/.
 COPY build_openblas.sh /tmp/.
 COPY build_mpich.sh /tmp/.
