@@ -118,7 +118,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 # QA tests
 #	    && cd src \
 #clean unnecessary source to reduce docker size
-            && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
+            && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
 	    && ls -lrt libext/libxc || true \
 	    && ls -lrt libext/lib || true \
 	    && $(xx-info)-strip ../bin/${NWCHEM_TARGET}/nwchem \
@@ -162,7 +162,9 @@ RUN           groupadd -r nwchem -g 1994 \
 
 RUN apt-get update \
              && apt  install -y  gfortran libssl-dev \
-             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client  \
+             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
+	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
+	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
 	     && file /opt/nwchem/bin/LINUX64/nwchem \
 	     && uname -a \
