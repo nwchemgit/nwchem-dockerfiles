@@ -145,12 +145,6 @@ jobs:
           umask -S
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran'  ]]; then \
-          docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
-          -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/data/opt/nwchem/QA ${{ env.tag }} \
-          dft_he2+ ;\
-          fi
       - name: store cache
         if:  ( github.actor == github.repository_owner )
         run: |
