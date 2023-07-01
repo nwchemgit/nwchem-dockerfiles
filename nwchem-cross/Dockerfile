@@ -108,11 +108,13 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
             && gcc -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend.c \
+	    && MY_FFLAG_INT="-fdefault-integer-8" \
 	    && MYCPU=${XX_MARCH} \
-	    && if [  $MYCPU == "armv7l" ]; then MYCPU="arm"; fi \
+	    && if [  $MYCPU == "armv7l" ]; then MYCPU="arm"; MY_FFLAG_INT="-fdefault-integer-4" ; fi \
 	    && echo "MYCPU is " $MYCPU \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT="-fdefault-integer-8"  _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)" nwchem_config \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT="-fdefault-integer-8"  _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)" V=-1 \
+            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT=${MY_FFLAG_INT}  _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)" nwchem_config \
+            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT=${MY\
+_FFLAG_INT}  _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)" V=-1 \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat tools/build/config.log ;  echo 'compilation error1'; exit 1; fi \
 	    && cat tools/build/config.log \
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
