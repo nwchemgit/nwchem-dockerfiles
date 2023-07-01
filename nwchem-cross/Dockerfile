@@ -103,7 +103,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
 	    export USE_SIMINT=1; export SIMINT_MAXAM=5; export SIMINT_VECTOR=avx2 ; fi \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then echo "fetching libext" ; cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then echo "fetching libext" ; cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; ./bin/mpif90 -show; cd ..  ; fi \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
@@ -113,7 +113,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat tools/build/config.log ;  echo 'compilation error1'; exit 1; fi \
 	    && cat tools/build/config.log \
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${XX_MARCH} ../contrib/getmem.nwchem 1000  || true \
-	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error2'; exit 1; fi \
+	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 # QA tests
 #	    && cd src \
 #clean unnecessary source to reduce docker size
