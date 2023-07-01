@@ -32,7 +32,7 @@ ARG         NWCHEM_MODULES="all  "  \
             USE_MPIF=y  \
             USE_MPIF4=y  \
 	    BUILD_MPICH=1 \
-	    BUILD_OPENBLAS=1 \
+	    USE_INTERNALBLAS=1 \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
@@ -128,7 +128,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             && make nwchem_config \
             && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH} MAYBE_HOST="--host=$(xx-info triple)"  \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat tools/build/config.log ;  echo 'compilation error1'; exit 1; fi \
-	    && tools/build/config.log \
+	    && cat tools/build/config.log \
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${XX_MARCH} ../contrib/getmem.nwchem 1000  || true \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  echo 'compilation error2'; exit 1; fi \
 # QA tests
