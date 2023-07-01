@@ -156,7 +156,7 @@ jobs:
           -w /opt/nwchem/QA \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
           --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/data/opt/nwchem/QA ${{ env.tag }} \
+          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} \
           dft_he2+ 
 
       - name: store cache
