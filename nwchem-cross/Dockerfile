@@ -30,23 +30,11 @@ ARG         NWCHEM_MODULES="all  "  \
             USE_MPIF=y  \
             USE_MPIF4=y  \
 	    BUILD_MPICH=1 \
-	    USE_INTERNALBLAS=1 \
+	    BUILD_OPENBLAS=1 \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
 	    USE_HWOPT=n 
-ENV         FFIELD=amber  \
-            AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
-            AMBER_2=${NWCHEM_TOP}/src/data/amber_q/  \
-            AMBER_3=${NWCHEM_TOP}/src/data/amber_x/  \
-            AMBER_4=${NWCHEM_TOP}/src/data/amber_u/  \
-            SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst  \
-            CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/  \
-            CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
-	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
-	    OMP_NUM_THREADS=1 \
-	    COMEX_MAX_NB_OUTSTANDING=16 \
-            PATH=${PATH}:/opt/nwchem/bin/LINUX64
 #get NWCHEM_TARGET
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -59,6 +47,7 @@ COPY depend.c .
 COPY build_scalapa.sh /tmp/.
 COPY build_openblas.sh /tmp/.
 COPY build_mpich.sh /tmp/.
+COPY cross.txt /tmp/.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # you can now call xx-* commands
 RUN xx-info env && \
@@ -104,6 +93,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/cmake_multip.patch; cd /opt/nwchem ; patch -p1 < /tmp/cmake_multip.patch; cd /opt/nwchem/src \
 	    && cp /tmp/build_openblas.sh /opt/nwchem/src/libext/openblas/. \
 	    && cp /tmp/build_mpich.sh /opt/nwchem/src/libext/mpich/. \
+	    && cp /tmp/cross.txt /opt/nwchem/src/libext/mpich/. \
 	    && cp /tmp/build_scalapa.sh /opt/nwchem/src/libext/scalapack/. \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
@@ -123,8 +113,8 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
             && gcc -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend.c \
-            && make nwchem_config \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH} MAYBE_HOST="--host=$(xx-info triple)"  \
+            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH} MAYBE_HOST="--host=$(xx-info triple)" nwchem_config \
+            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH} MAYBE_HOST="--host=$(xx-info triple)" V=-1 \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat tools/build/config.log ;  echo 'compilation error1'; exit 1; fi \
 	    && cat tools/build/config.log \
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${XX_MARCH} ../contrib/getmem.nwchem 1000  || true \
@@ -168,8 +158,11 @@ FROM ubuntu:jammy
 RUN mkdir -p /opt
 
 COPY --from=build /opt/nwchem /opt/nwchem
-
+	      
 RUN  ls -Rl /opt
+
+RUN           groupadd -r nwchem -g 1994 \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem
 
 RUN apt-get update \
              && apt  install -y  gfortran libssl-dev \
@@ -179,8 +172,18 @@ RUN apt-get update \
 	     && uname -a \
 	     && ldd /opt/nwchem/bin/LINUX64/nwchem|| true 
 
-
-ENV LD_LIBRARY_PATH /opt/lib
+ENV         FFIELD=amber  \
+            AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
+            AMBER_2=${NWCHEM_TOP}/src/data/amber_q/  \
+            AMBER_3=${NWCHEM_TOP}/src/data/amber_x/  \
+            AMBER_4=${NWCHEM_TOP}/src/data/amber_u/  \
+            SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst  \
+            CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/  \
+            CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
+	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
+	    OMP_NUM_THREADS=1 \
+	    COMEX_MAX_NB_OUTSTANDING=16 \
+            PATH=${PATH}:/opt/nwchem/bin/LINUX64
 
 
 USER        nwchem

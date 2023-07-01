@@ -1,3 +1,4 @@
+#!/bin/bash
 BUILDKIT_STEP_LOG_MAX_SIZE=10485760 docker build --no-cache --progress plain --platform linux/arm64 \
        --build-arg FC=gfortran --build-arg NWCHEM_BRANCH=master --build-arg CACHE_HIT=N --build-arg GITHUB_REPOSITORY_OWNER=edoapra    \
 -t myxx .
