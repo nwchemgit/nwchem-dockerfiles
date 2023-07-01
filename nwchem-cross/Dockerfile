@@ -123,7 +123,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && ls -lrt libext/lib || true \
 	    && $(xx-info)-strip ../bin/${NWCHEM_TARGET}/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
-	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
+	    && cd libext ; tar cjvf libext.tar.bz2 bin/* lib/* libxc/install/lib/* libxc/install/include/* ||true \
 	    && rm -rf lib/* libxc/install/lib/* ||true \
 	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf $NWCHEM_TOP/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && cd  $NWCHEM_TOP/src &&  rm -rf NWints || true \
