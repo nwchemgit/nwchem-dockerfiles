@@ -79,6 +79,12 @@ jobs:
           mkdir -p cache|| true ; \
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
+          if [[ -f ~/cache/simint.tar.bz2 ]]; then \
+          echo "simint cache present" ; \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/simint* cache/. ; \
+          echo "simint cache fetched" ; \
+          fi
           ls -l cache/ ; \
           echo "======" ; \
           fi
