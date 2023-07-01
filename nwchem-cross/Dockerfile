@@ -1,19 +1,17 @@
 FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
 
-FROM --platform=$BUILDPLATFORM ubuntu:jammy
+FROM --platform=$BUILDPLATFORM ubuntu:jammy AS build
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description="NWChem image built from the master branch"
 LABEL org.opencontainers.image.source "https://github.com/nwchemgit/nwchem"
 LABEL org.opencontainers.image.documentation="https://nwchemgit.github.io/Containers.html"
 
-#create user nwchem
-RUN           groupadd -r nwchem -g 1994 \
-              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
 
 #caching from host cache dir
 COPY Dockerfile cache* /tmp/
 
+ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
 ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG         FC
@@ -65,7 +63,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # you can now call xx-* commands
 RUN xx-info env && \
     env|grep PLATF && \
-    xx-apt install -y libc6-dev  gcc binutils gcc gfortran  &&\
+    xx-apt install -y libc6-dev  binutils gcc gfortran  &&\
     apt-get install -y make file gcc && \
     $(xx-info)-gcc -v && \
     dpkg-query -l|sort && \
@@ -164,7 +162,24 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	   && ls -lrt /opt/lib || true \
 	   && du -sh /opt/nvidia || true \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
-	   
+
+FROM ubuntu:jammy 
+
+RUN mkdir -p /opt
+
+COPY --from=build /opt/nwchem /opt/nwchem
+
+RUN  ls -Rl /opt
+
+RUN apt-get update \
+             && apt  install -y  gfortran libssl-dev \
+             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client  \
+	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
+	     && file /opt/nwchem/bin/LINUX64/nwchem \
+	     && uname -a \
+	     && ldd /opt/nwchem/bin/LINUX64/nwchem|| true 
+
+
 ENV LD_LIBRARY_PATH /opt/lib
 
 
