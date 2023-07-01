@@ -54,8 +54,8 @@ RUN xx-info env && \
     xx-apt install -y libc6-dev  binutils gcc gfortran  &&\
     apt-get install -y make file gcc && \
     $(xx-info)-gcc -v && \
-    dpkg-query -l|sort && \
     ls -lrta /tmp && \
+    if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ;  tar tjvf /tmp/libext.tar.bz2;  fi \
 XX_MARCH=$(xx-info march) &&\
 arch=${XX_MARCH} ; echo " xx arch is " $arch ;if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "riscv64" ]] || [[ "$arch" == "ppc64le" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi && \
 arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
@@ -87,7 +87,6 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 #fix openblas cross-compilation
             && arch=$XX_MARCH \
 	    && echo 'openblas arch is ' $arch \
-	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/cmake_multip.patch; cd /opt/nwchem ; patch -p1 < /tmp/cmake_multip.patch; cd /opt/nwchem/src \
 	    && cp /tmp/build_openblas.sh /opt/nwchem/src/libext/openblas/. \
 	    && cp /tmp/build_mpich.sh /opt/nwchem/src/libext/mpich/. \
 	    && cp /tmp/cross.txt /opt/nwchem/src/libext/mpich/. \
@@ -104,7 +103,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
 	    export USE_SIMINT=1; export SIMINT_MAXAM=5; export SIMINT_VECTOR=avx2 ; fi \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then echo "fetching libext" ; cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
