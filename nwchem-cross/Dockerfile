@@ -87,8 +87,6 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 #fix openblas cross-compilation
             && arch=$XX_MARCH \
 	    && echo 'openblas arch is ' $arch \
-            && arch3=$(uname -m|cut -c 1-3) \
-            && arch5=$(uname -m|cut -c 1-5) \
 	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/cmake_multip.patch; cd /opt/nwchem ; patch -p1 < /tmp/cmake_multip.patch; cd /opt/nwchem/src \
 	    && cp /tmp/build_openblas.sh /opt/nwchem/src/libext/openblas/. \
 	    && cp /tmp/build_mpich.sh /opt/nwchem/src/libext/mpich/. \
@@ -97,8 +95,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
-	    && if [[ "$arch5" == "armv6" ]]; then export FORCETARGET=" TARGET=ARMV6 "; fi \
-	    && if [[ "$arch5" == "armv7" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
+	    && if [[ "$arch" == "armv7l" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
             && echo 'FORCETARGET is ' $FORCETARGET \
 	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  fi  \
