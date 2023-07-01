@@ -103,7 +103,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
 	    export USE_SIMINT=1; export SIMINT_MAXAM=5; export SIMINT_VECTOR=avx2 ; fi \
-            && if [[ -f /tmp/libext.tar.bz2 ]]; then echo "fetching libext" ; cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; ./bin/mpif90 -show; cd ..  ; fi \
+            && if [[ -f /tmp/libext.tar.bz2 ]]; then echo "fetching libext" ; cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; ./bin/mpif90 -show; mkdir -p mpich/mpich ; ls -l /opt/nwchem/src/libext/mpich/mpich/../../include ;cd ..  ; fi \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
