@@ -118,16 +118,13 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  nwchem_config  \
             && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)"  MAYBE_OFFLOAD="$I4I8" V=-1 \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat tools/build/config.log ;  echo 'compilation error1'; exit 1; fi \
-	    && cat tools/build/config.log \
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
-# QA tests
-            && cd .. \
-            && if [[ ${NWCHEM_TARGET} == "LINUX64" && "$FC" != "nvfortran" ]]; then SKIP_CACHE=1 OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1 \
-	    NWCHEM_EXECUTABLE=$(pwd)/bin/${NWCHEM_TARGET}/nwchem ./travis/run_qas.sh ; fi \
-	    && cd src \
 #clean unnecessary source to reduce docker size
+            && cp -rp QA/tests/dft_he2+ /tmp/.
             && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
+	    && mkdir -p QA/tests \
+	    && mv /tmp/dft_he2+ QA/tests/.
 	    && ls -lrt libext/libxc || true \
 	    && ls -lrt libext/lib || true \
 	    && $(xx-info)-strip ../bin/${NWCHEM_TARGET}/nwchem \
@@ -177,7 +174,12 @@ RUN apt-get update \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
 	     && file /opt/nwchem/bin/LINUX64/nwchem \
 	     && uname -a \
-	     && ldd /opt/nwchem/bin/LINUX64/nwchem|| true 
+	     && ldd /opt/nwchem/bin/LINUX64/nwchem|| true \
+	     && cd /opt/nwchem/QA \
+	     && ls -l \
+	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
+	     && ./runtests.mpi.unix dft_he2+ 
+	     
 
 ENV         FFIELD=amber  \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
