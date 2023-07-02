@@ -1,0 +1,11 @@
+--- Dockerfile.org	2023-07-01 19:38:25.826697682 -0700
++++ Dockerfile	2023-07-01 19:38:32.382732741 -0700
+@@ -155,7 +155,7 @@
+ 	   && du -sh /opt/nvidia || true \
+ 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+ 
+-FROM ubuntu:jammy 
++FROM riscv64/ubuntu:jammy 
+ 
+ RUN mkdir -p /opt
+ 

@@ -15,7 +15,11 @@ jobs:
         matrix:
           folder:
             - nwchem-cross
-          archs: [linux/amd64, linux/arm64, linux/ppc64le]
+          archs:
+            - linux/amd64
+            - linux/arm64
+            - linux/ppc64le
+            - linux/riscv64
           fc: [ gfortran]
           branch: [ master]
     runs-on: ubuntu-latest
@@ -125,6 +129,14 @@ jobs:
         run: |
             echo "GITHUB_ENV" `cat $GITHUB_ENV`
             echo " tag " ${{ env.tag }}
+      - name: modify Dockerfile
+        run: |
+            cd ${{ matrix.folder }}
+            pwd
+            ls
+            if [[ ${{ matrix.arch }} ==  'linux/riscv64' ]]; then
+            patch -p0 < dockerfile_riscv64.patch
+            fi
       - name: build_schedule
         uses: docker/build-push-action@v4
         with:
