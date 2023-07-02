@@ -166,7 +166,7 @@ RUN           groupadd -r nwchem -g 1994 \
 RUN apt-get update \
              && apt-get -q=2   install -y  gfortran python3-dev libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
-             && NWCHEM_MODULES+=" python "
+             && NWCHEM_MODULES+=" python "\
 	    && cd /opt/nwchem/src \
             && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  nwchem_config \
 	    && cd python \
