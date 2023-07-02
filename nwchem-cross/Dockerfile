@@ -122,7 +122,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
             && cp -rp QA/tests/dft_he2+ /tmp/. \
-            && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm  libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts QA/amber-tests ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
+            && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts QA/amber-tests ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
 	    && mkdir -p QA/tests \
 	    && mv /tmp/dft_he2+ QA/tests/. \
 	    && ls -lrt libext/libxc || true \
@@ -130,7 +130,9 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    && $(xx-info)-strip ../bin/${NWCHEM_TARGET}/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
 	    && cd libext ; tar cjvf libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
+	    && rm -rf lib/* libxc/install/lib/* ||true \
 	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf $NWCHEM_TOP/src/libext/simint.tar.bz2 simint_install/* || true \
+	    && cd  $NWCHEM_TOP/src &&  rm -rf NWints || true \
 	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } \
 	    && cd $NWCHEM_TOP \
 #clean unnecessary packages
@@ -140,7 +142,8 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -q=2 -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev  perl libltdl-dev libnl-3-dev libnl-route-3-dev  autoconf automake autotools-dev libevent-extra-2.1-7 libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove  && apt-get clean \
+            &&       apt-get -q=2 -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libopenmpi-dev perl libhwloc-dev libibverbs-dev libopenmpi-dev libcoarrays-dev libcoarrays-openmpi-dev libevent-dev libltdl-dev libnl-3-dev libnl-route-3-dev libnuma-dev autoconf automake autotools-dev libcaf-openmpi-3 libevent-extra-2.1-7 libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove && apt-get -q=2 -y install libopenmpi3 && apt-get clean \
+#            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libmpich-dev  &&  apt-get -y autoremove \
            && apt-get -y purge cpp-9 gfortran-9 gcc-9  libnl-3-dev libnl-route-3-dev libnuma-dev libibverbs-dev libgcc-9-dev autotools-dev libevent-dev libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev perl-modules-5.30 libperl5.30  || true \
 	   && apt-get clean \
 	   && rm -rf /opt/nwchem/src/libext/libext_utils || true \
@@ -152,7 +155,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && du -sh /opt/nvidia || true \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
-FROM riscv64/ubuntu:jammy 
+FROM ubuntu:jammy 
 
 RUN mkdir -p /opt
 
@@ -164,15 +167,8 @@ RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem
 
 RUN apt-get update \
-             && apt-get -q=2   install -y  gfortran python3-dev libssl-dev \
+             && apt-get -q=2   install -y  gfortran libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
-             && NWCHEM_MODULES+=" python "\
-	    && cd /opt/nwchem/src \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  nwchem_config \
-	    && cd python \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  V=1 \
-            && cd .. \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  V=1 link \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
@@ -183,13 +179,7 @@ RUN apt-get update \
 	     && ls -l \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
 	     && ./runtests.mpi.unix dft_he2+  || true \
-	     && rm -rf /opt/nwchem/src/NWints || true \
-	     && rm -rf /opt/nwchem/lib /opt/nwchem/src/tools || true \
- 	     && rm -rf /opt/nwchem/src/libext/lib/* /opt/nwchem/src/libext/libxc/install/lib/* ||true \
 	     && echo done \
-	     && du -sh /opt/nwchem/src/* |sort -n \
-            &&       apt-get -q=2 -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev  perl libltdl-dev libnl-3-dev libnl-route-3-dev  autoconf automake autotools-dev libevent-extra-2.1-7 libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove  && apt-get clean \
-           && apt-get -y purge cpp-9 gfortran-9 gcc-9  libnl-3-dev libnl-route-3-dev libnuma-dev libibverbs-dev libgcc-9-dev autotools-dev libevent-dev libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev perl-modules-5.30 libperl5.30  || true \
 	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 	     
