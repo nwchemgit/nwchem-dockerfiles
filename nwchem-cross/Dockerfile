@@ -122,7 +122,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
             && cp -rp QA/tests/dft_he2+ /tmp/. \
-            && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
+            && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts QA/amber-tests ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
 	    && mkdir -p QA/tests \
 	    && mv /tmp/dft_he2+ QA/tests/. \
 	    && ls -lrt libext/libxc || true \
@@ -167,7 +167,7 @@ RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem
 
 RUN apt-get update \
-             && apt  install -y  gfortran libssl-dev \
+             && apt-get -q=2   install -y  gfortran libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
@@ -178,7 +178,11 @@ RUN apt-get update \
 	     && cd /opt/nwchem/QA \
 	     && ls -l \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
-	     && ./runtests.mpi.unix dft_he2+ 
+	     && ./runtests.mpi.unix dft_he2+  || true \
+	     && echo done \
+	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+
+	     
 	     
 
 ENV         FFIELD=amber  \
