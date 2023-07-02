@@ -175,14 +175,14 @@ RUN           groupadd -r nwchem -g 1994 \
 RUN apt-get update \
              && apt-get -q=2   install -y  gfortran python3-dev libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
-	     && if [[ "$CACHE_HIT" == "Y" ]]; then
-             && export NWCHEM_MODULES="all python "\
-	    && cd /opt/nwchem/src \
-            && make DEPEND_CC=gcc CC=gcc  FC=gfortran    nwchem_config \
-	    && cd python \
-            && make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 \
-            && cd .. \
-            && make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 link ; fi \
+	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
+             export NWCHEM_MODULES="all python " ;\
+	    cd /opt/nwchem/src ;\
+            make DEPEND_CC=gcc CC=gcc  FC=gfortran    nwchem_config ;\
+	    cd python ;\
+            make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 ;\
+            cd .. ;\
+            make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 link ; fi \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
