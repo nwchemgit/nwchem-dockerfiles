@@ -61,7 +61,7 @@ arch=${XX_MARCH} ; echo " xx arch is " $arch ;if [[ "$arch" == "x86_64" ]] || [[
 arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo ' defining modules according to CACHE_HIT=' "$CACHE_HIT" && \
-     if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol tce"  ; fi &&\
+     if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="all"  ; fi &&\
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
              xx-apt  install -y  g++ gfortran libssl-dev \
@@ -99,7 +99,6 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             && echo 'FORCETARGET is ' $FORCETARGET \
 	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  fi  \
 # smaller build on qemu emulated archs
-	    && if [[ "$arch" != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation "; fi \
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
 	    export USE_SIMINT=1; export SIMINT_MAXAM=5; export SIMINT_VECTOR=avx2 ; fi \
@@ -152,6 +151,19 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 FROM ubuntu:jammy 
+ARG         NWCHEM_MODULES="all  "  \
+            ARMCI_NETWORK=MPI-PT  \
+            USE_OPENMP=1  \
+            USE_NOIO=y  \
+            USE_MPI=y  \
+            USE_MPIF=y  \
+            USE_MPIF4=y  \
+	    BUILD_MPICH=1 \
+	    BUILD_OPENBLAS=1 \
+	    BUILD_SCALAPACK=1 \
+	    BLAS_SIZE=8 \
+	    SCALAPACK_SIZE=8 \
+	    USE_HWOPT=n 
 
 RUN mkdir -p /opt
 
@@ -163,13 +175,14 @@ RUN           groupadd -r nwchem -g 1994 \
 RUN apt-get update \
              && apt-get -q=2   install -y  gfortran python3-dev libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
-             && NWCHEM_MODULES+=" python "\
+	     && if [[ "$CACHE_HIT" == "Y" ]]; then
+             && export NWCHEM_MODULES="all python "\
 	    && cd /opt/nwchem/src \
             && make DEPEND_CC=gcc CC=gcc  FC=gfortran    nwchem_config \
 	    && cd python \
             && make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 \
             && cd .. \
-            && make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 link \
+            && make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 link ; fi \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
