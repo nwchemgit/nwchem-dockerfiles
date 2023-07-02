@@ -168,11 +168,11 @@ RUN apt-get update \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
              && NWCHEM_MODULES+=" python "\
 	    && cd /opt/nwchem/src \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  nwchem_config \
+            && make DEPEND_CC=gcc CC=gcc  FC=gfortran    nwchem_config \
 	    && cd python \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  V=1 \
+            && make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 \
             && cd .. \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  V=1 link \
+            && make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 link \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
