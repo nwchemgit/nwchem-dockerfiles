@@ -51,8 +51,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # you can now call xx-* commands
 RUN xx-info env && \
     env|grep PLATF && \
-    xx-apt install -y libc6-dev  binutils gcc gfortran  &&\
-    apt-get install -y make file gcc && \
+    xx-apt -q=2 install -y libc6-dev  binutils gcc gfortran  &&\
+    apt-get -q=2 install -y make file gcc && \
     $(xx-info)-gcc -v && \
     ls -lrta /tmp && \
     if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ; apt-get install -y bzip2 tar;  tar tjvf /tmp/libext.tar.bz2;  fi &&\
@@ -147,7 +147,6 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
 	   && du -sh /opt/nwchem \
 	   && du -sh /opt/nwchem/src/libext/lib || true \
-	   && du -sk /opt/nwchem/*|sort -n \
 	   && ls -lrt /opt/lib || true \
 	   && du -sh /opt/nvidia || true \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
@@ -158,8 +157,6 @@ RUN mkdir -p /opt
 
 COPY --from=build /opt/nwchem /opt/nwchem
 	      
-RUN  ls -Rl /opt
-
 RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem
 
