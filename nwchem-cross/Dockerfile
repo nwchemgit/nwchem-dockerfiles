@@ -124,7 +124,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             && cp -rp QA/tests/dft_he2+ /tmp/. \
             && rm -rf tce tools nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm /opt/nwchem/lib libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
 	    && mkdir -p QA/tests \
-	    && mv /tmp/dft_he2+ QA/tests/.
+	    && mv /tmp/dft_he2+ QA/tests/. \
 	    && ls -lrt libext/libxc || true \
 	    && ls -lrt libext/lib || true \
 	    && $(xx-info)-strip ../bin/${NWCHEM_TARGET}/nwchem \
