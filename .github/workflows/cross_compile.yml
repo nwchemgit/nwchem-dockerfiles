@@ -132,9 +132,8 @@ jobs:
       - name: modify Dockerfile
         run: |
             cd ${{ matrix.folder }}
-            pwd
             ls
-            if [[ ${{ matrix.arch }} ==  'linux/riscv64' ]]; then
+            if [[ ${{ matrix.archs }} ==  'linux/riscv64' ]]; then
             patch -p0 < dockerfile_riscv64.patch
             fi
       - name: build_schedule
