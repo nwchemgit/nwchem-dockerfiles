@@ -152,8 +152,6 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 
 FROM ubuntu:jammy AS relink_push
 
-COPY --from=xx / /
-
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG CACHE_HIT
@@ -185,7 +183,7 @@ RUN apt-get update \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
 	     echo "uname -m is " $(uname -m) ;\
-	     MYCPU = $(xx-info march) ; \
+	     MYCPU = $(uname -m) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
 	    cd /opt/nwchem/src ;\
             make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
