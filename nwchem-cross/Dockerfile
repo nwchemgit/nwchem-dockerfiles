@@ -151,6 +151,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 FROM ubuntu:jammy 
+ARG CACHE_HIT
 ARG         NWCHEM_MODULES="all  "  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
