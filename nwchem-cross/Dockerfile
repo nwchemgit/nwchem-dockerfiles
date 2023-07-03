@@ -150,10 +150,13 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && du -sh /opt/nvidia || true \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
-FROM ubuntu:jammy 
+FROM ubuntu:jammy AS relink_push
+
+COPY --from=xx / /
+
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 ARG CACHE_HIT
-ARG MYCPU
 ARG         NWCHEM_MODULES="all  "  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
@@ -176,12 +179,13 @@ RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem
 
 RUN apt-get update \
-             && apt-get -q=2   install -y  gfortran python3-dev libssl-dev \
+             && apt-get -q=2   install -y make  gfortran python3-dev libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
 	     echo "uname -m is " $(uname -m) ;\
+	     MYCPU = $(xx-info march) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
 	    cd /opt/nwchem/src ;\
             make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
