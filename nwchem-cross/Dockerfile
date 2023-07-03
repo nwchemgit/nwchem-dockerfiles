@@ -152,6 +152,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 
 FROM ubuntu:jammy 
 ARG CACHE_HIT
+ARG MYCPU
 ARG         NWCHEM_MODULES="all  "  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
@@ -179,12 +180,14 @@ RUN apt-get update \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
+	     echo "uname -m is " $(uname -m) ;\
+    	     echo "MYCPU is " ${MYCPU} ;\ 
 	    cd /opt/nwchem/src ;\
-            make DEPEND_CC=gcc CC=gcc  FC=gfortran    nwchem_config ;\
+            make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
-            make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 ;\
+            make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}    V=1 ;\
             cd .. ;\
-            make DEPEND_CC=gcc CC=gcc  FC=gfortran     V=1 link ; fi \
+            make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}    V=1 link ; fi \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
