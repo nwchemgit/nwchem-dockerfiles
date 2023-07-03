@@ -176,6 +176,7 @@ RUN           groupadd -r nwchem -g 1994 \
 RUN apt-get update \
              && apt-get -q=2   install -y  gfortran python3-dev libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
+	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
 	    cd /opt/nwchem/src ;\
