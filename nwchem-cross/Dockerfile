@@ -151,6 +151,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 FROM ubuntu:jammy 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG CACHE_HIT
 ARG MYCPU
 ARG         NWCHEM_MODULES="all  "  \
