@@ -174,9 +174,8 @@ RUN mkdir -p /opt
 COPY --from=build /opt/nwchem /opt/nwchem
 	      
 RUN           groupadd -r nwchem -g 1994 \
-              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem
-
-RUN apt-get update \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
+ && apt-get update \
              && apt-get -q=2   install -y make  gfortran python3-dev libssl-dev \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
@@ -187,6 +186,10 @@ RUN apt-get update \
 	     echo "uname -m is " $(uname -m) ;\
 	     MYCPU=$(uname -m) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
+	    cd /opt/nwchem/src ;\
+	    mkdir -p /opt/nwchem/src/libext/mpich/mpich ;\
+	    mkdir -p /opt/nwchem/src/NWints/simint/libsimint_source ;\
+	    cd NWints/simint/libsimint_source ; tar xjf /opt/nwchem/src/libext/simint.tar.bz2 ;\
 	    cd /opt/nwchem/src ;\
             make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
@@ -210,6 +213,7 @@ RUN apt-get update \
 	     && du -sh /opt/nwchem/src/* |sort -n \
             &&       apt-get -q=2 -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev  perl libltdl-dev libnl-3-dev libnl-route-3-dev  autoconf automake autotools-dev libevent-extra-2.1-7 libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove  && apt-get clean \
            && apt-get -y purge cpp-9 gfortran-9 gcc-9  libnl-3-dev libnl-route-3-dev libnuma-dev libibverbs-dev libgcc-9-dev autotools-dev libevent-dev libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev  || true \
+	   && apt-get purge -y libgfortran-11-dev libgcc-11-dev libssl-dev fonts-dejavu-core  libtirpc-dev javascript-common libexpat1 libctf-nobfd0 libjs-underscore libjs-sphinxdoc libjs-jquery libnsl-dev libtirpc-dev \
 	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 	     
