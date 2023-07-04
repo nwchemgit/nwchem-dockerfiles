@@ -122,7 +122,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
             && cp -rp ../QA/tests/dft_he2+ /tmp/. \
-            && rm -rf tce tools/build tools/ga-* nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm  libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts QA/amber-tests ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
+            && rm -rf tce NWints tools/build tools/ga-* nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm  libext/scalapack libext/openblas  develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts QA/amber-tests ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc libext/libxc/libxc* libext/mpich  /tmp/libext || true \
 	    && mkdir -p ../QA/tests \
 	    && mv /tmp/dft_he2+ ../QA/tests/. \
 	    && ls -lrt libext/libxc || true \
@@ -145,10 +145,9 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && apt-get clean \
 	   && rm -rf /opt/nwchem/src/libext/libext_utils || true \
 	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
-	   && du -sh /opt/nwchem \
+	   && du -sh /opt/nwchem /usr \
 	   && du -sh /opt/nwchem/src/libext/lib || true \
 	   && ls -lrt /opt/lib || true \
-	   && du -sh /opt/nvidia || true \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 FROM ubuntu:jammy AS relink_push
@@ -212,8 +211,8 @@ RUN           groupadd -r nwchem -g 1994 \
  	     && rm -rf /opt/nwchem/src/libext/lib/* /opt/nwchem/src/libext/libxc/install/lib/* ||true \
 	     && echo done \
 	     && du -sh /opt/nwchem/src/* |sort -n \
+	     && du -sh /opt /usr || true \
             &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  perl libltdl-dev   autoconf automake  libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove  && apt-get clean \
-	   && apt-get purge -y libgfortran-11-dev libssl-dev fonts-dejavu-core   javascript-common libexpat1 libctf-nobfd0 libjs-underscore libjs-sphinxdoc libjs-jquery  \
 	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 	     
