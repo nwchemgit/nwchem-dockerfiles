@@ -231,7 +231,7 @@ RUN           groupadd -r nwchem -g 1994 \
 
 	     
 FROM ubuntu:jammy AS push
-COPY --from=image_build /tmp/nwchem.tar.xz /tmp/nwchem.tar.xz
+COPY --from=relink /tmp/nwchem.tar.xz /tmp/nwchem.tar.xz
 
 RUN apt-get update -q=2 && apt  install -y -q=2  binutils bzip2 xz-utils  \
 	     libgfortran5 libpython3.10  libgomp1 libgcc-s1 \
