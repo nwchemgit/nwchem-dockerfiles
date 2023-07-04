@@ -213,7 +213,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && du -sh /opt/nwchem/src/* |sort -n \
             &&       apt-get -q=2 -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev  perl libltdl-dev libnl-3-dev libnl-route-3-dev  autoconf automake autotools-dev libevent-extra-2.1-7 libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove  && apt-get clean \
            && apt-get -y purge cpp-9 gfortran-9 gcc-9  libnl-3-dev libnl-route-3-dev libnuma-dev libibverbs-dev libgcc-9-dev autotools-dev libevent-dev libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev  || true \
-	   && apt-get purge -y libgfortran-11-dev libgcc-11-dev libssl-dev fonts-dejavu-core  libtirpc-dev javascript-common libexpat1 libctf-nobfd0 libjs-underscore libjs-sphinxdoc libjs-jquery libnsl-dev libtirpc-dev \
+	   && apt-get purge -y libgfortran-11-dev libssl-dev fonts-dejavu-core   javascript-common libexpat1 libctf-nobfd0 libjs-underscore libjs-sphinxdoc libjs-jquery  \
 	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
 	     
