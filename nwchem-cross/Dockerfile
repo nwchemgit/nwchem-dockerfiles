@@ -173,7 +173,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	    cd python ;\
             make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}    V=1 ;\
             cd .. ;\
-            make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}    V=1 link ; fi \
+            &&    CC=gcc  FC=gfortran  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
@@ -190,7 +190,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && apt-get install -y gcc-11 cpp-11 libgcc-11-dev libgfortran-11-dev xz-utils|| true \
 	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100  \
 && echo creating TARRRRRRRRRRRR \
-&& tar cJvf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  \
+&& tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  \
 && echo ls tarrrr \
 && ls -lrt /tmp/nwchem.tar.xz
 
@@ -203,9 +203,10 @@ RUN apt-get update -q=2 && apt  install -y -q=2  binutils bzip2 xz-utils  \
 &&           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
 &&  ls -lart /tmp \
-&& cd / ; tar xJvf /tmp/nwchem.tar.xz  ; ls -Rl \
+&& cd / ; tar xJf /tmp/nwchem.tar.xz  ; pwd ;ls -lart \
+&&  if [[ -f /opt/nwchem/bin/LINUX64/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
 && ldd /opt/nwchem/bin/LINUX64/nwchem|| true  \
-&& rm -f /tmp/nwchem.tar.xz
+&& rm -f /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
