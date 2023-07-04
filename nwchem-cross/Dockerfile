@@ -157,7 +157,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	   && ls -lrt /opt/lib || true \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 
-FROM ubuntu:jammy AS relink_push
+FROM ubuntu:jammy AS relink
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -222,11 +222,25 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && du -sh /opt/nwchem/src/* |sort -n \
 	     && du -sh /opt /usr || true \
             &&       apt-get -y purge   make    manpages manpages-dev  libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data    perl     bzip2  &&  apt-get -y autoremove  && apt-get clean \
-	    && apt-get -y gcc-11 cpp-11 libgcc-11-dev libgfortran-11-dev libssl-dev|| true \
-	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+	    && apt-get -y gcc-11 cpp-11 libgcc-11-dev libgfortran-11-dev xz-utils|| true \
+	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100  \
+&& echo creating TARRRRRRRRRRRR \
+&& tar cJvf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  \
+&& echo ls tarrrr \
+&& ls -lrt /tmp/nwchem.tar.xz
 
 	     
-	     
+FROM ubuntu:jammy AS push
+COPY --from=image_build /tmp/nwchem.tar.xz /tmp/nwchem.tar.xz
+
+RUN apt-get update -q=2 && apt  install -y -q=2  binutils bzip2 xz-utils  \
+	     libgfortran5 libpython3.10  libgomp1 libgcc-s1 \
+&&           groupadd -r nwchem -g 1994 \
+              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
+&&  ls -lart /tmp \
+&& cd /opt ; tar xJvf /tmp/nwchem.tar.xz  ; ls -Rl \
+&& ldd /opt/nwchem/bin/LINUX64/nwchem|| true  \
+&& rm -f /tmp/nwchem.tar.xz
 
 ENV         FFIELD=amber  \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
