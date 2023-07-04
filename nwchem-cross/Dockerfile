@@ -124,38 +124,12 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
             && cp -rp ../QA/tests/dft_he2+ /tmp/. \
-	    && cd libext ; tar cjvf /opt/libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
-	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf /opt/simint.tar.bz2 simint_install/* || true \
+	    && cd libext ; tar cjvf /opt/nwchem/src/libext/libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
+	    && cd /opt/nwchem/src/NWints/simint/libsimint_source/ ; tar cjvf /opt/nwchem/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && cd /opt/nwchem/src \
-            && rm -rf tce prepar mcscf optim tools/build tools/ga-* nwdft geom symmetry util nwxc ddscf lapack blas rism argos peigs rmdft gradients symmetry property smd lucia dplot propery hessian ccsd mp2_grad moints cafe analyz dimqm   develop ../QA/tests ../QA/chem_library_tests ../QA/Nightly_Jobscripts ../QA/amber-tests ../contrib ../examples ../.git ../travis ../web nwpw/nwpwlib/nwpwxc rdmft ../doc  /tmp/libext* || true \
-	    && mkdir libext \
-	    && mv /opt/*tar.bz2 libext/. \
 	    && mkdir -p ../QA/tests \
 	    && mv /tmp/dft_he2+ ../QA/tests/. \
-	    && ls -lrt libext/libxc || true \
-	    && ls -lrt libext/lib || true \
-	    && $(xx-info)-strip ../bin/${NWCHEM_TARGET}/nwchem \
-	    && rm libext/libxc/install/bin/xc* || true \
-	    && rm -rf /opt/nwchem/src/NWints \
-	    && strip --strip-debug /opt/nwchem/lib/LINUX*/lib*.a \
-	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } \
-	    && cd $NWCHEM_TOP \
-#clean unnecessary packages
-            && DEBIAN_FRONTEND=noninteractive apt-get -q=2 -y install --no-install-recommends localepurge \
-	    && echo MANDELETE >  /etc/locale.nopurge \
-	    && echo DONTBOTHERNEWLOCALE >> /etc/locale.nopurge \
-	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
-	    && localepurge \
-	    && rm -rf /usr/share/doc \
-            &&       apt-get  -y purge  wget git make curl  unzip cmake cmake-data manpages manpages-dev  libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data  localepurge   g++   perl   libtool  bc &&  apt-get -y autoremove  && apt-get clean \
-           && apt-get -y purge    libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev  gcc-11 cpp-11 libgcc-11-dev libgfortran-11-dev libssl-dev|| true \
-	   && apt-get clean \
-	   && rm -rf /opt/nwchem/src/libext/libext_utils || true \
-	   && chown -R nwchem /opt/nwchem && chgrp -R nwchem /opt/nwchem \
-	   && du -sh /opt/nwchem /usr \
-	   && du -sh /opt/nwchem/src/libext/lib || true \
-	   && ls -lrt /opt/lib || true \
-	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } 
 
 FROM ubuntu:jammy AS relink
 
@@ -194,11 +168,6 @@ RUN           groupadd -r nwchem -g 1994 \
 	     MYCPU=$(uname -m) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
 	    cd /opt/nwchem/src ;\
-	    mkdir -p /opt/nwchem/src/util ;\
-	    mkdir -p /opt/nwchem/src/libext/mpich/mpich ;\
-	    mkdir -p /opt/nwchem/src/NWints/simint/libsimint_source ;\
-	    cd NWints/simint/libsimint_source ; tar xjf /opt/nwchem/src/libext/simint.tar.bz2 ;\
-	    cd /opt/nwchem/src ;\
             make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
             make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}    V=1 ;\
@@ -215,14 +184,9 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && ls -l \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
 	     && ./runtests.mpi.unix dft_he2+  || true \
-	     && rm -rf /opt/nwchem/src/NWints || true \
-	     && rm -rf /opt/nwchem/lib /opt/nwchem/src/tools || true \
- 	     && rm -rf /opt/nwchem/src/libext/lib/* /opt/nwchem/src/libext/libxc/install/lib/* ||true \
 	     && echo done \
-	     && du -sh /opt/nwchem/src/* |sort -n \
 	     && du -sh /opt /usr || true \
-            &&       apt-get -y purge   make    manpages manpages-dev  libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data    perl     bzip2  &&  apt-get -y autoremove  && apt-get clean \
-	    && apt-get -y gcc-11 cpp-11 libgcc-11-dev libgfortran-11-dev xz-utils|| true \
+	     && apt-get install -y gcc-11 cpp-11 libgcc-11-dev libgfortran-11-dev xz-utils|| true \
 	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100  \
 && echo creating TARRRRRRRRRRRR \
 && tar cJvf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  \
