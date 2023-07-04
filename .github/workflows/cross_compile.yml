@@ -136,7 +136,8 @@ jobs:
             ls
             if [[ ${{ matrix.archs }} ==  'linux/riscv64' ]]; then
             sed -e "s/FROM\ ubuntu\:jammy\ AS\ relink/FROM\ riscv64\/ubuntu\:jammy\ AS\ relink/"  Dockerfile > Dockerfile.new
-            sed -e "s/FROM\ ubuntu\:jammy\ AS\ push/FROM\ riscv64\/ubuntu\:jammy\ AS\ push/"  Dockerfile.new >! Dockerfile
+            sed -e "s/FROM\ ubuntu\:jammy\ AS\ push/FROM\ riscv64\/ubuntu\:jammy\ AS\ push/"  Dockerfile.new > Dockerfile
+            grep FROM Dockerfile
             fi
       - name: build_schedule
         uses: docker/build-push-action@v4
