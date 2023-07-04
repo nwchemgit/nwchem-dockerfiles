@@ -203,7 +203,7 @@ RUN apt-get update -q=2 && apt  install -y -q=2  binutils bzip2 xz-utils  \
 &&           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
 &&  ls -lart /tmp \
-&& cd /opt ; tar xJvf /tmp/nwchem.tar.xz  ; ls -Rl \
+&& cd / ; tar xJvf /tmp/nwchem.tar.xz  ; ls -Rl \
 && ldd /opt/nwchem/bin/LINUX64/nwchem|| true  \
 && rm -f /tmp/nwchem.tar.xz
 
