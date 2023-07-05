@@ -173,7 +173,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	    cd python ;\
             make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}    V=1 ;\
             cd .. ;\
-            &&    CC=gcc  FC=gfortran  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
+            CC=gcc  FC=gfortran  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/. \
 	     && ln -sf /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
 	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
