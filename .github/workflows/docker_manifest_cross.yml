@@ -1,0 +1,65 @@
+name: multiplatform_manifest_cross
+
+on:
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  pull_and_bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: github_login
+        if: ${{ github.actor == github.repository_owner }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build date
+        id: build-date
+        run: |
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
+      - name: pull  images and push manifest
+        if:  ( github.actor == github.repository_owner ) 
+        run: |
+          for branch in dev
+          do
+          manifest_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch":latest
+          manifest_tag_date=ghcr.io/${{ github.actor }}/nwchemcross-"$branch":${{ env.date }}
+          noarch_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch"
+          for arch in amd64 arm64 ppc64le riscv64 s390x
+          do
+          echo $arch
+          docker pull -q $noarch_tag:$arch || true
+          docker manifest create $manifest_tag --amend  $noarch_tag:$arch || true
+          docker manifest create $manifest_tag_date --amend  $noarch_tag:$arch || true
+          done
+          echo "pushing manifest name" "$manifest_tag"
+          docker manifest push -p $manifest_tag_date
+          docker manifest push -p $manifest_tag
+          docker images
+          echo 'inspect manifest of '  $manifest_tag
+          docker manifest inspect  $manifest_tag
+          done
+        shell: bash
+      - name: test images
+        if:  ( github.actor == github.repository_owner ) 
+        run: |
+          branch=dev
+          manifest_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch":latest
+          noarch_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch"
+          docker manifest rm $manifest_tag || true
+          docker rmi "$noarch_tag":latest || true
+          docker rmi "$noarch_tag" || true
+          for arch in amd64 arm64 ppc64le riscv64 s390x
+          do
+          docker rmi "$noarch_tag":"$arch" ||true
+          done
+          docker images
+          echo "pulling $manifest_tag"
+          docker pull -q "$manifest_tag"
+          docker run --rm --entrypoint=uname  "$manifest_tag" -a
+          echo 'inspect manifest of' $manifest_tag
+          docker manifest inspect  $manifest_tag

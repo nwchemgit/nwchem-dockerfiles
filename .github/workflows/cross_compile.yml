@@ -186,3 +186,8 @@ jobs:
             ${{ env.tag }} \
             -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
             ls -Ralrt ~/cache || true
+  bundle_images2:
+    needs: [docker_schedule]
+    uses: ./.github/workflows/docker_manifest_cross.yml
+    secrets:
+      inherit
