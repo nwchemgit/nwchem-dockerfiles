@@ -1,0 +1,11 @@
+--- Dockerfile.org	2023-07-02 18:33:28.893327086 -0700
++++ Dockerfile	2023-07-02 18:34:07.505530317 -0700
+@@ -150,7 +150,7 @@
+ 	   && du -sh /opt/nvidia || true \
+ 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
+ 
+-FROM ubuntu:jammy 
++FROM riscv64/ubuntu:jammy 
+ ARG CACHE_HIT
+ ARG         NWCHEM_MODULES="all  "  \
+             ARMCI_NETWORK=MPI-PT  \
