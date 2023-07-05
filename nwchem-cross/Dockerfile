@@ -49,7 +49,6 @@ COPY build_scalapa.sh /tmp/.
 COPY build_openblas.sh /tmp/.
 COPY build_mpich.sh /tmp/.
 COPY cross.txt /tmp/.
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # you can now call xx-* commands
 RUN xx-info env && \
     env|grep PLATF && \
@@ -159,7 +158,7 @@ RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
  && apt-get update \
              && apt-get -q=2   install -y make  gfortran python3-dev libssl-dev bzip2 tar\
-             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl \
+             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
@@ -186,9 +185,6 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
 	     && ./runtests.mpi.unix dft_he2+  || true \
 	     && echo done \
-	     && du -sh /opt /usr || true \
-	     && apt-get install -y gcc-11 cpp-11 libgcc-11-dev libgfortran-11-dev xz-utils|| true \
-	     && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100  \
 && echo creating TARRRRRRRRRRRR \
 && tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  \
 && echo ls tarrrr \
@@ -197,6 +193,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	     
 FROM ubuntu:jammy AS push
 COPY --from=relink /tmp/nwchem.tar.xz /tmp/nwchem.tar.xz
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update -q=2 && apt  install -y -q=2  binutils bzip2 xz-utils  \
 	     libgfortran5 libpython3.10  libgomp1 libgcc-s1 \
