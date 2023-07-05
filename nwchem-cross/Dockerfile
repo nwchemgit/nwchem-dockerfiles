@@ -203,7 +203,7 @@ RUN apt-get update -q=2 && apt  install -y -q=2  binutils bzip2 xz-utils  \
 && cd / ; tar xJf /tmp/nwchem.tar.xz  ; pwd ;ls -lart \
 &&  if [[ -f /opt/nwchem/bin/LINUX64/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
 && ldd /opt/nwchem/bin/LINUX64/nwchem|| true  \
-&& rm -f /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
+&& rm -rf /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
