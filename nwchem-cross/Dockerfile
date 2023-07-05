@@ -185,13 +185,17 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
 	     && ./runtests.mpi.unix dft_he2+  || true \
 	     && echo done \
-&& echo creating TARRRRRRRRRRRR \
-&& tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  \
-&& echo ls tarrrr \
+&& echo creating tar file \
+&& if [[ "$CACHE_HIT" == "Y" ]]; then \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/* ; \
+else  \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*   /opt/nwchem/src/libext/*tar*bz2 ; fi \
+&& echo ls tar file \
 && ls -lrt /tmp/nwchem.tar.xz
 
 	     
 FROM ubuntu:jammy AS push
+ARG CACHE_HIT
 COPY --from=relink /tmp/nwchem.tar.xz /tmp/nwchem.tar.xz
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
