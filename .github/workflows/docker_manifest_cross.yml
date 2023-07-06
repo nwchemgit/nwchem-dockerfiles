@@ -24,7 +24,7 @@ jobs:
       - name: pull  images and push manifest
         if:  ( github.actor == github.repository_owner ) 
         run: |
-          for branch in dev
+          for branch in dev 720
           do
           manifest_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch":latest
           manifest_tag_date=ghcr.io/${{ github.actor }}/nwchemcross-"$branch":${{ env.date }}
