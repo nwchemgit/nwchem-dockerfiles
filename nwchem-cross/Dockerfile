@@ -123,7 +123,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
             && cp -rp ../QA/tests/dft_he2+ /tmp/. \
-	    && rm -rf ../QA/tests ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
+	    && rm -rf ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
 	    && cd libext ; tar cjvf /opt/nwchem/src/libext/libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
 	    && cd /opt/nwchem/src/NWints/simint/libsimint_source/ ; tar cjvf /opt/nwchem/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && cd /opt/nwchem/src \
@@ -180,10 +180,12 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && uname -a \
 	     && ldd /opt/nwchem/bin/LINUX64/nwchem|| true \
   	     && strip ../bin/${NWCHEM_TARGET}/nwchem \
-	     && cd /opt/nwchem/QA \
-	     && ls -l \
+	     && cd /opt/nwchem/ \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
-	     && ./runtests.mpi.unix dft_he2+  || true \
+	     && ./travis/run_qas.sh  || true \
+             && cp -rp ../QA/tests/dft_he2+ /tmp/. \
+             && rm -rf ../QA/tests/*   \
+	     && mv /tmp/dft_he2+ ../QA/tests/. \
 	     && echo done \
 && echo creating tar file \
 && if [[ "$CACHE_HIT" == "Y" ]]; then \
@@ -228,8 +230,3 @@ USER        nwchem
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]
 
-##CMD ["/bin/bash"]
-
-#XX_MARCH
-##make DEPEND_CC=gcc CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH}
-##make DEPEND_CC=${CC_FOR_BUILD} CC=${CC} _CC=${_CC} FC=${FC} _FC=${_FC} CFLAGS_FORGA="-fPIC -Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib" FFLAGS_FORGA="-Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib" FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH}
