@@ -177,6 +177,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && ldd /opt/nwchem/bin/LINUX64/nwchem \
   	     && strip /opt/nwchem/bin/LINUX64/nwchem \
 	     && cd /opt/nwchem/ \
+	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
 	     && ./travis/run_qas.sh  \
              && cp -rp ../QA/tests/dft_he2+ /tmp/. \
