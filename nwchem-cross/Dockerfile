@@ -172,14 +172,13 @@ RUN           groupadd -r nwchem -g 1994 \
             CC=gcc  FC=gfortran  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
 	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpiexec \
 	     && ln -sf /opt/nwchem/bin/LINUX64/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
-	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
 	     && file /opt/nwchem/bin/LINUX64/nwchem \
 	     && uname -a \
-	     && ldd /opt/nwchem/bin/LINUX64/nwchem|| true \
-  	     && strip ../bin/${NWCHEM_TARGET}/nwchem \
+	     && ldd /opt/nwchem/bin/LINUX64/nwchem \
+  	     && strip /opt/nwchem/bin/LINUX64/nwchem \
 	     && cd /opt/nwchem/ \
-	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
-	     && ./travis/run_qas.sh  || true \
+	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
+	     && ./travis/run_qas.sh  \
              && cp -rp ../QA/tests/dft_he2+ /tmp/. \
              && rm -rf ../QA/tests/*   \
 	     && mv /tmp/dft_he2+ ../QA/tests/. \
