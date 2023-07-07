@@ -180,9 +180,9 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
 	     && ./travis/run_qas.sh  \
-             && cp -rp ../QA/tests/dft_he2+ /tmp/. \
-             && rm -rf ../QA/tests/*   \
-	     && mv /tmp/dft_he2+ ../QA/tests/. \
+             && cp -rp QA/tests/dft_he2+ /tmp/. \
+             && rm -rf QA/tests/*   \
+	     && mv /tmp/dft_he2+ QA/tests/. \
 	     && echo done \
 && echo creating tar file \
 && if [[ "$CACHE_HIT" == "Y" ]]; then \
