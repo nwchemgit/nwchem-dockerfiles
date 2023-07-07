@@ -122,13 +122,10 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
-            && cp -rp ../QA/tests/dft_he2+ /tmp/. \
 	    && rm -rf ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
 	    && cd libext ; tar cjvf /opt/nwchem/src/libext/libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
 	    && cd /opt/nwchem/src/NWints/simint/libsimint_source/ ; tar cjvf /opt/nwchem/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && cd /opt/nwchem/src \
-	    && mkdir -p ../QA/tests \
-	    && mv /tmp/dft_he2+ ../QA/tests/. \
 	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } 
 
 FROM ubuntu:jammy AS relink
