@@ -45,10 +45,10 @@ RUN uname -a
 COPY --from=xx / /
 # export TARGETPLATFORM (or other TARGET*)
 ARG TARGETPLATFORM
-#COPY build_scalapa.sh /tmp/.
-#COPY build_openblas.sh /tmp/.
-#COPY build_mpich.sh /tmp/.
-#COPY cross.txt /tmp/.
+COPY build_scalapa.sh /tmp/.
+COPY build_openblas.sh /tmp/.
+COPY build_mpich.sh /tmp/.
+COPY cross.txt /tmp/.
 # you can now call xx-* commands
 RUN xx-info env && \
     env|grep PLATF && \
