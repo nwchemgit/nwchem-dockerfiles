@@ -151,9 +151,11 @@ ARG         NWCHEM_MODULES="all  "  \
 RUN mkdir -p /opt
 
 COPY --from=build /opt/nwchem /opt/nwchem
+COPY run_qas.sh /tmp/.
 	      
 RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
+             cd $TRAVIS_BUILD_DIR/QA && NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries.bse/ ./runtests.mpi.unix procs $nprocs gw_closedshell gw_openshell
  && apt-get update \
              && apt-get -q=2   install -y make  gfortran python3-dev libssl-dev bzip2 tar\
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils \
@@ -180,6 +182,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && cd /opt/nwchem/ \
 	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
+	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
 	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh  \
              && cp -rp QA/tests/dft_he2+ /tmp/. \
              && rm -rf QA/tests/*   \
