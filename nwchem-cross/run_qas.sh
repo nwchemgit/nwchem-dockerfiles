@@ -44,7 +44,7 @@ env|egrep MP
  if [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "ppc64le" ]] || [[ "$arch" == "riscv64" ]]; then
      do_largeqas=0
  fi
-
+ if [  -f /.dockerenv ]; then echo do_largeqas=0; fi
  if [[ "$os" == "Linux" && "$MPI_IMPL" == "mpich" ]]; then
     export MPIRUN_PATH=/usr/bin/mpirun.mpich
  fi
