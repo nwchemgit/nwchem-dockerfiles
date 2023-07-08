@@ -155,8 +155,7 @@ COPY run_qas.sh /tmp/.
 	      
 RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
-             cd $TRAVIS_BUILD_DIR/QA && NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries.bse/ ./runtests.mpi.unix procs $nprocs gw_closedshell gw_openshell
- && apt-get update \
+             && apt-get update \
              && apt-get -q=2   install -y make  gfortran python3-dev libssl-dev bzip2 tar\
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
