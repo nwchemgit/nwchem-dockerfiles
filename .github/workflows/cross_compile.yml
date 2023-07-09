@@ -22,7 +22,9 @@ jobs:
             - linux/riscv64
             - linux/s390x
           fc: [ gfortran]
-          branch: [ master]
+          branch:
+            - master
+            - hotfix/release-7-2-0
     runs-on: ubuntu-latest
     timeout-minutes: 420
     outputs:
@@ -42,7 +44,7 @@ jobs:
         id: qemu
         uses: docker/setup-qemu-action@v2
         with:
-          image: tonistiigi/binfmt:qemu-v6.0.0-10
+          image: tonistiigi/binfmt:latest
           platforms: ${{ matrix.archs }}
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
@@ -102,8 +104,10 @@ jobs:
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
-          else
+          elif [[ ${{ matrix.branch }} ==  hotfix/release-7-2-0 ]]; then
             echo "nwversion=720" >> $GITHUB_ENV
+          else
+            echo "nwversion=unknown" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag noarch

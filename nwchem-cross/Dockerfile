@@ -88,10 +88,11 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 #fix openblas cross-compilation
             && arch=$XX_MARCH \
 	    && echo 'openblas arch is ' $arch \
-	    && cp /tmp/build_openblas.sh /opt/nwchem/src/libext/openblas/. \
-	    && cp /tmp/build_mpich.sh /opt/nwchem/src/libext/mpich/. \
-	    && cp /tmp/cross.txt /opt/nwchem/src/libext/mpich/. \
-	    && cp /tmp/build_scalapa.sh /opt/nwchem/src/libext/scalapack/. \
+	    && if [[ "$NWCHEM_BRANCH" != "master" ]]; then \
+	    cp /tmp/build_openblas.sh /opt/nwchem/src/libext/openblas/. ;\
+	    cp /tmp/build_mpich.sh /opt/nwchem/src/libext/mpich/. ;\
+	    cp /tmp/cross.txt /opt/nwchem/src/libext/mpich/. ;\
+            cp /tmp/build_scalapa.sh /opt/nwchem/src/libext/scalapack/. ; fi \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
@@ -122,13 +123,10 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
-            && cp -rp ../QA/tests/dft_he2+ /tmp/. \
-	    && rm -rf ../QA/tests ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
+	    && rm -rf ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
 	    && cd libext ; tar cjvf /opt/nwchem/src/libext/libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
 	    && cd /opt/nwchem/src/NWints/simint/libsimint_source/ ; tar cjvf /opt/nwchem/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && cd /opt/nwchem/src \
-	    && mkdir -p ../QA/tests \
-	    && mv /tmp/dft_he2+ ../QA/tests/. \
 	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } 
 
 FROM ubuntu:jammy AS relink
@@ -153,10 +151,11 @@ ARG         NWCHEM_MODULES="all  "  \
 RUN mkdir -p /opt
 
 COPY --from=build /opt/nwchem /opt/nwchem
+COPY run_qas.sh /tmp/.
 	      
 RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
- && apt-get update \
+             && apt-get update \
              && apt-get -q=2   install -y make  gfortran python3-dev libssl-dev bzip2 tar\
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
@@ -175,15 +174,18 @@ RUN           groupadd -r nwchem -g 1994 \
             CC=gcc  FC=gfortran  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
 	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpiexec \
 	     && ln -sf /opt/nwchem/bin/LINUX64/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
-	     && ls -l /opt/nwchem/bin/LINUX64/nwchem \
 	     && file /opt/nwchem/bin/LINUX64/nwchem \
 	     && uname -a \
-	     && ldd /opt/nwchem/bin/LINUX64/nwchem|| true \
-  	     && strip ../bin/${NWCHEM_TARGET}/nwchem \
-	     && cd /opt/nwchem/QA \
-	     && ls -l \
-	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
-	     && ./runtests.mpi.unix dft_he2+  || true \
+	     && ldd /opt/nwchem/bin/LINUX64/nwchem \
+  	     && strip /opt/nwchem/bin/LINUX64/nwchem \
+	     && cd /opt/nwchem/ \
+	     && export SKIP_CACHE=1  \
+	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
+	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
+	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh  \
+             && cp -rp QA/tests/dft_he2+ /tmp/. \
+             && rm -rf QA/tests/*   \
+	     && mv /tmp/dft_he2+ QA/tests/. \
 	     && echo done \
 && echo creating tar file \
 && if [[ "$CACHE_HIT" == "Y" ]]; then \
@@ -228,8 +230,3 @@ USER        nwchem
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]
 
-##CMD ["/bin/bash"]
-
-#XX_MARCH
-##make DEPEND_CC=gcc CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH}
-##make DEPEND_CC=${CC_FOR_BUILD} CC=${CC} _CC=${_CC} FC=${FC} _FC=${_FC} CFLAGS_FORGA="-fPIC -Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib" FFLAGS_FORGA="-Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib" FFLAG_INT="-fdefault-integer-8"  _CPU=${XX_MARCH}
