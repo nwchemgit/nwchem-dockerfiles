@@ -1,0 +1,70 @@
+diff --git a/src/config/check_env.sh b/src/config/check_env.sh
+index ee2f8d5780..8069c66040 100755
+--- a/src/config/check_env.sh
++++ b/src/config/check_env.sh
+@@ -1,8 +1,10 @@
+ #!/usr/bin/env bash
+-if [[ -z $1 ]]; then
++if [[ ! -z $GFORTRAN_MARCH ]] ; then
++    exit=0
++elif [[ -z $1 ]]; then
+     #undefined
+     exit=1
+-elif [[ $1 == "N" ]] || [[ $1 == "n" ]] || [[ $1 == "0" ]] ; then
++elif [[ $1 == "N" ]] || [[ $1 == "n" ]] || [[ $1 == "0" ]] || [[ ! -z $GFORTRAN_MARCH ]] ; then
+     exit=0
+ else
+     exit=1
+diff --git a/src/config/makefile.h b/src/config/makefile.h
+index 191ea8ebbd..1ba206e101 100644
+--- a/src/config/makefile.h
++++ b/src/config/makefile.h
+@@ -2534,7 +2534,7 @@ ifneq ($(TARGET),LINUX)
+ #                       FOPTIMIZE += -xHost
+                         ifndef USE_IFX
+ #                           crazy simd options
+-                            ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
++#                            ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
+                                 ifeq ($(_IFCV17), Y)
+                                     ifeq ($(_GOTAVX512F),Y)
+                                         FOPTIMIZE += -axCORE-AVX512
+@@ -2547,7 +2547,7 @@ ifneq ($(TARGET),LINUX)
+                                     else ifeq ($(_GOTSSE3),Y) 
+                                         FOPTIMIZE += -axSSE3
+                                     endif
+-                                endif
++#                                endif
+                             endif
+                             FOPTIONS += -finline-limit=250
+                         endif
+@@ -2746,6 +2746,9 @@ ifneq ($(TARGET),LINUX)
+                 ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
+                     FOPTIMIZE +=  -mtune=native
+                 endif
++                ifdef GFORTRAN_MARCH
++                    FOPTIMIZE += -march=$(GFORTRAN_MARCH)
++                endif
+ #               causes slowdows in mp2/ccsd
+ #               FOPTIONS += -finline-functions
+             endif
+@@ -3090,7 +3093,6 @@ ifneq ($(TARGET),LINUX)
+ #                DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+             endif
+         endif
+-		
+ 
+         ifeq ($(NWCHEM_TARGET),CATAMOUNT)
+             DEFINES  += -DCATAMOUNT
+@@ -3576,10 +3578,10 @@ ifdef USE_MPI
+                 endif
+                 ifdef MPI_LIB
+                     $(info ***warning MPI_LIB ignored since FORCE_MPI_ENV not set***)
+- 	        endif
++                endif
+                 ifdef MPI_INCLUDE
+                     $(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
+- 	        endif
++                endif
+ 	    endif
+ 	endif
+         # check if mpif90 is present
