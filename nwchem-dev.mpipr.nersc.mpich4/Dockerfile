@@ -41,7 +41,7 @@ WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=11 
 ENV	    CUDA_VERSION_MINOR=7
-ENV         GCC_VERSION=10
+ENV         GCC_VERSION=13
 ENV         PY_VERSION=3.11
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
@@ -63,6 +63,7 @@ ENV         NWCHEM_TARGET=LINUX64 \
 	    CUDA_INCLUDE="-I. -I/usr/local/cuda/include" \
 	    FORCETARGET=" TARGET=ZEN " \
 	    USE_HWOPT=n  \
+	    GFORTRAN_MARCH=znver3 \
             USE_MPI=y \
             USE_MPIF=y \
             USE_MPIF4=y 
@@ -147,8 +148,9 @@ RUN         apt-get -q=2 update \
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && if [[ "$NWCHEM_BRANCH" == "release-7-2-0" ]]; then cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned_getlohi.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned_getlohi.patch ; fi \
+	    && cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/gfortran_march.patch; cd /opt/nwchem ; patch -p1 < /tmp/gfortran_march.patch ; fi \
 	    && cd /opt/nwchem \
-            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
+            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && echo '*** ldd ***'  \
 	    && ldd ../bin/LINUX64/nwchem || { echo "Failure"; exit 1; } \
