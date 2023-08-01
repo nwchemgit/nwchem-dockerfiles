@@ -150,7 +150,7 @@ jobs:
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
           docker run --rm -e LD_LIBRARY_PATH="$MYLDPATH"  \
-          -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
+          -v `pwd`:/opt/nwchem/QA -w /opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           ${{ env.tag }} \
           procs 2 h2o_opt prop_mep_gcube
           fi
