@@ -148,7 +148,7 @@ RUN         apt-get -q=2 update \
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && if [[ "$NWCHEM_BRANCH" == "release-7-2-0" ]]; then cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned_getlohi.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned_getlohi.patch ; fi \
-	    && rm -f /opt/nwchem/src/tools/get-tools-github || true && wget https://raw.githubusercontent.com/nwchemgit/nwchem/hotfix/release-7-2-0/src/tools/get-tools-github -O /opt/nwchem/src/tools/get-tools-github &&  chmod +x /opt/nwchem/src/tools/get-tools-github \
+	    && rm -f /opt/nwchem/src/tools/mpipr-too-many_patch.sh || true && wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/mpipr-too-many_patch.sh -O /opt/nwchem/src/tools/mpipr-too-many_patch.sh &&  chmod +x /opt/nwchem/src/tools/mpipr-too-many_patch.sh  \
 	    && cd /opt/nwchem \
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
