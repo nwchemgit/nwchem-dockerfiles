@@ -118,7 +118,9 @@ jobs:
       - name: builddate
         id: build-date
         run: |
-          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
+          tag_date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)
+          echo "date is $tag_date"
+          echo "date=$tag_date" >> $GITHUB_ENV
       - name: build_docker
         uses: docker/build-push-action@v4
         with:
