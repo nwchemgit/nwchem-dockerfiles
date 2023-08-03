@@ -139,7 +139,6 @@ RUN         apt-get -q=2 update \
             && cd /opt || { echo "Failure"; exit 1; } \
             &&  rm -rf nwchem || true \
             && git clone -b ${NWCHEM_BRANCH}  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
-	    && if [[ "$NWCHEM_BRANCH" == "master" ]]; then cd /opt/nwchem ;git checkout aec40a5d35325e7b88cbe6a76221da93fb9af983; fi \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } \
@@ -149,7 +148,7 @@ RUN         apt-get -q=2 update \
 	    && echo 'checking cache #3 ' \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && if [[ "$NWCHEM_BRANCH" == "release-7-2-0" ]]; then cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned_getlohi.patch; cd /opt/nwchem ; patch -p1 < /tmp/oned_getlohi.patch ; fi \
-	    && cd /opt/nwchem/src/tools && wget https://raw.githubusercontent.com/nwchemgit/nwchem/hotfix/release-7-2-0/src/tools/get-tools-github \
+	    && rm -f /opt/nwchem/src/tools/get-tools-github || true && wget https://raw.githubusercontent.com/nwchemgit/nwchem/hotfix/release-7-2-0/src/tools/get-tools-github -O /opt/nwchem/src/tools/get-tools-github &&  chmod +x get-tools-github \
 	    && cd /opt/nwchem \
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
