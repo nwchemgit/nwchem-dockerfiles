@@ -138,7 +138,7 @@ RUN         apt-get -q=2 update \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt || { echo "Failure"; exit 1; } \
             &&  rm -rf nwchem || true \
-            && git clone -b ${NWCHEM_BRANCH} --depth 1  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
+            && git clone -b ${NWCHEM_BRANCH}  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
 	    && if [[ "$NWCHEM_BRANCH" == "master" ]]; then cd /opt/nwchem ;git checkout e7c626e59bd7a3f407d86e16a679dc8a2be4552d; fi \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
