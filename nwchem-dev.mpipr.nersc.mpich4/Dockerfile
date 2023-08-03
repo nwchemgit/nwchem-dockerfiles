@@ -139,9 +139,10 @@ RUN         apt-get -q=2 update \
             && cd /opt || { echo "Failure"; exit 1; } \
             &&  rm -rf nwchem || true \
             && git clone -b ${NWCHEM_BRANCH} --depth 1  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
+	    && if [[ "$NWCHEM_BRANCH" == "master" ]]; then cd /opt/nwchem ;git checkout 1c8b2437405cce94a7a142ae56ff6cb2b47c0da6; fi \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
-            && cd nwchem/src || { echo "Failure"; exit 1; } \
+            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } \
 	    && cd tce/ccsd_t && nvcc  -c -DTCE_CUDA  -I. -I/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/include memory.cu && cd ../.. \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
