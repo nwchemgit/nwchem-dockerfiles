@@ -80,12 +80,19 @@ if [[ "${NWCHEM_TARGET}" == "LINUX" ]]; then
 else
   binary=64
 fi
-if [[ -n "${USE_DYNAMIC_ARCH}" ]] || [[ "${USE_HWOPT}" == "n" ]]; then
-    if $CC  -march=native -E - < /dev/null >&/dev/null ; then cross_comp=0; else cross_comp=1; fi
-    if [[ "$cross_comp" == 1 ]]; then
-	echo   "cross compiling "
-    else
+if [[   -z "${CC}" ]]; then
+    CC=cc
+fi
+${CC} -dM -E - < /dev/null 2> /dev/null|grep __x86_64__ 
+let cross_comp=$?
+echo "cross_code $cross_comp"
+if [[ "$cross_comp" == 1 ]]; then
+    echo   "cross compiling "
+    HOSTCC=gcc
+else
+    if [[ -n "${USE_DYNAMIC_ARCH}" ]] || [[ "${USE_HWOPT}" == "n" ]]; then
 	if [[ "$arch" == "x86_64" ]]; then
+	    echo   "not cross compiling, therefore using DYNAMIC_ARCH "
 	    FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
 	fi
     fi
@@ -177,9 +184,6 @@ if  [[ -n ${CC} ]] && [[ "${CC}" == "amdclang" ]]; then
 fi
 if [[   -z "${FC}" ]]; then
     FC=gfortran
-fi
-if [[   -z "${CC}" ]]; then
-    CC=cc
 fi
 if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
     let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
