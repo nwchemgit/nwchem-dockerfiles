@@ -41,7 +41,7 @@ WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=11 
 ENV	    CUDA_VERSION_MINOR=7
-ENV         GCC_VERSION=10
+ENV         GCC_VERSION=11
 ENV         PY_VERSION=3.11
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python" \
@@ -63,6 +63,7 @@ ENV         NWCHEM_TARGET=LINUX64 \
 	    CUDA_INCLUDE="-I. -I/usr/local/cuda/include" \
 	    FORCETARGET=" TARGET=ZEN " \
 	    USE_HWOPT=n  \
+	    GFORTRAN_MARCH=znver3 \
             USE_MPI=y \
             USE_MPIF=y \
             USE_MPIF4=y 
@@ -137,10 +138,10 @@ RUN         apt-get -q=2 update \
 	    && echo 'cloning nwchem source *** ' || true \
             && cd /opt || { echo "Failure"; exit 1; } \
             &&  rm -rf nwchem || true \
-            && git clone -b ${NWCHEM_BRANCH} --depth 1  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
+            && git clone -b ${NWCHEM_BRANCH}  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git  \
             && if [[ "$USE_OPENMP_VALUE" != "N" ]]; then export USE_OPENMP="$USE_OPENMP_VALUE" ; fi	   \
             && echo " USE_OPENMP value is "  $USE_OPENMP  \
-            && cd nwchem/src || { echo "Failure"; exit 1; } \
+            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } \
 	    && cd tce/ccsd_t && nvcc  -c -DTCE_CUDA  -I. -I/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/include memory.cu && cd ../.. \
 	    && echo 'checking cache #1 ' \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then cd libext ; tar xjf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; cd ..  ; fi\
