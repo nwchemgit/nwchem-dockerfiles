@@ -20,7 +20,7 @@ jobs:
       folders: ${{ steps.filter.outputs.changes }}
       change: ${{ steps.env_change.outputs.change }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: choose_dockerfile_filter
       uses: dorny/paths-filter@v2
       id: filter
@@ -65,7 +65,7 @@ jobs:
       tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
@@ -231,7 +231,7 @@ jobs:
       tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
