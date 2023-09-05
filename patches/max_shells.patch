@@ -1,0 +1,13 @@
+diff --git a/src/util/nwc_const.fh b/src/util/nwc_const.fh
+index b726362615..939fd5797a 100644
+--- a/src/util/nwc_const.fh
++++ b/src/util/nwc_const.fh
+@@ -91,7 +91,7 @@
+ * Maximum number of shells on a QM system 
+ *...................................(must be <= nw_max_atom_shells*nw_max_atom)
+       integer nw_max_shells
+-      parameter (nw_max_shells = 10000)
++      parameter (nw_max_shells = 15000)
+ *------------------------------------------------------------------------------
+ * Maximum number of basis functions on an atom 
+ *
