@@ -35,7 +35,6 @@ ENV         FC=${FC}
 ENV         NWCHEM_BRANCH=${NWCHEM_BRANCH}
 ENV         GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER}
 ARG         NWCHEM_MODULES="all python xtb"  \
-            USE_TBLITE=1 \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
@@ -66,7 +65,7 @@ arch=$(uname -m) ; if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] ||
 arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo " defining modules according to CACHE_HIT= $CACHE_HIT and arch=$arch" && \
-	 if [[ "$arch" != "x86_64" ]]; then if  [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi ; fi &&\
+	 if [[ "$arch" != "x86_64" ]]; then if  [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi ; else export USE_TBLITE=1; fi &&\
 	     echo "  NWCHEM_MODULES= $NWCHEM_MODULES " && \
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
