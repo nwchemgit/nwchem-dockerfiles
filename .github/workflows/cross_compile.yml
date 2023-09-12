@@ -144,7 +144,7 @@ jobs:
             grep FROM Dockerfile
             fi
       - name: build_schedule
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: ${{ github.actor == github.repository_owner }}
           provenance: false
