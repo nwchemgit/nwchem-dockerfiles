@@ -42,14 +42,14 @@ jobs:
           key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercross-v001
       - name: Qemu
         id: qemu
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           image: tonistiigi/binfmt:latest
           platforms: ${{ matrix.archs }}
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           driver-opts: |
               image=moby/buildkit:v0.11.6
@@ -57,7 +57,7 @@ jobs:
           buildkitd-flags: --debug
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -144,7 +144,7 @@ jobs:
             grep FROM Dockerfile
             fi
       - name: build_schedule
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: ${{ github.actor == github.repository_owner }}
           provenance: false
