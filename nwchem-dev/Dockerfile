@@ -65,6 +65,7 @@ arch=$(uname -m) ; if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] ||
 arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo " defining modules according to CACHE_HIT= $CACHE_HIT and arch=$arch" && \
+            if [[ ${FC} != "nvfortran" ]]; then export NWCHEM_MODULES+=" xtb "; fi &&\
 	 if [[ "$arch" != "x86_64" ]]; then if  [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi ;  fi &&\
 	 if [[ $(echo $NWCHEM_MODULES |grep xtb) ]] ;then export USE_TBLITE=1; fi &&\
 	     echo "  NWCHEM_MODULES= $NWCHEM_MODULES " && \
@@ -94,6 +95,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             && cd nwchem/src \
 #set NWCHEM_TARGET 
             &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
+	    && echo "NWCHEM_MODULES is " ${NWCHEM_MODULES} \
 #fix openblas cross-compilation
             && arch=$(uname -m) \
             && arch3=$(uname -m|cut -c 1-3) \
@@ -105,7 +107,6 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && if [[ "$arch5" == "armv6" ]]; then export FORCETARGET=" TARGET=ARMV6 "; fi \
 	    && if [[ "$arch5" == "armv7" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
-            && if [[ ${FC} != "nvfortran" ]]; then export NWCHEM_MODULES+=" xtb "; fi \
 	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get -q=2 install -y --no-install-recommends openmpi-bin libopenblas-dev; fi  \
 # smaller build on qemu emulated archs
 	    && if [[ "$arch" != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
