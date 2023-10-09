@@ -34,7 +34,7 @@ ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=${FC}
 ENV         NWCHEM_BRANCH=${NWCHEM_BRANCH}
 ENV         GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER}
-ARG         NWCHEM_MODULES="all python xtb"  \
+ARG         NWCHEM_MODULES="all python "  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
@@ -65,7 +65,9 @@ arch=$(uname -m) ; if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] ||
 arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo " defining modules according to CACHE_HIT= $CACHE_HIT and arch=$arch" && \
-	 if [[ "$arch" != "x86_64" ]]; then if  [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi ; else export USE_TBLITE=1; fi &&\
+            if [[ ${FC} != "nvfortran" ]]; then export NWCHEM_MODULES+=" xtb "; fi &&\
+	 if [[ "$arch" != "x86_64" ]]; then if  [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="nwdft driver vib solvation gwmol python tce"  ; fi ;  fi &&\
+	 if [[ $(echo $NWCHEM_MODULES |grep xtb) ]] ;then export USE_TBLITE=1; fi &&\
 	     echo "  NWCHEM_MODULES= $NWCHEM_MODULES " && \
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
@@ -93,12 +95,12 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             && cd nwchem/src \
 #set NWCHEM_TARGET 
             &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
+	    && echo "NWCHEM_MODULES is " ${NWCHEM_MODULES} \
 #fix openblas cross-compilation
             && arch=$(uname -m) \
             && arch3=$(uname -m|cut -c 1-3) \
             && arch5=$(uname -m|cut -c 1-5) \
 	    &&  if [[ "$FC" == "nvfortran" ]] && [[ "$arch" == "aarch64" ]]; then  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd / ; patch -p0 < /tmp/nv_arm64.patch; cd /opt/nwchem/src; fi \
-	    &&  cd /tmp ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/cmake_multip.patch; cd /opt/nwchem ; patch -p1 < /tmp/cmake_multip.patch; cd /opt/nwchem/src \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
