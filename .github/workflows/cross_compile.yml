@@ -175,7 +175,7 @@ jobs:
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
           --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ${{ env.tag }} \
-          dft_he2+  || true
+          dft_he2+ h2o_dk cosmo_h3co 
 
       - name: store cache
         if:  ( github.actor == github.repository_owner )
