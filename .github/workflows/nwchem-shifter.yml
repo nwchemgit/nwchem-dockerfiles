@@ -40,9 +40,18 @@ jobs:
           else 
             echo "fc=$(echo .${{matrix.fc }}  )"   >> $GITHUB_ENV
           fi
+      - name: openmp tag
+        id: openmp-tag
+        run: |
+          if [[ ${{ matrix.openmp }} == 'N'  ]]; then 
+            echo "omp_tag=_no_openmp"  >> $GITHUB_ENV
+          else 
+            echo "omp_tag="  >> $GITHUB_ENV
+          fi
+        shell: bash
       - name:  cache key
         run: |
-          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
+          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}${{ env.omp_tag}}-cache-v005" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
@@ -86,15 +95,6 @@ jobs:
           ls -l cache/ ; \
           echo "======" ; \
           fi
-      - name: openmp tag
-        id: openmp-tag
-        run: |
-          if [[ ${{ matrix.openmp }} == 'N'  ]]; then 
-            echo "omp_tag=_no_openmp"  >> $GITHUB_ENV
-          else 
-            echo "omp_tag="  >> $GITHUB_ENV
-          fi
-        shell: bash
       - name: armci_net tag
         id: armci_net
         run: |
