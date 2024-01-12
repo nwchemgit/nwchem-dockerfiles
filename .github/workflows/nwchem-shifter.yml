@@ -152,6 +152,7 @@ jobs:
           git clone --no-checkout https://github.com/nwchemgit/nwchem
           cd nwchem
           git sparse-checkout init --cone
+          git sparse-checkout set QA
           git checkout
           cd QA
           docker run --rm -e LD_LIBRARY_PATH="$MYLDPATH"  \
