@@ -149,8 +149,10 @@ jobs:
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
-          sudo apt-get install -y subversion
-          svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
+          git clone --no-checkout https://github.com/nwchemgit/nwchem
+          cd nwchem
+          git sparse-checkout init --cone
+          git checkout
           cd QA
           docker run --rm -e LD_LIBRARY_PATH="$MYLDPATH"  \
           -v `pwd`:/opt/nwchem/QA -w /opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
