@@ -149,6 +149,7 @@ jobs:
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
+          sudo apt-get install -y subversion
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
           docker run --rm -e LD_LIBRARY_PATH="$MYLDPATH"  \
