@@ -151,7 +151,7 @@ RUN         apt-get -q=2 update \
 	    && if [[ "$NWCHEM_BRANCH" == "release-7-2-0" ]]; then cd /opt/nwchem ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned_getlohi.patch -P /tmp ; patch -p1 < /tmp/oned_getlohi.patch ; fi \
 	    && cd /opt/nwchem \
 	    && wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/max_shells.patch -P /tmp/ &&  patch -p1 < /tmp/max_shells.patch \
-            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3  CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
+            && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3 USE_ARUR=y CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && echo '*** ldd ***'  \
 	    && ldd ../bin/LINUX64/nwchem || { echo "Failure"; exit 1; } \
@@ -159,7 +159,7 @@ RUN         apt-get -q=2 update \
 	    && strip ../bin/$NWCHEM_TARGET/nwchem \
 	    && rm libext/libxc/install/bin/xc* || true \
 	    && ls -lrt libext/libxc \
-	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* ||true \
+	    && cd libext ; tar cjvf libext.tar.bz2 lib/* libxc/install/lib/* libxc/install/include/* include/* ||true \
 	    && rm -rf lib/* libxc/install/lib/* libext_utils/* ||true \
 	    && cd $NWCHEM_TOP/src/NWints/simint/libsimint_source/ ; tar cjvf $NWCHEM_TOP/src/libext/simint.tar.bz2 simint_install/* || true \
 	    && rm -rf simint* *simint-generator* \

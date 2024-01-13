@@ -40,9 +40,18 @@ jobs:
           else 
             echo "fc=$(echo .${{matrix.fc }}  )"   >> $GITHUB_ENV
           fi
+      - name: openmp tag
+        id: openmp-tag
+        run: |
+          if [[ ${{ matrix.openmp }} == 'N'  ]]; then 
+            echo "omp_tag=_no_openmp"  >> $GITHUB_ENV
+          else 
+            echo "omp_tag="  >> $GITHUB_ENV
+          fi
+        shell: bash
       - name:  cache key
         run: |
-          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
+          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}${{ env.omp_tag}}-cache-v005" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v3
@@ -86,15 +95,6 @@ jobs:
           ls -l cache/ ; \
           echo "======" ; \
           fi
-      - name: openmp tag
-        id: openmp-tag
-        run: |
-          if [[ ${{ matrix.openmp }} == 'N'  ]]; then 
-            echo "omp_tag=_no_openmp"  >> $GITHUB_ENV
-          else 
-            echo "omp_tag="  >> $GITHUB_ENV
-          fi
-        shell: bash
       - name: armci_net tag
         id: armci_net
         run: |
@@ -149,7 +149,11 @@ jobs:
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
-          svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
+          git clone --no-checkout https://github.com/nwchemgit/nwchem
+          cd nwchem
+          git sparse-checkout init --cone
+          git sparse-checkout set QA
+          git checkout
           cd QA
           docker run --rm -e LD_LIBRARY_PATH="$MYLDPATH"  \
           -v `pwd`:/opt/nwchem/QA -w /opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \

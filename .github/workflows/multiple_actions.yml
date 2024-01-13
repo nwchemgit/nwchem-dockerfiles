@@ -186,7 +186,11 @@ jobs:
           cd /tmp
           umask u=rwx,g=rwx,o=rwx
           umask -S
-          svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
+          git clone --no-checkout https://github.com/nwchemgit/nwchem
+          cd nwchem
+          git sparse-checkout init --cone
+          git sparse-checkout set QA
+          git checkout
           cd QA
           if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran' ]]; then \
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
