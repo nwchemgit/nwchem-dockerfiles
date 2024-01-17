@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/cache
@@ -238,7 +238,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/cache
