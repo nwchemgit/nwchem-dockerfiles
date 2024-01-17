@@ -54,7 +54,7 @@ jobs:
           echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}${{ env.omp_tag}}-cache-v005" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/cache
