@@ -58,6 +58,7 @@ ENV         FFIELD=amber  \
 	    OMP_NUM_THREADS=1 \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
             PATH=${PATH}:/opt/nwchem/bin/LINUX64
+WORKDIR	    /opt
 #get NWCHEM_TARGET
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN ls -lrta /tmp && \
@@ -90,7 +91,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:"$LD_LIBRARY_PATH" \
 	    && echo "URL for cloning"  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git \
 	    && echo ca_certificate=/etc/ssl/certs/ca-certificates.crt >  ~/.wgetrc \
-            && cd /opt; rm -rf nwchem||true; wget https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem/tarball/"$NWCHEM_BRANCH" -O - | tar -xz  --exclude=web --exclude=examples --exclude=doc --exclude="nwxc*"  --exclude="chem-library-tests" \
+            && rm -rf nwchem||true; wget https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem/tarball/"$NWCHEM_BRANCH" -O - | tar -xz  --exclude=web --exclude=examples --exclude=doc --exclude="nwxc*"  --exclude="chem-library-tests" \
 	    &&    mv ${GITHUB_REPOSITORY_OWNER}-nwchem-* nwchem \
             && cd nwchem/src \
 #set NWCHEM_TARGET 
