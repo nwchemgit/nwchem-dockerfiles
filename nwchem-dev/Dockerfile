@@ -73,7 +73,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
          apt-get -q=2 update \
             && apt-get -q=2 -y upgrade \
-            && apt-get -q=2 install -y --no-install-recommends rsync python3-dev g++ gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config libssl-dev \
+            && apt-get -q=2 install -y --no-install-recommends rsync python3-dev g++ gfortran libopenmpi-dev openmpi-bin  make unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config libssl-dev \
 	    && break; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
 	    && echo FCFCFC is ${FC} \
@@ -90,7 +90,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:"$LD_LIBRARY_PATH" \
 	    && echo "URL for cloning"  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git \
 	    && echo ca_certificate=/etc/ssl/certs/ca-certificates.crt >  ~/.wgetrc \
-            && cd /opt; rm -rf nwchem||true; curl -LJ https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem/tarball/"$NWCHEM_BRANCH" | tar -xz  --exclude=web --exclude=examples --exclude=doc --exclude="nwxc*"  --exclude="chem-library-tests" \
+            && cd /opt; rm -rf nwchem||true; wget https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem/tarball/"$NWCHEM_BRANCH" -O - | tar -xz  --exclude=web --exclude=examples --exclude=doc --exclude="nwxc*"  --exclude="chem-library-tests" \
 	    &&    mv ${GITHUB_REPOSITORY_OWNER}-nwchem-* nwchem \
             && cd nwchem/src \
 #set NWCHEM_TARGET 
@@ -154,8 +154,8 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && echo en_US.UTF-8 >> /etc/locale.nopurge \
 	    && localepurge \
 	    && rm -rf /usr/share/doc \
-            &&       apt-get -q=2 -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libopenmpi-dev perl libhwloc-dev libibverbs-dev libopenmpi-dev libcoarrays-dev libcoarrays-openmpi-dev libevent-dev libltdl-dev libnl-3-dev libnl-route-3-dev libnuma-dev autoconf automake autotools-dev libcaf-openmpi-3 libevent-extra-2.1-7 libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove && apt-get -q=2 -y install libopenmpi3 && apt-get clean \
-#            &&       apt-get -y purge  wget git make curl  unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libmpich-dev  &&  apt-get -y autoremove \
+            &&       apt-get -q=2 -y purge  wget git make unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libopenmpi-dev perl libhwloc-dev libibverbs-dev libopenmpi-dev libcoarrays-dev libcoarrays-openmpi-dev libevent-dev libltdl-dev libnl-3-dev libnl-route-3-dev libnuma-dev autoconf automake autotools-dev libcaf-openmpi-3 libevent-extra-2.1-7 libsigsegv2 libtool ibverbs-providers bc &&  apt-get -y autoremove && apt-get -q=2 -y install libopenmpi3 && apt-get clean \
+#            &&       apt-get -y purge  wget git make   unzip cmake cmake-data libhwloc-plugins libicu66 manpages manpages-dev iproute2 libelf1 libmnl0 libxtables12 libxau6 libxcb1 libxdmcp6 libx11-6 libx11-data libxext6 libxmuu1 xauth xz-utils localepurge  g++-8 g++ libstdc++-9-dev libmpich-dev  &&  apt-get -y autoremove \
            && apt-get -y purge cpp-9 gfortran-9 gcc-9  libnl-3-dev libnl-route-3-dev libnuma-dev libibverbs-dev libgcc-9-dev autotools-dev libevent-dev libpython3.8-dev libc6-dev linux-libc-dev libexpat1-dev zlib1g-dev libcrypt-dev perl-modules-5.30 libperl5.30  || true \
 	   && apt-get clean \
            && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then apt-get -y purge libopenblas-dev; fi \
