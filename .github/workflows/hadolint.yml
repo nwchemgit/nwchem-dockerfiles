@@ -2,11 +2,11 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-# hadoint is a Dockerfile linter written in Haskell
+# hadolint is a Dockerfile linter written in Haskell
 # that helps you build best practice Docker images.
 # More details at https://github.com/hadolint/hadolint
 
-name: Code scanning
+name: Hadolint
 
 on:
   push:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run hadolint
-        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
+        uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: ./${{ matrix.folder }}/Dockerfile
           format: sarif
