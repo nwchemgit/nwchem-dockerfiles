@@ -77,7 +77,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             && apt-get -q=2 install -y --no-install-recommends rsync python3-dev g++ gfortran libopenmpi-dev openmpi-bin  make unzip cmake git file wget curl tar bzip2 bc ca-certificates patch pkg-config libssl-dev \
 	    && break; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
-	    && export PYTHONVERSION=$(python -V| cut -d ' ' -f 2 |cut -d . -f 1-2)
+	    && export PYTHONVERSION=$(python -V| cut -d ' ' -f 2 |cut -d . -f 1-2) \
 	    && echo FCFCFC is ${FC} \
 	    && echo NWCHEM_BRANCH is ${NWCHEM_BRANCH} \
 	    && echo GITHUB_REPOSITORY_OWNER is ${GITHUB_REPOSITORY_OWNER} \
