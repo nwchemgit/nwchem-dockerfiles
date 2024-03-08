@@ -66,7 +66,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
              xx-apt  install -y  g++ gfortran libssl-dev \
-             && apt-get -q=2 install -y --no-install-recommends rsync  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config python3-dev openssh-client \
+             && apt-get -q=2 install -y --no-install-recommends rsync  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config python3-dev openssh-client python-is-python3 \
 	    && break; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
 	    && echo FCFCFC is ${FC} \
