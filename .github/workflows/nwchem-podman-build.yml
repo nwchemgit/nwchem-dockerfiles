@@ -123,21 +123,20 @@ jobs:
           which podman
           apptainer version
       - name: build podman
-      run: |
-        cd ${{ matrix.folder }}
-        FC=${{ matrix.fc }} \
-        USE_OPENMP_VALUE=${{ matrix.openmp }} \
-        NWCHEM_BRANCH=${{ matrix.branch}} \
-        ARMCI_NETWORK=${{ matrix.armci_network}} \
-        CACHE_HIT=${{ env.cache_hit }} \
-        GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
-        podman build -t ${{ env.tag }}:latest Dockerfile
-#            ${{ env.tag }}:${{ env.date }}
-    - name: push to ghcr.io
-      run: |
-        echo ${{ secrets.GITHUB_TOKEN }} | podman login -u ${{ github.actor }} --password-stdin ghcr.io
-        podman push ${{ env.tag }}:latest  ${{ env.tag }}:${{ env.date }} 
-        podman push ${{ env.tag }}:latest  ${{ env.tag }}:latest
+        run: |
+          cd ${{ matrix.folder }}
+          FC=${{ matrix.fc }} \
+          USE_OPENMP_VALUE=${{ matrix.openmp }} \
+          NWCHEM_BRANCH=${{ matrix.branch}} \
+          ARMCI_NETWORK=${{ matrix.armci_network}} \
+          CACHE_HIT=${{ env.cache_hit }} \
+          GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
+          podman build -t ${{ env.tag }}:latest Dockerfile
+      - name: push to ghcr.io
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | podman login -u ${{ github.actor }} --password-stdin ghcr.io
+          podman push ${{ env.tag }}:latest  ${{ env.tag }}:${{ env.date }} 
+          podman push ${{ env.tag }}:latest  ${{ env.tag }}:latest
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
