@@ -157,6 +157,7 @@ jobs:
           svn export https://github.com/nwchemgit/nwchem/trunk/QA >& svnout.log
           cd QA
           podman run --rm -e LD_LIBRARY_PATH="$MYLDPATH"  \
+          -e HWLOC_HIDE_ERRORS=2 -w /opt/nwchem/QA \
           -v `pwd`:/opt/nwchem/QA --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           ${{ env.tag }} \
           procs 2 h2o_opt prop_mep_gcube
