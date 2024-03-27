@@ -131,6 +131,8 @@ jobs:
           ARMCI_NETWORK=${{ matrix.armci_network}} \
           CACHE_HIT=${{ env.cache_hit }} \
           GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
+          CUDA_VERSION_MAJOR=11  \
+          CUDA_VERSION_MINOR=7 \
           podman build -t ${{ env.tag }}:latest .
       - name: push to ghcr.io
         run: |
