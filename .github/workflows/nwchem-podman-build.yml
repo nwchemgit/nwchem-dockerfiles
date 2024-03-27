@@ -131,7 +131,7 @@ jobs:
           ARMCI_NETWORK=${{ matrix.armci_network}} \
           CACHE_HIT=${{ env.cache_hit }} \
           GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
-          podman build -t ${{ env.tag }}:latest Dockerfile
+          podman build -t ${{ env.tag }}:latest .
       - name: push to ghcr.io
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | podman login -u ${{ github.actor }} --password-stdin ghcr.io
