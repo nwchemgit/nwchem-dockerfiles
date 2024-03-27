@@ -134,6 +134,7 @@ jobs:
            --build-arg GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
            --build-arg CUDA_VERSION_MAJOR=11  \
            --build-arg CUDA_VERSION_MINOR=7 \
+           --format docker \
           -t ${{ env.tag }}:latest .
       - name: push to ghcr.io
         run: |
