@@ -125,15 +125,16 @@ jobs:
       - name: build podman
         run: |
           cd ${{ matrix.folder }}
-          FC=${{ matrix.fc }} \
-          USE_OPENMP_VALUE=${{ matrix.openmp }} \
-          NWCHEM_BRANCH=${{ matrix.branch}} \
-          ARMCI_NETWORK=${{ matrix.armci_network}} \
-          CACHE_HIT=${{ env.cache_hit }} \
-          GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
-          CUDA_VERSION_MAJOR=11  \
-          CUDA_VERSION_MINOR=7 \
-          podman build -t ${{ env.tag }}:latest .
+          podman build \
+           --build-arg=arg=FC=${{ matrix.fc }} \
+           --build-arg=arg=USE_OPENMP_VALUE=${{ matrix.openmp }} \
+           --build-arg=arg=NWCHEM_BRANCH=${{ matrix.branch}} \
+           --build-arg=arg=ARMCI_NETWORK=${{ matrix.armci_network}} \
+           --build-arg=arg=CACHE_HIT=${{ env.cache_hit }} \
+           --build-arg=arg=GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
+           --build-arg=arg=CUDA_VERSION_MAJOR=11  \
+           --build-arg=arg=CUDA_VERSION_MINOR=7 \
+          -t ${{ env.tag }}:latest .
       - name: push to ghcr.io
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | podman login -u ${{ github.actor }} --password-stdin ghcr.io
