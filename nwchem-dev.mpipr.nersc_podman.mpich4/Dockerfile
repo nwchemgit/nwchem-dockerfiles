@@ -196,5 +196,5 @@ ENV         FFIELD=amber \
 #clean unnecessary packages
 #RUN         apt-get -y remove  make curl  unzip cmake   &&  apt-get -y autoremove && apt-get clean
 
-WORKDIR     /data
-ENTRYPOINT  ["mpirun","-np","3","nwchem"]
+#WORKDIR     /data
+#ENTRYPOINT  ["mpirun","-np","3","nwchem"]
