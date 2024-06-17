@@ -163,7 +163,7 @@ jobs:
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
       - name: build_filter
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: ${{ github.actor == github.repository_owner }}
           provenance: false
@@ -330,7 +330,7 @@ jobs:
             echo "GITHUB_ENV" `cat $GITHUB_ENV`
             echo " tag " ${{ env.tag }}
       - name: build_schedule
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: ${{ github.actor == github.repository_owner }}
           provenance: false
