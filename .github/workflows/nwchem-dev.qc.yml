@@ -41,7 +41,7 @@ jobs:
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
       - name: build_schedule
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
