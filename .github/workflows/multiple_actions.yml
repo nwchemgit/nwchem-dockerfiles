@@ -53,7 +53,7 @@ jobs:
           folder: ["${{ fromJSON(needs.changes.outputs.folders) }}"]
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
-          branch: [ master, release-7-2-0]
+          branch: [ master, hotfix/release-7-2-0]
           exclude:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
@@ -136,7 +136,7 @@ jobs:
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
-          elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
+          elif [[ ${{ matrix.branch }} ==  hotfix/release-7-2-0 ]]; then
             echo "nwversion=720" >> $GITHUB_ENV
           else
             echo "nwversion=unknown" >> $GITHUB_ENV
@@ -223,7 +223,7 @@ jobs:
             - nwchem-dev
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
-          branch: [ master, release-7-2-0]
+          branch: [ master, hotfix/release-7-2-0]
           exclude:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
