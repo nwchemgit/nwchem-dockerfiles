@@ -19,6 +19,11 @@ jobs:
           armci_network: [ MPI-PR ] 
           include:
             - folder: nwchem-dev.mpipr.nersc.mpich4
+              armci_network: MPI3
+              openmp: Y
+              branch: master
+              fc: gfortran
+            - folder: nwchem-dev.mpipr.nersc.mpich4
               armci_network: MPI-PR
               openmp: N
               branch: master
