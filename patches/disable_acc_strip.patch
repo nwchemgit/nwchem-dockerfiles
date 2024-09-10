@@ -1,0 +1,26 @@
+diff --git a/src/ccsd/GNUmakefile b/src/ccsd/GNUmakefile
+index 03d0391351..07ae2194db 100644
+--- a/src/ccsd/GNUmakefile
++++ b/src/ccsd/GNUmakefile
+@@ -152,7 +152,7 @@ ifdef USE_BATCHDGEMM_TRPDRV
+ endif
+ 
+ ifeq ($(ARMCI_NETWORK),MPI-PR)
+-   LIB_DEFINES += -DACC_STRIPS
++   LIB_DEFINES += -DACC_STRIPS_OFF
+ endif
+ 
+    LIB_DEFINES +=-DUSE_F90INTERFACE
+diff --git a/src/moints/GNUmakefile b/src/moints/GNUmakefile
+index fe8441aa57..fb0c11f287 100644
+--- a/src/moints/GNUmakefile
++++ b/src/moints/GNUmakefile
+@@ -33,7 +33,7 @@ LIB_DEFINES = -DDEBUG_PRINT
+ 
+     HEADERS = moints_stats.fh
+ ifeq ($(ARMCI_NETWORK),MPI-PR)
+-   LIB_DEFINES += -DACC_STRIPS
++   LIB_DEFINES += -DACC_STRIPS_OFF
+ endif
+ 
+ #
