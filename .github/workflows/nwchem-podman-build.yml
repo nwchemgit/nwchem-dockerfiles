@@ -99,9 +99,6 @@ jobs:
       - name: openmp tag
         id: openmp-tag
         run: |
-      - name: openmp tag
-        id: openmp-tag
-        run: |
           if [[ ${{ matrix.openmp }} == 'N'  ]]; then 
             echo "omp_tag=_no_openmp"  >> $GITHUB_ENV
           else 
