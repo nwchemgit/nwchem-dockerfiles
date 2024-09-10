@@ -89,12 +89,12 @@ jobs:
           fi
       - name: create bootstrap from docker
         run: |
+          mkdir -p ${{ matrix.folder }}/cache
           if [  -f cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
-             docker load< cache/ubuntu_jammy.tar.gz ; \
+             docker load< ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ; \
           else
-             cd ${{ matrix.folder }} ;\
              docker pull ubuntu:jammy ; \
-             docker save ubuntu:jammy | gzip > cache/ubuntu_jammy.tar.gz
+             docker save ubuntu:jammy | gzip > ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz
           fi
       - name: openmp tag
         id: openmp-tag
