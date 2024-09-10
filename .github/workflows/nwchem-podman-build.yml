@@ -26,7 +26,7 @@ jobs:
             - folder: nwchem-dev.mpipr.nersc_podman.mpich4
               armci_network: MPI-PR
               openmp: N
-              branch: release-7-2-0
+              branch: hotfix/release-7-2-0
               fc: nvfortran
     runs-on: ubuntu-latest
     steps:
@@ -81,8 +81,20 @@ jobs:
           mkdir -p cache|| true ; \
           rsync -av ~/cache/mpich* cache/. ; \
           echo "mpich cache fetched" ; \
+          if [[ -f ~/cache/ubuntu_jammy.tar.gz ]]; then \
+          cp ~/cache/ubuntu_jammy.tar.gz cache/. ; \
+          fi
           ls -l cache/ ; \
           echo "======" ; \
+          fi
+      - name: create bootstrap from docker
+        run: |
+          mkdir -p ${{ matrix.folder }}/cache
+          if [  -f cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
+             docker load< ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ; \
+          else
+             docker pull ubuntu:jammy ; \
+             docker save ubuntu:jammy | gzip > ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz
           fi
       - name: openmp tag
         id: openmp-tag
