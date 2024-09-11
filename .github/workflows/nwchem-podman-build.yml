@@ -15,6 +15,9 @@ jobs:
             - nwchem-dev.mpipr.nersc_podman.mpich4
           branch: [ master, hotfix/release-7-2-0]
           openmp: [ Y, N]
+          mpich:
+            - 4.0.2
+            - 3.4.2
           fc: [ gfortran]
           armci_network: [ MPI-PR ] 
           include:
@@ -40,9 +43,16 @@ jobs:
           else 
             echo "fc=$(echo .${{matrix.fc }}  )"   >> $GITHUB_ENV
           fi
+      - name:  folder_mod
+        run: |
+          if [[ ${{ matrix.mpich }} != '4.0.2' ]]; then
+          echo "folder_mod${{ matrix.folder }}-${{ matrix.mpich }}" >> $GITHUB_ENV
+          else
+          echo "folder_mod=${{ matrix.folder }}" >> $GITHUB_ENV
+          fi
       - name:  cache key
         run: |
-          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
+          echo "cache_key=${{ env.folder_mod }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v4
@@ -104,11 +114,11 @@ jobs:
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }}| sed -e 's|.mpipr||')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ env.folder_mod }}| sed -e 's|.mpipr||')" >> $GITHUB_ENV
           elif [[ ${{ matrix.branch }} ==  hotfix/release-7-2-0 ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|720|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ env.folder_mod }} | sed -e 's|.mpipr||' | sed -e 's|dev|720|')" >> $GITHUB_ENV
           else
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ env.folder_mod }} | sed -e 's|.mpipr||' | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag
@@ -142,6 +152,7 @@ jobs:
            --build-arg USE_OPENMP_VALUE=${{ matrix.openmp }} \
            --build-arg NWCHEM_BRANCH=${{ matrix.branch}} \
            --build-arg ARMCI_NETWORK=${{ matrix.armci_network}} \
+           --build-arg MPICH=${{ matrix.mpich}} \
            --build-arg CACHE_HIT=${{ env.cache_hit }} \
            --build-arg GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
            --build-arg CUDA_VERSION_MAJOR=11  \
