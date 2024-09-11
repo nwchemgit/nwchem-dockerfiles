@@ -23,11 +23,13 @@ jobs:
           include:
             - folder: nwchem-dev.mpipr.nersc_podman.mpich4
               armci_network: MPI-PR
+              mpich: 4.0.2
               openmp: N
               branch: master
               fc: nvfortran
             - folder: nwchem-dev.mpipr.nersc_podman.mpich4
               armci_network: MPI-PR
+              mpich: 4.0.2
               openmp: N
               branch: hotfix/release-7-2-0
               fc: nvfortran
@@ -46,7 +48,7 @@ jobs:
       - name:  folder_mod
         run: |
           if [[ ${{ matrix.mpich }} != '4.0.2' ]]; then
-          echo "folder_mod${{ matrix.folder }}-${{ matrix.mpich }}" >> $GITHUB_ENV
+          echo "folder_mod=${{ matrix.folder }}-${{ matrix.mpich }}" >> $GITHUB_ENV
           else
           echo "folder_mod=${{ matrix.folder }}" >> $GITHUB_ENV
           fi
@@ -138,7 +140,7 @@ jobs:
       - name: create bootstrap from docker
         run: |
           mkdir -p ${{ matrix.folder }}/cache
-          if [  -f cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
+          if [  -f ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
              podman load< ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ; \
           else
              podman pull docker.io/library/ubuntu:jammy ; \
