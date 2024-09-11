@@ -87,15 +87,6 @@ jobs:
           ls -l cache/ ; \
           echo "======" ; \
           fi
-      - name: create bootstrap from docker
-        run: |
-          mkdir -p ${{ matrix.folder }}/cache
-          if [  -f cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
-             docker load< ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ; \
-          else
-             docker pull ubuntu:jammy ; \
-             docker save ubuntu:jammy | gzip > ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz
-          fi
       - name: openmp tag
         id: openmp-tag
         run: |
@@ -134,6 +125,15 @@ jobs:
           sudo apt-get install -y  podman
           which podman
           podman version
+      - name: create bootstrap from docker
+        run: |
+          mkdir -p ${{ matrix.folder }}/cache
+          if [  -f cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
+             podman load< ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ; \
+          else
+             podman pull docker.io/library/ubuntu:jammy ; \
+             podman save docker.io/library/ubuntu:jammy | gzip > ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz
+          fi
       - name: build podman
         run: |
           cd ${{ matrix.folder }}
