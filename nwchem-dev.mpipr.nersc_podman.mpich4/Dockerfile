@@ -23,12 +23,12 @@ ARG         FC
 ARG         NWCHEM_BRANCH
 ARG         GITHUB_REPOSITORY_OWNER
 ARG         ARMCI_NETWORK
+ARG         MPICH
 ENV         FC=${FC}
 ENV         NWCHEM_BRANCH=$NWCHEM_BRANCH
 ENV         GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER
 ENV         ARMCI_NETWORK=$ARMCI_NETWORK
-ARG mpich=4.0.2
-ARG mpich_prefix=mpich-$mpich
+ARG mpich_prefix=mpich-$MPICH
 ARG	    CUDA_VERSION_MAJOR=11 
 ARG	    CUDA_VERSION_MINOR=7
 ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin 
@@ -116,9 +116,9 @@ RUN         apt-get -q=2 update \
 	    && echo 'checking cache #2 ' \
             && if [[ -f /tmp/mpich.tar.bz2 ]]; then cd /usr/local ; tar xjf /tmp/mpich.tar.bz2; rm -rf /tmp/mpich.tar.bz2 ; \
     else  echo 'downloading mpich source' ; \
-    wget --progress=dot:giga https://www.mpich.org/static/downloads/$mpich/$mpich_prefix.tar.gz -O - | tar xzf - ; \
+    wget --progress=dot:giga https://www.mpich.org/static/downloads/$MPICH/$mpich_prefix.tar.gz -O - | tar xzf - ; \
     cd $mpich_prefix || { echo "Failure"; exit 1; } ;\
-    FFLAGS=$FFLAGS_IN FCFLAGS=$FFLAGS_IN ./configure --silent --enable-silent-rules ; \
+    FFLAGS=$FFLAGS_IN FCFLAGS=$FFLAGS_IN ./configure  --with-device=ch4:ofi --disable-opencl --disable-cuda --silent --enable-silent-rules ; \
     echo 'redirecting output to make.log'                                   ; \
     make -j 4 FFLAGS=$FFLAGS_IN  >& make.log                 ; \
     echo 'mpich compiled' ; \
