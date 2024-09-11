@@ -23,11 +23,13 @@ jobs:
           include:
             - folder: nwchem-dev.mpipr.nersc_podman.mpich4
               armci_network: MPI-PR
+              mpich: 4.0.2
               openmp: N
               branch: master
               fc: nvfortran
             - folder: nwchem-dev.mpipr.nersc_podman.mpich4
               armci_network: MPI-PR
+              mpich: 4.0.2
               openmp: N
               branch: hotfix/release-7-2-0
               fc: nvfortran
