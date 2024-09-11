@@ -1,26 +1,18 @@
-diff --git a/src/ccsd/GNUmakefile b/src/ccsd/GNUmakefile
-index 03d0391351..07ae2194db 100644
---- a/src/ccsd/GNUmakefile
-+++ b/src/ccsd/GNUmakefile
-@@ -152,7 +152,7 @@ ifdef USE_BATCHDGEMM_TRPDRV
- endif
- 
- ifeq ($(ARMCI_NETWORK),MPI-PR)
--   LIB_DEFINES += -DACC_STRIPS
-+   LIB_DEFINES += -DACC_STRIPS_OFF
- endif
- 
-    LIB_DEFINES +=-DUSE_F90INTERFACE
-diff --git a/src/moints/GNUmakefile b/src/moints/GNUmakefile
-index fe8441aa57..fb0c11f287 100644
---- a/src/moints/GNUmakefile
-+++ b/src/moints/GNUmakefile
-@@ -33,7 +33,7 @@ LIB_DEFINES = -DDEBUG_PRINT
- 
-     HEADERS = moints_stats.fh
- ifeq ($(ARMCI_NETWORK),MPI-PR)
--   LIB_DEFINES += -DACC_STRIPS
-+   LIB_DEFINES += -DACC_STRIPS_OFF
- endif
- 
- #
+diff --git a/src/util/util_strips.F b/src/util/util_strips.F
+index 166b895424..85df671a8c 100644
+--- a/src/util/util_strips.F
++++ b/src/util/util_strips.F
+@@ -11,9 +11,10 @@ c
+       integer jj,acc_ilo,acc_ihi,acc_ilgt
+       integer iptr
+       integer npass
+-#define ACC_LENGTH 800
+-#define ACC_LENGTH_MAX 950
+-#define ACC_LENGTH_MAX_ 1950
++#define ACC_LENGTH 128
++#define ACC_LENGTH_MAX 160
++#define ACC_LENGTH_ 800
++#define ACC_LENGTH_MAX_ 950
+ c
+       if(lgth_in.gt.0) then
+ c         npass=(ld*(jhi-jlo+1))/max(lgth_in+1
