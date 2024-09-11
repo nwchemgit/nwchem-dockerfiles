@@ -46,7 +46,7 @@ jobs:
       - name:  folder_mod
         run: |
           if [[ ${{ matrix.mpich }} != '4.0.2' ]]; then
-          echo "folder_mod${{ matrix.folder }}-${{ matrix.mpich }}" >> $GITHUB_ENV
+          echo "folder_mod=${{ matrix.folder }}-${{ matrix.mpich }}" >> $GITHUB_ENV
           else
           echo "folder_mod=${{ matrix.folder }}" >> $GITHUB_ENV
           fi
