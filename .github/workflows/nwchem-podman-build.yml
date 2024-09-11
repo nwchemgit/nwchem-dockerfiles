@@ -140,7 +140,7 @@ jobs:
       - name: create bootstrap from docker
         run: |
           mkdir -p ${{ matrix.folder }}/cache
-          if [  -f cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
+          if [  -f ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
              podman load< ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ; \
           else
              podman pull docker.io/library/ubuntu:jammy ; \
