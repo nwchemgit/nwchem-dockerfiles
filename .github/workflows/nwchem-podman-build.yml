@@ -194,4 +194,5 @@ jobs:
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ${{ env.tag }} \
             -rp /usr/local/mpich.tar.bz2 /data/.  || true
+            cp ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ~/cache/.
             ls -Ralrt ~/cache || true
