@@ -151,6 +151,7 @@ RUN         apt-get -q=2 update \
 	    && if [[ "$NWCHEM_BRANCH" == "release-7-2-0" ]]; then cd /opt/nwchem ; wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/oned_getlohi.patch -P /tmp ; patch -p1 < /tmp/oned_getlohi.patch ; fi \
 	    && cd /opt/nwchem \
 	    && wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/max_shells.patch -P /tmp/ &&  patch -p1 < /tmp/max_shells.patch \
+	    && wget https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/disable_acc_strip.patch -P /tmp/ &&  patch -p1 < /tmp/disable_acc_strip.patch \
             && cd /opt/nwchem/src || { echo "Failure"; exit 1; } && make nwchem_config && make -j3 USE_ARUR=y CUDA=nvcc V=-1 || { echo "Failure"; exit 1; } \
             &&  CUDA=nvcc   ../contrib/getmem.nwchem 1000  || true \
 	    && echo '*** ldd ***'  \
