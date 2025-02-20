@@ -52,11 +52,14 @@ RUN xx-info env && \
     env|grep PLATF && \
     GCC_VERSION=14 &&\
     if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=15 ; fi &&\
-    xx-apt -q=2 install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
+    xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
     apt-get -q=2 install -y make file gcc-${GCC_VERSION} && \
+    set -x \
 	     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 100 && \
 	     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 100 && \
-	     update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 &&\
+	     update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 && \
+	     ls -lrt /usr/bin/gcc* && \
+	     ls -lrt /usr/bin/*gcc* && \
     $(xx-info)-gcc-${GCC_VERSION} -v && \
     ls -lrta /tmp && \
     if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ; apt-get install -y bzip2 tar;  tar tjvf /tmp/libext.tar.bz2;  fi &&\
@@ -91,8 +94,6 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 #fix openblas cross-compilation
             && arch=$XX_MARCH \
 	    && echo 'openblas arch is ' $arch \
-	    && if [[ "$NWCHEM_BRANCH" != "master" ]]; then \
-	    cp /tmp/cross*.txt /opt/nwchem/src/libext/mpich/. ; fi \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
