@@ -87,7 +87,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             && arch=$XX_MARCH \
 	    && echo 'openblas arch is ' $arch \
 	    && if [[ "$NWCHEM_BRANCH" != "master" ]]; then \
-	    cp /tmp/cross*.txt /opt/nwchem/src/libext/mpich/. ;\
+	    cp /tmp/cross*.txt /opt/nwchem/src/libext/mpich/. ; fi \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
