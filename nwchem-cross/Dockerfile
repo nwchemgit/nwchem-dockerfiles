@@ -54,7 +54,8 @@ RUN xx-info env && \
     if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=15 ; fi &&\
     xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
     apt-get -q=2 install -y make file gcc-${GCC_VERSION} && \
-    set -x \
+    set -x && \
+    echo XX_MARCH $(xx-info march) &&\
 	     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 100 && \
 	     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 100 && \
 	     update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 && \
