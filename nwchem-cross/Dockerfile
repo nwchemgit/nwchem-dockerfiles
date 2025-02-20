@@ -119,9 +119,9 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    && echo "I4I8 is " $I4I8 \
             && make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}   _CPU=${MYCPU}  nwchem_config  \
             && make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)"  MAYBE_OFFLOAD="$I4I8" V=-1 -j3 \
-	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat $(find . -name "*.log) ;  echo 'compilation error1'; exit 1; fi \
+	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat $(find . -name "*.log") ;  echo 'compilation error1'; exit 1; fi \
             &&    CC=$(xx-info)-gcc-${GCC_VERSION} _CC=gcc-${GCC_VERSION} FC=$(xx-info)-gfortran _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
-	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat $(find . -name "*log) ;  echo 'compilation error2'; exit 1; fi \
+	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat $(find . -name "*log") ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
 	    && rm -rf ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
 	    && cd libext ; tar cjvf /opt/nwchem/src/libext/libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
