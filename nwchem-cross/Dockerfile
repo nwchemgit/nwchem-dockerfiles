@@ -1,8 +1,8 @@
-
+ARG         UBUNTU_TAG
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
 
-FROM --platform=$BUILDPLATFORM ubuntu:jammy AS build
+FROM --platform=$BUILDPLATFORM $UBUNTU_TAG AS build
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description="NWChem image built from the master branch"
