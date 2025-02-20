@@ -45,10 +45,8 @@ RUN uname -a
 COPY --from=xx / /
 # export TARGETPLATFORM (or other TARGET*)
 ARG TARGETPLATFORM
-COPY build_scalapa.sh /tmp/.
-COPY build_openblas.sh /tmp/.
-COPY build_mpich.sh /tmp/.
 COPY cross.txt /tmp/.
+COPY cross32.txt /tmp/.
 # you can now call xx-* commands
 RUN xx-info env && \
     env|grep PLATF && \
@@ -89,10 +87,8 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             && arch=$XX_MARCH \
 	    && echo 'openblas arch is ' $arch \
 	    && if [[ "$NWCHEM_BRANCH" != "master" ]]; then \
-	    cp /tmp/build_openblas.sh /opt/nwchem/src/libext/openblas/. ;\
-	    cp /tmp/build_mpich.sh /opt/nwchem/src/libext/mpich/. ;\
 	    cp /tmp/cross.txt /opt/nwchem/src/libext/mpich/. ;\
-            cp /tmp/build_scalapa.sh /opt/nwchem/src/libext/scalapack/. ; fi \
+	    cp /tmp/cross32.txt /opt/nwchem/src/libext/mpich/. ;\
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
