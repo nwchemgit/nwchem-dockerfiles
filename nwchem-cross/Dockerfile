@@ -57,7 +57,6 @@ RUN xx-info env && \
     set -x && \
     echo XX_MARCH $(xx-info march) &&\
 	     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 100 && \
-	     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 100 && \
 	     update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 && \
 	     ls -lrt /usr/bin/gcc* && \
 	     ls -lrt /usr/bin/*gcc* && \
