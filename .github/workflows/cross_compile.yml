@@ -26,7 +26,6 @@ jobs:
           fc: [ gfortran]
           branch:
             - master
-            - hotfix/release-7-2-0
     runs-on: ubuntu-latest
     timeout-minutes: 420
     outputs:
