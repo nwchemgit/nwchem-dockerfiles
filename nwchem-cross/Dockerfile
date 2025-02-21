@@ -51,7 +51,9 @@ COPY cross32.txt /tmp/.
 RUN xx-info env && \
     env|grep PLATF && \
     GCC_VERSION=14 &&\
-    if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=14 ; fi &&\
+    if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=15 ; fi &&\
+    apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
     apt-get -q=2 install -y make file gcc-${GCC_VERSION} && \
     set -x && \
@@ -157,7 +159,7 @@ RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
              && apt-get update \
              && apt-get -q=2   install -y make  gfortran-${GCC_VERSION} python3-dev libssl-dev bzip2 tar\
-             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils \
+             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils  libgfortran5  libgomp1 libgcc-s1 \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
@@ -177,7 +179,6 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && file /opt/nwchem/bin/LINUX64/nwchem \
 	     && uname -a \
 	     && ldd /opt/nwchem/bin/LINUX64/nwchem \
-  	     && strip /opt/nwchem/bin/LINUX64/nwchem \
 	     && cd /opt/nwchem/ \
 	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
