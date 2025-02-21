@@ -51,7 +51,8 @@ COPY cross32.txt /tmp/.
 RUN xx-info env && \
     env|grep PLATF && \
     GCC_VERSION=14 &&\
-    if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=15 ; fi &&\
+    XX_MARCH=$(xx-info march) &&\
+    if [[ "$XX_MARCH" == "x86_64" ]]; then GCC_VERSION=15 ; fi &&\
     apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
@@ -65,7 +66,6 @@ RUN xx-info env && \
     $(xx-info)-gcc-${GCC_VERSION} -v && \
     ls -lrta /tmp && \
     if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ; apt-get install -y bzip2 tar;  tar tjvf /tmp/libext.tar.bz2;  fi &&\
-XX_MARCH=$(xx-info march) &&\
 arch=${XX_MARCH} ; echo " xx arch is " $arch ;if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "riscv64" ]] || [[ "$arch" == "ppc64le" ]]|| [[ "$arch" == "s390x" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi && \
 arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
