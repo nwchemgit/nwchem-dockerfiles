@@ -51,7 +51,7 @@ COPY cross32.txt /tmp/.
 RUN xx-info env && \
     env|grep PLATF && \
     GCC_VERSION=14 &&\
-    if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=15 ; fi &&\
+    if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=14 ; fi &&\
     xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
     apt-get -q=2 install -y make file gcc-${GCC_VERSION} && \
     set -x && \
