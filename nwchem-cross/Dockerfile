@@ -52,6 +52,7 @@ RUN xx-info env && \
     env|grep PLATF && \
     GCC_VERSION=14 &&\
     if [[ "$NWCHEM_BRANCH" == "master" ]]; then GCC_VERSION=15 ; fi &&\
+    apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
