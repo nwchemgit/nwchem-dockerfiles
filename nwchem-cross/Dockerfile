@@ -154,6 +154,7 @@ ARG         NWCHEM_MODULES="all  "  \
 RUN mkdir -p /opt
 
 COPY --from=build /opt/nwchem /opt/nwchem
+COPY --from=build /tmfile /tmpfile
 COPY run_qas.sh /tmp/.
 	      
 RUN           groupadd -r nwchem -g 1994 \
@@ -175,14 +176,15 @@ RUN           groupadd -r nwchem -g 1994 \
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _CPU=${MYCPU}    V=1 -j3;\
             cd .. ;\
             CC=gcc  FC=gfortran-${GCC_VERSION}  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
-	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpiexec \
-	     && ln -sf /opt/nwchem/bin/LINUX64/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
-	     && file /opt/nwchem/bin/LINUX64/nwchem \
+            &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
+	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec \
+	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpirun \
+	     && file /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && uname -a \
-	     && ldd /opt/nwchem/bin/LINUX64/nwchem \
+	     && ldd /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cd /opt/nwchem/ \
 	     && export SKIP_CACHE=1  \
-	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
+	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
 	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh  \
              && cp -rp QA/tests/dft_he2+ /tmp/. \
@@ -201,16 +203,18 @@ tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/ba
 FROM $UBUNTU_TAG AS push
 ARG CACHE_HIT
 COPY --from=relink /tmp/nwchem.tar.xz /tmp/nwchem.tar.xz
+COPY --from=relink /tmpfile /tmpfile
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-utils  \
 	     libgfortran5 libpython3.*  libgomp1 libgcc-s1 \
 &&           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
+&&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
 &&  ls -lart /tmp \
 && cd / ; tar xJf /tmp/nwchem.tar.xz  ; pwd ;ls -lart \
-&&  if [[ -f /opt/nwchem/bin/LINUX64/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
-&& ldd /opt/nwchem/bin/LINUX64/nwchem|| true  \
+&&  if [[ -f /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
+&& ldd /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem|| true  \
 && rm -rf /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
@@ -224,7 +228,7 @@ ENV         FFIELD=amber  \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
-            PATH=${PATH}:/opt/nwchem/bin/LINUX64
+            PATH=${PATH}:/opt/nwchem/bin/${NWCHEM_TARGET}
 
 
 USER        nwchem
