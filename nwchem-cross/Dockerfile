@@ -125,7 +125,7 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && if [[ "$arch" == "x86_64" ]]; then make CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} V=-1 -j3 ;\
 	    else make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)"  MAYBE_OFFLOAD="$I4I8" V=-1 -j3 ; fi \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat $(find . -name "*.log") ;  echo 'compilation error1'; exit 1; fi \
-            &&    CC=$(xx-info)-gcc-${GCC_VERSION} _CC=gcc FC=$(xx-info)-gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
+            && cd input && touch memory_def.F && make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=$(xx-info)-gcc-${GCC_VERSION} _CC=gcc FC=$(xx-info)-gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU} && cd .. && && make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=$(xx-info)-gcc-${GCC_VERSION} _CC=gcc FC=$(xx-info)-gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}   link \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat $(find . -name "*log") ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
 	    && rm -rf ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
