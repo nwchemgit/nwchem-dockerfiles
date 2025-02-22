@@ -118,7 +118,7 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && MY_FFLAG_INT="-fdefault-integer-8" \
 	    && I4I8=" --enable-i8 " \
 	    && MYCPU=${XX_MARCH} \
-	    && if [  $MYCPU == "armv7l" ]; then MYCPU="arm"; MY_FFLAG_INT="-fdefault-integer-4" ; I4I8=" --enable-i4 "; fi \
+	    && if [  $MYCPU == "armv7l" ]; then MYCPU="arm"; unset MY_FFLAG_INT ; I4I8=" --enable-i4 "; fi \
 	    && echo "MYCPU is " $MYCPU \
 	    && echo "MY_FFLAG_INT is " $MY_FFLAG_INT \
 	    && echo "I4I8 is " $I4I8 \
