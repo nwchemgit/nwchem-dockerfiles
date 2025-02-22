@@ -68,6 +68,7 @@ RUN xx-info env && \
     if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ; apt-get install -y bzip2 tar;  tar tjvf /tmp/libext.tar.bz2;  fi &&\
 arch=${XX_MARCH} ; echo " xx arch is " $arch ;if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "riscv64" ]] || [[ "$arch" == "ppc64le" ]]|| [[ "$arch" == "s390x" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi && \
 arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
+echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo ' defining modules according to CACHE_HIT=' "$CACHE_HIT" && \
      if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft solvation driver stepper"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="all"  ; fi &&\
@@ -160,6 +161,7 @@ COPY run_qas.sh /tmp/.
 	      
 RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
+            &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} ; echo "GCC_VERSION is " ${GCC_VERSION}\
              && apt-get update \
              && apt-get -q=2   install -y make  gfortran-${GCC_VERSION} python3-dev libssl-dev bzip2 tar\
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils  libgfortran5  libgomp1 libgcc-s1 \
@@ -177,7 +179,6 @@ RUN           groupadd -r nwchem -g 1994 \
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _CPU=${MYCPU}    V=1 -j3;\
             cd .. ;\
             CC=gcc  FC=gfortran-${GCC_VERSION}  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
-            &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
 	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec \
 	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpirun \
 	     && file /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
