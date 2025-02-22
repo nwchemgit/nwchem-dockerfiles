@@ -174,6 +174,9 @@ RUN           groupadd -r nwchem -g 1994 \
 	     MYCPU=$(uname -m) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
 	    cd /opt/nwchem/src ;\
+	    rm ../bin/${NWCHEM_TARGET}/depend.x ;\
+	    gcc-${GCC_VERSION} -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend\
+.c ;\
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}    V=1 -j3;\
