@@ -155,7 +155,7 @@ ARG         NWCHEM_MODULES="all  "  \
 RUN mkdir -p /opt
 
 COPY --from=build /opt/nwchem /opt/nwchem
-COPY --from=build /tmfile /tmpfile
+COPY --from=build /tmpfile /tmpfile
 COPY run_qas.sh /tmp/.
 	      
 RUN           groupadd -r nwchem -g 1994 \
