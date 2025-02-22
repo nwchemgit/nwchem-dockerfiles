@@ -218,10 +218,11 @@ RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-ut
 &&           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
 &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
-&&  ls -lart /tmp \
 && cd / ; tar xJf /tmp/nwchem.tar.xz  ; pwd ;ls -lart \
-&&  if [[ -f /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
-&& ldd /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem|| true  \
+&& ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem /opt/nwchem/bin/nwchem \
+&&  ls -lart /tmp \
+&&  if [[ -f /opt/nwchem/bin/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
+&& ldd /opt/nwchem/bin/nwchem|| true  \
 && rm -rf /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
@@ -235,7 +236,8 @@ ENV         FFIELD=amber  \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
-            PATH=${PATH}:/opt/nwchem/bin/${NWCHEM_TARGET}
+	    NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
+            PATH=${PATH}:/opt/nwchem/bin/
 
 
 USER        nwchem
