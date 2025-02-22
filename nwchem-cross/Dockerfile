@@ -124,7 +124,7 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && echo "I4I8 is " $I4I8 \
             && make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}   _CPU=${MYCPU}  nwchem_config  \
 	    && if [[ "$arch" == "x86_64" ]]; then make CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} V=-1 -j3 ;\
-	    else make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)"  MAYBE_OFFLOAD="$I4I8" V=-1 -j3 ; fi \
+	    else make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)"  MAYBE_OFFLOAD="$I4I8" V=-1 -j3 || { echo 'Compilation Failure'; cat $(find tools -name config.log) ;exit 1; } ; fi \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat $(find . -name "*.log") ;  echo 'compilation error1'; exit 1; fi \
 	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat $(find . -name "*log") ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
