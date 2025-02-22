@@ -75,7 +75,7 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
              xx-apt  install -y  g++ gfortran libssl-dev \
-             && apt-get -q=2 install -y --no-install-recommends rsync  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config python3-dev openssh-client python-is-python3 \
+             && apt-get -q=2 install -y --no-install-recommends rsync  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config python3 python3-dev openssh-client python-is-python3 \
 	    && break; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
 	    && echo FCFCFC is ${FC} \
@@ -162,7 +162,7 @@ RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
             &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} ; echo "GCC_VERSION is " ${GCC_VERSION}\
              && apt-get update \
-             && apt-get -q=2   install -y make  gfortran-${GCC_VERSION} python3-dev libssl-dev bzip2 tar\
+             && apt-get -q=2   install -y make  gfortran-${GCC_VERSION} python3 python3-dev libssl-dev bzip2 tar\
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils  libgfortran5  libgomp1 libgcc-s1 \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
