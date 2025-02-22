@@ -174,11 +174,11 @@ RUN           groupadd -r nwchem -g 1994 \
 	     MYCPU=$(uname -m) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
 	    cd /opt/nwchem/src ;\
-            make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _CPU=${MYCPU}   nwchem_config ;\
+            make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
-            make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _CPU=${MYCPU}    V=1 -j3;\
+            make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}    V=1 -j3;\
             cd .. ;\
-            CC=gcc  FC=gfortran-${GCC_VERSION}  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
+            CC=gcc  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
 	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec \
 	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpirun \
 	     && file /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
