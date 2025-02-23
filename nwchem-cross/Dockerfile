@@ -240,7 +240,7 @@ ENV         FFIELD=amber  \
             PATH=${PATH}:/opt/nwchem/bin/
 
 
-USER        nwchem
+#USER        nwchem
 
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]
