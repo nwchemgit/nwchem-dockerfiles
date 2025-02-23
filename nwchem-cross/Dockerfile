@@ -105,7 +105,7 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && if [[ "$arch" == "s390x" ]]; then export FORCETARGET=" TARGET=ZARCH_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
             && echo 'FORCETARGET is ' $FORCETARGET \
-	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  fi  \
+	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  echo 'unset BUILD_SCALAPACK' >> /tmpfile; echo 'export BLAS_SIZE=4' >> /tmpfile; fi  \
 # smaller build on qemu emulated archs
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
