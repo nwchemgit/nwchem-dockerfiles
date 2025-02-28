@@ -15,18 +15,23 @@ jobs:
             - nwchem-dev.mpipr.nersc_podman.mpich4
           branch: [ master, hotfix/release-7-2-0]
           openmp: [ Y, N]
+          mpich:
+            - 4.0.2
+            - 3.4.2
           fc: [ gfortran]
           armci_network: [ MPI-PR ] 
           include:
             - folder: nwchem-dev.mpipr.nersc_podman.mpich4
               armci_network: MPI-PR
+              mpich: 4.0.2
               openmp: N
               branch: master
               fc: nvfortran
             - folder: nwchem-dev.mpipr.nersc_podman.mpich4
               armci_network: MPI-PR
+              mpich: 4.0.2
               openmp: N
-              branch: release-7-2-0
+              branch: hotfix/release-7-2-0
               fc: nvfortran
     runs-on: ubuntu-latest
     steps:
@@ -40,9 +45,16 @@ jobs:
           else 
             echo "fc=$(echo .${{matrix.fc }}  )"   >> $GITHUB_ENV
           fi
+      - name:  folder_mod
+        run: |
+          if [[ ${{ matrix.mpich }} != '4.0.2' ]]; then
+          echo "folder_mod=${{ matrix.folder }}-${{ matrix.mpich }}" >> $GITHUB_ENV
+          else
+          echo "folder_mod=${{ matrix.folder }}" >> $GITHUB_ENV
+          fi
       - name:  cache key
         run: |
-          echo "cache_key=${{ matrix.folder }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
+          echo "cache_key=${{ env.folder_mod }}-${{ matrix.branch }}${{ env.fc }}-cache-v005" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v4
@@ -81,6 +93,9 @@ jobs:
           mkdir -p cache|| true ; \
           rsync -av ~/cache/mpich* cache/. ; \
           echo "mpich cache fetched" ; \
+          if [[ -f ~/cache/ubuntu_jammy.tar.gz ]]; then \
+          cp ~/cache/ubuntu_jammy.tar.gz cache/. ; \
+          fi
           ls -l cache/ ; \
           echo "======" ; \
           fi
@@ -101,11 +116,11 @@ jobs:
       - name: nwchem version tag
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }}| sed -e 's|.mpipr||')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ env.folder_mod }}| sed -e 's|.mpipr||')" >> $GITHUB_ENV
           elif [[ ${{ matrix.branch }} ==  hotfix/release-7-2-0 ]]; then
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|720|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ env.folder_mod }} | sed -e 's|.mpipr||' | sed -e 's|dev|720|')" >> $GITHUB_ENV
           else
-            echo "longnwversion=$(echo ${{ matrix.folder }} | sed -e 's|.mpipr||' | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
+            echo "longnwversion=$(echo ${{ env.folder_mod }} | sed -e 's|.mpipr||' | sed -e 's|dev|${{ matrix.branch }}|')" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag
@@ -122,6 +137,15 @@ jobs:
           sudo apt-get install -y  podman
           which podman
           podman version
+      - name: create bootstrap from docker
+        run: |
+          mkdir -p ${{ matrix.folder }}/cache
+          if [  -f ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ]; then echo "img found" ; \
+             podman load< ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ; \
+          else
+             podman pull docker.io/library/ubuntu:jammy ; \
+             podman save docker.io/library/ubuntu:jammy | gzip > ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz
+          fi
       - name: build podman
         run: |
           cd ${{ matrix.folder }}
@@ -130,6 +154,7 @@ jobs:
            --build-arg USE_OPENMP_VALUE=${{ matrix.openmp }} \
            --build-arg NWCHEM_BRANCH=${{ matrix.branch}} \
            --build-arg ARMCI_NETWORK=${{ matrix.armci_network}} \
+           --build-arg MPICH=${{ matrix.mpich}} \
            --build-arg CACHE_HIT=${{ env.cache_hit }} \
            --build-arg GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }} \
            --build-arg CUDA_VERSION_MAJOR=11  \
@@ -182,4 +207,5 @@ jobs:
             --entrypoint='/bin/cp' -v ~/cache:/data \
             ${{ env.tag }} \
             -rp /usr/local/mpich.tar.bz2 /data/.  || true
+            cp ${{ matrix.folder }}/cache/ubuntu_jammy.tar.gz ~/cache/.
             ls -Ralrt ~/cache || true

@@ -9,213 +9,10 @@ on:
   repository_dispatch:
     types: [backend_automation]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
-  changes:
-    if: |
-      !contains(github.event.head_commit.message, 'ci skip') && (github.event_name != 'workflow_dispatch') && (github.event_name != 'schedule')
-    runs-on: ubuntu-22.04
-    outputs:
-      # Expose matched filters as job 'folders' output variable
-      folders: ${{ steps.filter.outputs.changes }}
-      change: ${{ steps.env_change.outputs.change }}
-    steps:
-    - uses: actions/checkout@v4
-    - name: choose_dockerfile_filter
-      uses: dorny/paths-filter@v3
-      id: filter
-      with:
-        base: ${{ github.ref }}
-        filters: |
-          nwchem-dev: 'nwchem-dev/*'
-          builddebs.buster: 'builddebs.buster/*'
-    - name: Echo change to env
-      id: env_change
-      run: |
-        echo " steps.filter.outputs.changes " ${{ steps.filter.outputs.changes }}
-        if [[ ${{ steps.filter.outputs.changes }} == '[]' ]]; then
-          echo "no change detected"
-          echo "change=no" >> $GITHUB_OUTPUT
-        else
-          echo "change detected"
-          echo "change=yes" >> $GITHUB_OUTPUT
-        fi
-    - name: echo_change
-      run: |
-        echo " env change is" `cat $GITHUB_OUTPUT `
-        echo " steps.env_change.outputs.change is  ${{ steps.env_change.outputs.change }}"
-  docker_filter:
-    needs: [changes]
-    if: ( needs.changes.outputs.change == 'yes')
-    strategy:
-        fail-fast: false
-        matrix:
-          folder: ["${{ fromJSON(needs.changes.outputs.folders) }}"]
-          archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
-          fc: [ gfortran, nvfortran]
-          branch: [ master, release-7-2-0]
-          exclude:
-            - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
-            - {folder: nwchem-dev, archs: linux/arm/v7, fc: nvfortran}
-    runs-on: ubuntu-latest
-    timeout-minutes: 420
-    outputs:
-      tag: ${{ steps.env_tag.outputs.tag }}
-      tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup cache
-        id: setup-cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v018
-      - name: Qemu
-        uses: docker/setup-qemu-action@v3
-        with:
-          image: tonistiigi/binfmt:qemu-v6.0.0-10
-          platforms: ${{ matrix.archs }}
-      - name: Available platforms
-        run: echo ${{ steps.qemu.outputs.platforms }}
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: |
-              image=moby/buildkit:v0.11.6
-              network=host
-          buildkitd-flags: --debug
-      - name: Login to GitHub Container Registry
-        if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get Arch
-        id: get-arch
-        run: |
-          echo "arch=$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )" >> $GITHUB_ENV
-        shell: bash
-      - name: FC tag
-        id: fc-tag
-        run: |
-          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
-            echo "fc=" >> $GITHUB_ENV
-          else 
-            echo "fc=$(echo -${{matrix.fc }}  )"  >> $GITHUB_ENV
-          fi
-        shell: bash
-      - name: fetch cache
-        if: (steps.setup-cache.outputs.cache-hit == 'true')
-        run: |
-          cd ${{ matrix.folder }}
-          ls -lrta
-          if [[ -f ~/cache/libext.tar.bz2 ]]; then \
-          echo "libext cache present" ; \
-          mkdir -p cache|| true ; \
-          rsync -av ~/cache/libext* cache/. ; \
-          echo "libext cache fetched" ; \
-          if [[ -f ~/cache/simint.tar.bz2 ]]; then \
-          echo "simint cache present" ; \
-          mkdir -p cache|| true ; \
-          rsync -av ~/cache/simint* cache/. ; \
-          echo "simint cache fetched" ; \
-          fi
-          ls -l cache/ ; \
-          echo "======" ; \
-          fi
-          echo "cache_hit=Y" >> $GITHUB_ENV
-      - name: negative-cache-hit-reporter
-        if: (steps.setup-cache.outputs.cache-hit != 'true')
-        run: |
-          echo "cache_hit=N" >> $GITHUB_ENV
-      - name: nwchem version tag
-        run: |
-          if [[ ${{ matrix.branch }} ==  master ]]; then
-            echo "nwversion=dev" >> $GITHUB_ENV
-          elif [[ ${{ matrix.branch }} ==  release-7-2-0 ]]; then
-            echo "nwversion=720" >> $GITHUB_ENV
-          else
-            echo "nwversion=unknown" >> $GITHUB_ENV
-          fi
-        shell: bash
-      - name: docker tag noarch
-        run: |
-          echo "tag_noarch=ghcr.io/${{ github.actor }}/nwchem-${{ env.nwversion }}${{ env.fc }}" >> $GITHUB_ENV
-        shell: bash
-      - name: docker tag
-        run: |
-          echo "tag=${{ env.tag_noarch }}:${{ env.arch }}" >> $GITHUB_ENV
-        shell: bash
-      - name: echo docker tag to env
-        id: env_tag
-        run:
-          echo "tag=${{ env.tag }}" >> $GITHUB_OUTPUT
-      - name: echo docker tag_noarch to env
-        id: env_tag_noarch
-        run:
-          echo "tag_noarch=${{ env.tag_noarch }}" >> $GITHUB_OUTPUT
-      - name: build date
-        id: build-date
-        run: |
-          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >>  $GITHUB_ENV
-      - name: build_filter
-        uses: docker/build-push-action@v6
-        with:
-          push: ${{ github.actor == github.repository_owner }}
-          provenance: false
-          context: ${{ matrix.folder }}
-          shm-size: 256m
-          platforms: ${{ matrix.archs }}
-          tags: |
-            ${{ env.tag }}
-            ${{ env.tag }}-${{ env.date }}
-          build-args: |
-            FC=${{ matrix.fc }}
-            NWCHEM_BRANCH=${{ matrix.branch }}
-            CACHE_HIT=${{ env.cache_hit }}
-            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
-      - name: load and test image
-        if:  ( github.actor == github.repository_owner )
-        run: |
-          sleep 30s
-          docker pull ${{ env.tag }}
-          cd /tmp
-          umask u=rwx,g=rwx,o=rwx
-          umask -S
-          git clone --no-checkout https://github.com/nwchemgit/nwchem
-          cd nwchem
-          git sparse-checkout init --cone
-          git sparse-checkout set QA
-          git checkout
-          cd QA
-          if [[ ${{ matrix.archs }} != 'linux/arm/v7' && ${{ matrix.fc }} != 'nvfortran' ]]; then \
-          docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
-          -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -w /opt/nwchem/QA -v `pwd`:/opt/nwchem/QA \
-          ${{ env.tag }} \
-          dft_he2+ ;\
-          fi
-      - name: store cache
-        if:  ( github.actor == github.repository_owner )
-        run: |
-            mkdir -p ~/cache/
-            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ env.tag }} \
-            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
-            ls -Ralrt ~/cache || true
-  bundle_images1:
-    needs: [changes, docker_filter]
-    uses: ./.github/workflows/docker_manifest.yml
-    secrets: 
-      inherit
-
   docker_schedule:
-    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
     strategy:
         fail-fast: false
         matrix:
@@ -223,7 +20,7 @@ jobs:
             - nwchem-dev
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
-          branch: [ master, release-7-2-0]
+          branch: [ master, hotfix/release-7-2-0]
           exclude:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
@@ -247,7 +44,7 @@ jobs:
         id: qemu
         uses: docker/setup-qemu-action@v3
         with:
-          image: tonistiigi/binfmt:qemu-v6.0.0-10
+          image: tonistiigi/binfmt:qemu-v8.1.5
           platforms: ${{ matrix.archs }}
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
@@ -255,7 +52,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: |
-              image=moby/buildkit:v0.11.6
+              image=moby/buildkit:v0.18.2
               network=host
           buildkitd-flags: --debug
       - name: Login to GitHub Container Registry

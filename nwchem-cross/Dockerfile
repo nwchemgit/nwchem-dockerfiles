@@ -1,8 +1,8 @@
-
+ARG         UBUNTU_TAG
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
 
-FROM --platform=$BUILDPLATFORM ubuntu:jammy AS build
+FROM --platform=$BUILDPLATFORM $UBUNTU_TAG AS build
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description="NWChem image built from the master branch"
@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.source "https://github.com/nwchemgit/nwchem"
 LABEL org.opencontainers.image.documentation="https://nwchemgit.github.io/Containers.html"
 
 
-#caching from host cache dir
+#caching from
 COPY Dockerfile cache* /tmp/
 
 ARG TARGETPLATFORM
@@ -45,28 +45,38 @@ RUN uname -a
 COPY --from=xx / /
 # export TARGETPLATFORM (or other TARGET*)
 ARG TARGETPLATFORM
-COPY build_scalapa.sh /tmp/.
-COPY build_openblas.sh /tmp/.
-COPY build_mpich.sh /tmp/.
 COPY cross.txt /tmp/.
+COPY cross32.txt /tmp/.
 # you can now call xx-* commands
 RUN xx-info env && \
     env|grep PLATF && \
-    xx-apt -q=2 install -y libc6-dev  binutils gcc gfortran  &&\
-    apt-get -q=2 install -y make file gcc && \
-    $(xx-info)-gcc -v && \
+    GCC_VERSION=14 &&\
+    XX_MARCH=$(xx-info march) &&\
+    apt-get update && \
+    if [[ "$XX_MARCH" == "x86_64" ]]; then GCC_VERSION=15 ; \
+    apt-get install -y software-properties-common ; \
+    add-apt-repository -y ppa:ubuntu-toolchain-r/test ; fi && \
+    if [[ "$XX_MARCH" == "armv7l" ]]; then GCC_VERSION=12 ;  fi && \
+    xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
+    apt-get -q=2 install -y make file gcc-${GCC_VERSION} && \
+    set -x && \
+    echo XX_MARCH $(xx-info march) &&\
+	     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 100 && \
+	     ls -lrt /usr/bin/gcc* && \
+	     ls -lrt /usr/bin/*gcc* && \
+    $(xx-info)-gcc-${GCC_VERSION} -v && \
     ls -lrta /tmp && \
     if [[ -f /tmp/libext.tar.bz2 ]]; then echo "analyzing libext" ; apt-get install -y bzip2 tar;  tar tjvf /tmp/libext.tar.bz2;  fi &&\
-XX_MARCH=$(xx-info march) &&\
 arch=${XX_MARCH} ; echo " xx arch is " $arch ;if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "riscv64" ]] || [[ "$arch" == "ppc64le" ]]|| [[ "$arch" == "s390x" ]]; then echo "export NWCHEM_TARGET=LINUX64" > /tmpfile ; fi && \
 arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i386" ]] || [[ "$arch_123" == "arm" ]] ; then echo "export NWCHEM_TARGET=LINUX" > /tmpfile ; fi  &&\
+echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo ' defining modules according to CACHE_HIT=' "$CACHE_HIT" && \
      if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft solvation driver stepper"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="all"  ; fi &&\
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
              xx-apt  install -y  g++ gfortran libssl-dev \
-             && apt-get -q=2 install -y --no-install-recommends rsync  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config python3-dev openssh-client python-is-python3 \
+             && apt-get -q=2 install -y --no-install-recommends rsync  make curl unzip cmake git file wget tar bzip2 bc ca-certificates patch pkg-config python3 python3-dev openssh-client python-is-python3 \
 	    && break; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done \
 	    && echo FCFCFC is ${FC} \
@@ -88,11 +98,6 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 #fix openblas cross-compilation
             && arch=$XX_MARCH \
 	    && echo 'openblas arch is ' $arch \
-	    && if [[ "$NWCHEM_BRANCH" != "master" ]]; then \
-	    cp /tmp/build_openblas.sh /opt/nwchem/src/libext/openblas/. ;\
-	    cp /tmp/build_mpich.sh /opt/nwchem/src/libext/mpich/. ;\
-	    cp /tmp/cross.txt /opt/nwchem/src/libext/mpich/. ;\
-            cp /tmp/build_scalapa.sh /opt/nwchem/src/libext/scalapack/. ; fi \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
@@ -100,7 +105,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    && if [[ "$arch" == "s390x" ]]; then export FORCETARGET=" TARGET=ZARCH_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
             && echo 'FORCETARGET is ' $FORCETARGET \
-	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  fi  \
+	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  echo 'unset BUILD_SCALAPACK' >> /tmpfile; echo 'export BLAS_SIZE=4' >> /tmpfile; fi  \
 # smaller build on qemu emulated archs
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
@@ -109,19 +114,19 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
-            && gcc -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend.c \
+            && gcc-${GCC_VERSION} -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend.c \
 	    && MY_FFLAG_INT="-fdefault-integer-8" \
 	    && I4I8=" --enable-i8 " \
 	    && MYCPU=${XX_MARCH} \
-	    && if [  $MYCPU == "armv7l" ]; then MYCPU="arm"; MY_FFLAG_INT="-fdefault-integer-4" ; I4I8=" --enable-i4 "; fi \
+	    && if [  $MYCPU == "armv7l" ]; then MYCPU="arm"; unset MY_FFLAG_INT ; I4I8=" --enable-i4 "; fi \
 	    && echo "MYCPU is " $MYCPU \
 	    && echo "MY_FFLAG_INT is " $MY_FFLAG_INT \
 	    && echo "I4I8 is " $I4I8 \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran   _CPU=${MYCPU}  nwchem_config  \
-            && make DEPEND_CC=gcc CC=$(xx-info)-gcc  FC=$(xx-info)-gfortran  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple)"  MAYBE_OFFLOAD="$I4I8" V=-1 \
-	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat tools/build/config.log ;  echo 'compilation error1'; exit 1; fi \
-            &&    CC=$(xx-info)-gcc _CC=gcc FC=$(xx-info)-gfortran _FC=gfortran _CPU=${MYCPU} ../contrib/getmem.nwchem 1000  || true \
-	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat tools/build/config.log ;  echo 'compilation error2'; exit 1; fi \
+            && make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}   _CPU=${MYCPU}  nwchem_config  \
+	    && if [[ "$arch" == "x86_64" ]]; then make CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} V=-1 -j3 ;\
+	    else make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple) --build=x86_64-linux-gnu "  MAYBE_OFFLOAD="$I4I8" V=-1 -j3 || { echo 'Compilation Failure'; cat $(find tools -name config.log) ;exit 1; } ; fi \
+	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else  cat $(find . -name "*.log") ;  echo 'compilation error1'; exit 1; fi \
+	    &&  if [[ -f ../bin/${NWCHEM_TARGET}/nwchem ]]; then echo 'NWChem binary created' ; else cat $(find . -name "*log") ;  echo 'compilation error2'; exit 1; fi \
 #clean unnecessary source to reduce docker size
 	    && rm -rf ../QA/chem_library_tests ../QA/amber-tests ../QA/Nightly_Jobscripts  \
 	    && cd libext ; tar cjvf /opt/nwchem/src/libext/libext.tar.bz2 bin/* lib/* include/*  libxc/install/lib/* libxc/install/include/* ||true \
@@ -129,7 +134,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 	    && cd /opt/nwchem/src \
 	    && cd $NWCHEM_TOP/src || { echo "Failure"; exit 1; } 
 
-FROM ubuntu:jammy AS relink
+FROM $UBUNTU_TAG AS relink
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -151,13 +156,15 @@ ARG         NWCHEM_MODULES="all  "  \
 RUN mkdir -p /opt
 
 COPY --from=build /opt/nwchem /opt/nwchem
+COPY --from=build /tmpfile /tmpfile
 COPY run_qas.sh /tmp/.
 	      
 RUN           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
+            &&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} ; echo "GCC_VERSION is " ${GCC_VERSION}\
              && apt-get update \
-             && apt-get -q=2   install -y make  gfortran python3-dev libssl-dev bzip2 tar\
-             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils \
+             && apt-get -q=2   install -y make  gfortran-${GCC_VERSION} python3 python3-dev libssl-dev bzip2 tar\
+             && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils  libgfortran5  libgomp1 libgcc-s1 \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
@@ -167,20 +174,24 @@ RUN           groupadd -r nwchem -g 1994 \
 	     MYCPU=$(uname -m) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
 	    cd /opt/nwchem/src ;\
-            make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
+	    rm ../bin/${NWCHEM_TARGET}/depend.x ;\
+	    gcc-${GCC_VERSION} -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend\
+.c ;\
+            make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
-            make DEPEND_CC=gcc CC=gcc  FC=gfortran _CPU=${MYCPU}    V=1 ;\
+            make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}    V=1 -j3;\
             cd .. ;\
-            CC=gcc  FC=gfortran  _CPU=${MYCPU} ../contrib/getmem.nwchem 1000 ; fi \
-	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/LINUX64/mpiexec \
-	     && ln -sf /opt/nwchem/bin/LINUX64/mpiexec /opt/nwchem/bin/LINUX64/mpirun \
-	     && file /opt/nwchem/bin/LINUX64/nwchem \
+	    if [[ ${NWCHEM_TARGET} == "LINUX64" ]]; then cd input ; touch memory_def.F ;\
+	    make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran  ; cd .. ;fi ; \
+	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
+	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec \
+	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpirun \
+	     && file /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && uname -a \
-	     && ldd /opt/nwchem/bin/LINUX64/nwchem \
-  	     && strip /opt/nwchem/bin/LINUX64/nwchem \
+	     && ldd /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cd /opt/nwchem/ \
 	     && export SKIP_CACHE=1  \
-	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/LINUX64/nwchem \
+	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
 	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh  \
              && cp -rp QA/tests/dft_he2+ /tmp/. \
@@ -196,19 +207,22 @@ tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/ba
 && ls -lrt /tmp/nwchem.tar.xz
 
 	     
-FROM ubuntu:jammy AS push
+FROM $UBUNTU_TAG AS push
 ARG CACHE_HIT
 COPY --from=relink /tmp/nwchem.tar.xz /tmp/nwchem.tar.xz
+COPY --from=relink /tmpfile /tmpfile
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-utils  \
-	     libgfortran5 libpython3.10  libgomp1 libgcc-s1 \
+	     libgfortran5 libpython3.*  libgomp1 libgcc-s1 \
 &&           groupadd -r nwchem -g 1994 \
               && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -M -d /opt/nwchem -s /bin/bash nwchem \
-&&  ls -lart /tmp \
+&&  . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET} \
 && cd / ; tar xJf /tmp/nwchem.tar.xz  ; pwd ;ls -lart \
-&&  if [[ -f /opt/nwchem/bin/LINUX64/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
-&& ldd /opt/nwchem/bin/LINUX64/nwchem|| true  \
+&& ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem /opt/nwchem/bin/nwchem \
+&&  ls -lart /tmp \
+&&  if [[ -f /opt/nwchem/bin/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
+&& ldd /opt/nwchem/bin/nwchem|| true  \
 && rm -rf /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
@@ -222,10 +236,11 @@ ENV         FFIELD=amber  \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
-            PATH=${PATH}:/opt/nwchem/bin/LINUX64
+	    NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
+            PATH=${PATH}:/opt/nwchem/bin/
 
 
-USER        nwchem
+#USER        nwchem
 
 WORKDIR     /data
 ENTRYPOINT  ["nwchem"]

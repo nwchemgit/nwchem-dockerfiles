@@ -112,7 +112,7 @@ fi
  else
 # check if dft is among modules
      if [[ ! $(grep -i dft $TRAVIS_BUILD_DIR/src/stubs.F| awk '/dft_input/') ]]; then
-	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2+
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2+ || { echo 'dft_he2+ QA failure'; cat $(find $TRAVIS_BUILD_DIR/QA/testoutputs/ -name df_he2+.out ) ;exit 1; }
 	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs bas_details
 	 cd $TRAVIS_BUILD_DIR/QA && NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries.bse/ ./runtests.mpi.unix procs $nprocs adft_he2+
 	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co

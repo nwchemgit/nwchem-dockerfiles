@@ -1,0 +1,91 @@
+diff --git a/src/ccsd/ccsd_itm.F b/src/ccsd/ccsd_itm.F
+index 994a0ca17a..b447cc8062 100644
+--- a/src/ccsd/ccsd_itm.F
++++ b/src/ccsd/ccsd_itm.F
+@@ -1,4 +1,4 @@
+-#ifdef CRAYXT
++#ifdef ACC_STRIPS
+ c#warning undeffing nxtval
+ #undef NXT
+ #endif      
+diff --git a/src/ccsd/ccsd_pampt3.F b/src/ccsd/ccsd_pampt3.F
+index f8151c3d95..7cf106e01c 100644
+--- a/src/ccsd/ccsd_pampt3.F
++++ b/src/ccsd/ccsd_pampt3.F
+@@ -361,7 +361,7 @@ c
+ #include "ccsd_data.fh"
+ #define NBGET 1
+ c
+-#ifdef CRAYXT
++#ifdef ACC_STRIPS
+ c#warning undefining NBGET
+ #undef NBGET
+ #endif
+diff --git a/src/ccsd/ccsd_trpmo.F b/src/ccsd/ccsd_trpmo.F
+index a6ee9cf8a5..3c1b039ed3 100644
+--- a/src/ccsd/ccsd_trpmo.F
++++ b/src/ccsd/ccsd_trpmo.F
+@@ -19,7 +19,7 @@ c
+ c
+       iam = ga_nodeid()
+       call ga_sync
+-#ifdef CRAYXT
++#ifdef ACC_STRIPS
+       call util_mpinap(100)
+ #endif
+ c
+diff --git a/src/moints/moints_2x.F b/src/moints/moints_2x.F
+index c6cbb9c039..4c9f943cac 100644
+--- a/src/moints/moints_2x.F
++++ b/src/moints/moints_2x.F
+@@ -159,7 +159,7 @@ c
+        status = status.and.ma_push_get(MT_DBL,(nbf*nmo),
+      $                                 'movecs cols',l_mo,k_mo)
+        call ga_sync()
+-#ifdef CRAYXT
++#ifdef ACC_STRIPS
+        if(ga_nodeid().eq.0)
+      G      call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_mo), nbf)
+        call ga_brdcst(65537, dbl_mb(k_mo), 
+@@ -236,7 +236,7 @@ c
+        if (ocoul) call ga_zero(g_coul)
+        ploop = 0
+        thalf = util_cpusec()
+-#ifdef CRAYXT
++#ifdef ACC_STRIPS
+ cedo
+ c     skip if we do not own any patch of g_exch to avoid slowdowns
+ c     
+@@ -288,7 +288,7 @@ c
+               odoit = sym_shell_pair(basis, ish, jsh, q2)
+            endif
+            if (odoit) then
+-#ifdef CRAYXT
++#ifdef ACC_STRIPS
+              if (mod(ploop,nodesloop).eq.ga_nodeid()) then
+ #else
+              if (next.eq.ploop) then
+@@ -384,7 +384,7 @@ c
+      $                                  g_exch )
+                  t3kidx = t3kidx + util_cpusec() - tz
+                endif
+-#ifndef CRAYXT
++#ifndef ACC_STRIPS
+                next = moints_nxttask(num_nodes)
+ #endif
+                ttask = util_cpusec() - ttask
+@@ -396,12 +396,12 @@ c
+            endif
+          enddo
+        enddo
+-#ifdef CRAYXT
++#ifdef ACC_STRIPS
+        endif!doloop
+ #endif
+        tsynch = util_cpusec()
+        call ga_sync()
+-#ifndef CRAYXT
++#ifndef ACC_STRIPS
+        next = moints_nxttask(-num_nodes)
+ #endif
+        tsynch = util_cpusec() - tsynch

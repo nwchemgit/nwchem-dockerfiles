@@ -13,6 +13,8 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
+          ubuntu_tag:
+            - ubuntu:plucky
           folder:
             - nwchem-cross
           archs:
@@ -21,16 +23,18 @@ jobs:
             - linux/ppc64le
             - linux/riscv64
             - linux/s390x
+            - linux/arm/v7
           fc: [ gfortran]
           branch:
             - master
-            - hotfix/release-7-2-0
     runs-on: ubuntu-latest
     timeout-minutes: 420
     outputs:
       tag: ${{ steps.env_tag.outputs.tag }}
       tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
+      - name: pkg cleanup
+        uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup cache
@@ -41,18 +45,20 @@ jobs:
             ~/cache
           key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercross-v001
       - name: Qemu
+        if: ${{ matrix.archs != 'linux/amd64' }}
         id: qemu
         uses: docker/setup-qemu-action@v3
         with:
-          image: tonistiigi/binfmt:latest
+          image: tonistiigi/binfmt:qemu-v8.1.5
           platforms: ${{ matrix.archs }}
       - name: Available platforms
+        if: ${{ matrix.archs != 'linux/amd64' }}
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           driver-opts: |
-              image=moby/buildkit:v0.11.6
+              image=moby/buildkit:v0.18.2
               network=host
           buildkitd-flags: --debug
       - name: Login to GitHub Container Registry
@@ -159,6 +165,7 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            UBUNTU_TAG=${{ matrix.ubuntu_tag }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
