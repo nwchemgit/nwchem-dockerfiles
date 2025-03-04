@@ -24,11 +24,11 @@ jobs:
           fc: [ gfortran]
           branch:
             - master
-          armci-network:
+          armci_network:
             - MPI-PT
           include:
-            - {archs: linux/arm64, fc: gfortran, branch: master, armci-network: MPI-PR}
-            - {archs: linux/arm64, fc: gfortran, branch: master, armci-network: MPI-TS}
+            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR}
+            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
