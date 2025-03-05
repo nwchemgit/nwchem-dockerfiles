@@ -129,7 +129,7 @@ jobs:
         shell: bash
       - name: docker tag noarch
         run: |
-          echo "tag_noarch=ghcr.io/${{ github.actor }}/nwchemcross-${{ env.nwversion }}$${{ env.armci_network }}${{ env.fc }}" >> $GITHUB_ENV
+          echo "tag_noarch=ghcr.io/${{ github.actor }}/nwchemcross-${{ env.nwversion }}${{ env.armci_network }}${{ env.fc }}" >> $GITHUB_ENV
         shell: bash
       - name: docker tag
         run: |
