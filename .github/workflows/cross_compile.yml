@@ -192,12 +192,13 @@ jobs:
           git sparse-checkout set QA
           git checkout
           cd QA
+          export MPIRUN_PATH=/opt/nwchem/bin/mpiexec
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           --user 0 --privileged \
           -w /opt/nwchem/QA \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
           --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} \
+          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} procs 2 \
           dft_he2+ h2o_dk cosmo_h3co 
 
       - name: store cache
