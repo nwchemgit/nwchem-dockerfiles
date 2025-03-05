@@ -193,13 +193,18 @@ jobs:
           git checkout
           cd QA
           export MPIRUN_PATH=/opt/nwchem/bin/mpiexec
+          export NPROCS=1
+          if [[ ${{ matrix.armci_network } == 'MPI-PR' ]]; then
+            export NPROCS=2
+          fi
+          echo "NPROCS is" $NPROCS
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           --user 0 --privileged \
           -w /opt/nwchem/QA \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
           -e MPIRUN_PATH=/opt/nwchem/bin/mpiexec \
           --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} procs 2 \
+          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} procs $NPROCS \
           dft_he2+ h2o_dk cosmo_h3co 
 
       - name: store cache
