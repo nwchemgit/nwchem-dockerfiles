@@ -186,6 +186,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
 	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec \
 	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpirun \
+	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/mpiexec \
 	     && file /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && uname -a \
 	     && ldd /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
