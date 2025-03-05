@@ -12,8 +12,6 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          ubuntu_tag:
-            - ubuntu:plucky
           archs:
             - linux/amd64
             - linux/arm64
@@ -35,7 +33,9 @@ jobs:
       - name: set folder name
         run: |
           echo "folder=nwchem-cross" >> $GITHUB_ENV
-        shell: bash
+      - name: set ubuntu tag
+        run: |
+          echo "ubuntu_tag=ubuntu:plucky" >> $GITHUB_ENV
       - name: pkg cleanup
         uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout
@@ -176,7 +176,7 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
-            UBUNTU_TAG=${{ matrix.ubuntu_tag }}
+            UBUNTU_TAG=${{ env.ubuntu_tag }}
             ARMCI_NETWORK=${{ matrix.armci_network }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
