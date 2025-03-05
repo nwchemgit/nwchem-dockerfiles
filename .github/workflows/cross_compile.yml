@@ -197,6 +197,7 @@ jobs:
           --user 0 --privileged \
           -w /opt/nwchem/QA \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
+          -e MPIRUN_PATH=/opt/nwchem/bin/mpiexec \
           --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
           -v `pwd`:/opt/nwchem/QA ${{ env.tag }} procs 2 \
           dft_he2+ h2o_dk cosmo_h3co 
