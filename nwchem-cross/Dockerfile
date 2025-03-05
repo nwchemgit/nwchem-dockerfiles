@@ -184,9 +184,9 @@ RUN           groupadd -r nwchem -g 1994 \
 	    if [[ ${NWCHEM_TARGET} == "LINUX64" ]]; then cd input ; touch memory_def.F ;\
 	    make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran  ; cd .. ;fi ; \
 	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
-	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec \
-	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpirun \
-	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/mpiexec \
+	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/. \
+	     && cp /opt/nwchem/src/libext/bin/hydra* /opt/nwchem/bin/.
+	     && ln -sf /opt/nwchem/bin/mpiexec /opt/nwchem/bin/mpirun \
 	     && file /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && uname -a \
 	     && ldd /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
