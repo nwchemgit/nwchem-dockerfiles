@@ -228,7 +228,7 @@ RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-ut
 && rm -rf /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
-            NWCHEM_TOP=/opt/nwchem/src \
+            NWCHEM_TOP=/opt/nwchem \
             AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
             AMBER_2=${NWCHEM_TOP}/src/data/amber_q/  \
             AMBER_3=${NWCHEM_TOP}/src/data/amber_x/  \
