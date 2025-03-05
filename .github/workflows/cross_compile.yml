@@ -194,7 +194,7 @@ jobs:
           cd QA
           export MPIRUN_PATH=/opt/nwchem/bin/mpiexec
           export NPROCS=1
-          if [[ ${{ matrix.armci_network } == 'MPI-PR' ]]; then
+          if [[ ${{ matrix.armci_network }} == 'MPI-PR' ]]; then
             export NPROCS=2
           fi
           echo "NPROCS is" $NPROCS
