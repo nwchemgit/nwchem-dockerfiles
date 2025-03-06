@@ -229,13 +229,13 @@ RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-ut
 
 ENV         FFIELD=amber  \
             NWCHEM_TOP=/opt/nwchem \
-            AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
-            AMBER_2=${NWCHEM_TOP}/src/data/amber_q/  \
-            AMBER_3=${NWCHEM_TOP}/src/data/amber_x/  \
-            AMBER_4=${NWCHEM_TOP}/src/data/amber_u/  \
-            SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst  \
-            CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/  \
-            CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
+            AMBER_1=/opt/nwchem/src/data/amber_s/  \
+            AMBER_2=/opt/nwchem/src/data/amber_q/  \
+            AMBER_3=/opt/nwchem/src/data/amber_x/  \
+            AMBER_4=/opt/nwchem/src/data/amber_u/  \
+            SPCE=/opt/nwchem/src/data/solvents/spce.rst  \
+            CHARMM_S=/opt/nwchem/src/data/charmm_s/  \
+            CHARMM_X=/opt/nwchem/src/data/charmm_x/  \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
