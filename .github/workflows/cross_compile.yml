@@ -9,14 +9,9 @@ on:
 
 jobs:
   docker_schedule:
-    if: (github.event_name == 'workflow_dispatch') || (github.event_name == 'schedule')
     strategy:
         fail-fast: false
         matrix:
-          ubuntu_tag:
-            - ubuntu:plucky
-          folder:
-            - nwchem-cross
           archs:
             - linux/amd64
             - linux/arm64
@@ -27,12 +22,20 @@ jobs:
           fc: [ gfortran]
           branch:
             - master
+          armci_network:
+            - MPI-PT
+          include:
+            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR}
+            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS}
     runs-on: ubuntu-latest
     timeout-minutes: 420
-    outputs:
-      tag: ${{ steps.env_tag.outputs.tag }}
-      tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
+      - name: set folder name
+        run: |
+          echo "folder=nwchem-cross" >> $GITHUB_ENV
+      - name: set ubuntu tag
+        run: |
+          echo "ubuntu_tag=ubuntu:plucky" >> $GITHUB_ENV
       - name: pkg cleanup
         uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout
@@ -43,7 +46,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercross-v001
+          key: ${{ env.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercross-v001
       - name: Qemu
         if: ${{ matrix.archs != 'linux/amd64' }}
         id: qemu
@@ -85,7 +88,7 @@ jobs:
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true')
         run: |
-          cd ${{ matrix.folder }}
+          cd ${{ env.folder }}
           ls -lrta
           if [[ -f ~/cache/libext.tar.bz2 ]]; then \
           echo "libext cache present" ; \
@@ -116,9 +119,17 @@ jobs:
             echo "nwversion=unknown" >> $GITHUB_ENV
           fi
         shell: bash
+      - name: armci_network tag
+        run: |
+          if [[ ${{ matrix.armci_network }} ==  MPI-PT ]]; then
+            echo "armci_network=" >> $GITHUB_ENV
+          else 
+            echo "armci_network=-$(echo ${{ matrix.armci_network }}| tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          fi
+        shell: bash
       - name: docker tag noarch
         run: |
-          echo "tag_noarch=ghcr.io/${{ github.actor }}/nwchemcross-${{ env.nwversion }}${{ env.fc }}" >> $GITHUB_ENV
+          echo "tag_noarch=ghcr.io/${{ github.actor }}/nwchemcross-${{ env.nwversion }}${{ env.armci_network }}${{ env.fc }}" >> $GITHUB_ENV
         shell: bash
       - name: docker tag
         run: |
@@ -142,7 +153,7 @@ jobs:
             echo " tag " ${{ env.tag }}
       - name: modify Dockerfile
         run: |
-            cd ${{ matrix.folder }}
+            cd ${{ env.folder }}
             ls
             if [[ ${{ matrix.archs }} ==  'linux/riscv64' ]]; then
             sed -e "s/FROM\ ubuntu\:jammy\ AS\ relink/FROM\ riscv64\/ubuntu\:jammy\ AS\ relink/"  Dockerfile > Dockerfile.new
@@ -154,7 +165,7 @@ jobs:
         with:
           push: ${{ github.actor == github.repository_owner }}
           provenance: false
-          context: ${{ matrix.folder }}
+          context: ${{ env.folder }}
           shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: |
@@ -165,7 +176,8 @@ jobs:
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
-            UBUNTU_TAG=${{ matrix.ubuntu_tag }}
+            UBUNTU_TAG=${{ env.ubuntu_tag }}
+            ARMCI_NETWORK=${{ matrix.armci_network }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
@@ -180,12 +192,19 @@ jobs:
           git sparse-checkout set QA
           git checkout
           cd QA
+          export MPIRUN_PATH=/opt/nwchem/bin/mpiexec
+          export NPROCS=1
+          if [[ ${{ matrix.armci_network }} == 'MPI-PR' ]]; then
+            export NPROCS=2
+          fi
+          echo "NPROCS is" $NPROCS
           docker run --shm-size 256m --rm --platform ${{matrix.archs }} \
           --user 0 --privileged \
           -w /opt/nwchem/QA \
           -e NWCHEM_EXECUTABLE=/opt/nwchem/bin/nwchem \
+          -e MPIRUN_PATH=/opt/nwchem/bin/mpiexec \
           --entrypoint='/opt/nwchem/QA/runtests.mpi.unix' \
-          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} \
+          -v `pwd`:/opt/nwchem/QA ${{ env.tag }} procs $NPROCS \
           dft_he2+ h2o_dk cosmo_h3co 
 
       - name: store cache

@@ -1,4 +1,4 @@
-ARG         UBUNTU_TAG
+ARG UBUNTU_TAG=ubuntu:plucky
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
 
@@ -6,7 +6,7 @@ FROM --platform=$BUILDPLATFORM $UBUNTU_TAG AS build
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description="NWChem image built from the master branch"
-LABEL org.opencontainers.image.source "https://github.com/nwchemgit/nwchem"
+LABEL org.opencontainers.image.source="https://github.com/nwchemgit/nwchem"
 LABEL org.opencontainers.image.documentation="https://nwchemgit.github.io/Containers.html"
 
 
@@ -15,7 +15,6 @@ COPY Dockerfile cache* /tmp/
 
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND=noninteractive
-ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG         FC
 ARG         NWCHEM_BRANCH
 ARG         GITHUB_REPOSITORY_OWNER
@@ -184,8 +183,11 @@ RUN           groupadd -r nwchem -g 1994 \
 	    if [[ ${NWCHEM_TARGET} == "LINUX64" ]]; then cd input ; touch memory_def.F ;\
 	    make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran  ; cd .. ;fi ; \
 	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
-	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec \
-	     && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/mpiexec /opt/nwchem/bin/${NWCHEM_TARGET}/mpirun \
+	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/. \
+	     && cp /opt/nwchem/src/libext/bin/hydra* /opt/nwchem/bin/. \
+	     &&  echo 'ls -l /opt/nwchem/bin/' $(ls -l /opt/nwchem/bin) \
+	     &&  echo 'ls -l /opt/nwchem/src/libext/bin/' $(ls -l /opt/nwchem/src/libext/bin/) \
+	     && ln -sf /opt/nwchem/bin/mpiexec /opt/nwchem/bin/mpirun \
 	     && file /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && uname -a \
 	     && ldd /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
@@ -226,13 +228,14 @@ RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-ut
 && rm -rf /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
-            AMBER_1=${NWCHEM_TOP}/src/data/amber_s/  \
-            AMBER_2=${NWCHEM_TOP}/src/data/amber_q/  \
-            AMBER_3=${NWCHEM_TOP}/src/data/amber_x/  \
-            AMBER_4=${NWCHEM_TOP}/src/data/amber_u/  \
-            SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst  \
-            CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/  \
-            CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
+            NWCHEM_TOP=/opt/nwchem \
+            AMBER_1=/opt/nwchem/src/data/amber_s/  \
+            AMBER_2=/opt/nwchem/src/data/amber_q/  \
+            AMBER_3=/opt/nwchem/src/data/amber_x/  \
+            AMBER_4=/opt/nwchem/src/data/amber_u/  \
+            SPCE=/opt/nwchem/src/data/solvents/spce.rst  \
+            CHARMM_S=/opt/nwchem/src/data/charmm_s/  \
+            CHARMM_X=/opt/nwchem/src/data/charmm_x/  \
 	    OMPI_MCA_btl_vader_single_copy_mechanism=none \
 	    OMP_NUM_THREADS=1 \
 	    COMEX_MAX_NB_OUTSTANDING=16 \
