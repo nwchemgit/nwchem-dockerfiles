@@ -52,9 +52,9 @@ RUN xx-info env && \
     GCC_VERSION=14 &&\
     XX_MARCH=$(xx-info march) &&\
     apt-get update && \
-    if [[ "$XX_MARCH" == "x86_64" ]]; then GCC_VERSION=15 ; \
+    echo "XX_MARCH is ${XX_MARCH}" && \
+    if [[ "$XX_MARCH" == "x86_64" ]]; then GCC_VERSION=15 ; fi && \
     apt-get install -y software-properties-common ; \
-    add-apt-repository -y ppa:ubuntu-toolchain-r/test ; fi && \
     if [[ "$XX_MARCH" == "armv7l" ]]; then GCC_VERSION=12 ;  fi && \
     xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
     apt-get -q=2 install -y make file gcc-${GCC_VERSION} && \
