@@ -49,13 +49,11 @@ COPY cross32.txt /tmp/.
 # you can now call xx-* commands
 RUN xx-info env && \
     env|grep PLATF && \
-    GCC_VERSION=14 &&\
+    GCC_VERSION=15 &&\
     XX_MARCH=$(xx-info march) &&\
     apt-get update && \
     echo "XX_MARCH is ${XX_MARCH}" && \
-    if [[ "$XX_MARCH" == "x86_64" ]]; then GCC_VERSION=15 ; fi && \
     apt-get install -y software-properties-common ; \
-    if [[ "$XX_MARCH" == "armv7l" ]]; then GCC_VERSION=12 ;  fi && \
     xx-apt  install -y libc6-dev  binutils gcc-${GCC_VERSION} gfortran-${GCC_VERSION}  &&\
     apt-get -q=2 install -y make file gcc-${GCC_VERSION} && \
     set -x && \
