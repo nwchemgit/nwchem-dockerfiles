@@ -109,7 +109,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && if [[ "$arch5" == "armv6" ]]; then export FORCETARGET=" TARGET=ARMV6 "; fi \
 	    && if [[ "$arch5" == "armv7" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
-	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get -q=2 install -y --no-install-recommends openmpi-bin libopenblas-dev; fi  \
+	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas; export SCALAPACK=-lscalapack-openmpi; apt-get -q=2 install -y --no-install-recommends openmpi-bin libopenblas-dev libscalapack-openmpi-dev libscalapack-openmpi2.1; fi  \
 # smaller build on qemu emulated archs
 	    && if [[ "$arch" != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
 # compile libxc for amd64 
