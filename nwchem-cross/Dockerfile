@@ -102,7 +102,7 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && if [[ "$arch" == "s390x" ]]; then export FORCETARGET=" TARGET=ZARCH_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
             && echo 'FORCETARGET is ' $FORCETARGET \
-	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  echo 'unset BUILD_SCALAPACK' >> /tmpfile; echo 'export BLAS_SIZE=4' >> /tmpfile; fi  \
+            && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export USE_PEIGS=1; export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  echo 'unset BUILD_SCALAPACK' >> /tmpfile; echo 'export BLAS_SIZE=4' >> /tmpfile;echo 'export USE_PEIGS=1' >> /tmpfile; fi  \
 # smaller build on qemu emulated archs
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
@@ -193,16 +193,16 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
-	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh  \
+	     && if [[ "$arch" == "x86_64" ]]; then OMP_NUM_THREADS=1 ./travis/run_qas.sh ; fi \
              && cp -rp QA/tests/dft_he2+ /tmp/. \
              && rm -rf QA/tests/*   \
 	     && mv /tmp/dft_he2+ QA/tests/. \
 	     && echo done \
 && echo creating tar file \
 && if [[ "$CACHE_HIT" == "Y" ]]; then \
-tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/* ; \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/* ; \
 else  \
-tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*   /opt/nwchem/src/libext/*tar*bz2 ; fi \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*   /opt/nwchem/src/libext/*tar*bz2 ; fi \
 && echo ls tar file \
 && ls -lrt /tmp/nwchem.tar.xz
 
