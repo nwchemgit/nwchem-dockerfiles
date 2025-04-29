@@ -97,7 +97,8 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && echo 'openblas arch is ' $arch \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
-	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMPPPP; fi \
+	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
+	    && if [[ "$arch" == "ppc64le" ]]; then unset USE_OPENMP; fi \
 	    && if [[ "$arch" == "armv7l" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
 	    && if [[ "$arch" == "s390x" ]]; then export FORCETARGET=" TARGET=ZARCH_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
@@ -200,9 +201,9 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && echo done \
 && echo creating tar file \
 && if [[ "$CACHE_HIT" == "Y" ]]; then \
-tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/* ; \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  ; \
 else  \
-tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*   /opt/nwchem/src/libext/*tar*bz2 ; fi \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/* /opt/nwchem/src/libext/openblas/OpenBLAS/openblas.log   /opt/nwchem/src/libext/*tar*bz2  || true; fi \
 && echo ls tar file \
 && ls -lrt /tmp/nwchem.tar.xz
 
