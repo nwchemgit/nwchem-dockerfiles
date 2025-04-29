@@ -120,6 +120,10 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && echo "MYCPU is " $MYCPU \
 	    && echo "MY_FFLAG_INT is " $MY_FFLAG_INT \
 	    && echo "I4I8 is " $I4I8 \
+	    && cd .. && wget https://github.com/edoapra/nwchem/commit/2f7acd9330358c5cd0c3a35d9a1e7695400e2a52.patch -O mpich3.patch \
+	    && patch -p1 -s -N < ./mpich3.patch \
+	    && wget https://github.com/edoapra/nwchem/commit/af381dfc91c17b4b9ac117d971140eea1371b073.patch -O oblas_noomp2.patch \
+	    && patch -p1 -s -N < ./oblas_noomp2.patch && cd src\
             && make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}   _CPU=${MYCPU}  nwchem_config  \
 	    && if [[ "$arch" == "x86_64" ]]; then make CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} V=-1 -j3 ;\
 	    else make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple) --build=x86_64-linux-gnu "  MAYBE_OFFLOAD="$I4I8" V=-1 -j3 || { echo 'Compilation Failure'; cat $(find tools -name config.log) ;exit 1; } ; fi \
