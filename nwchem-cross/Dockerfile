@@ -198,7 +198,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
-	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh ; fi \
+	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh \
              && cp -rp QA/tests/dft_he2+ /tmp/. \
              && rm -rf QA/tests/*   \
 	     && mv /tmp/dft_he2+ QA/tests/. \
