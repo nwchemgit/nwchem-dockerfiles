@@ -14,20 +14,22 @@ jobs:
         matrix:
           archs:
             - linux/amd64
-            - linux/arm64
             - linux/ppc64le
             - linux/riscv64
             - linux/s390x
-            - linux/arm/v7
           fc: [ gfortran]
           branch:
             - master
           armci_network:
             - MPI-PT
+          os:
+            - ubuntu-latest
           include:
-            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR}
-            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS}
-    runs-on: ubuntu-latest
+            - {archs: linux/arm/v7, fc: gfortran, branch: master, armci_network: MPI-PT, os: ubuntu-24.04-arm}
+            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PT, os: ubuntu-24.04-arm}
+            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
+            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS, os: ubuntu-24.04-arm}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 420
     steps:
       - name: set folder name

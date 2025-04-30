@@ -87,7 +87,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && if [[ "$arch" == "aarch64" ]]; then arch_dpkg="arm64"; fi \
 	    && if [[ "$arch" == "x86_64" ]]; then arch_dpkg="amd64"; fi \
 	    && nv_year=2022 && nv_major=22 &&  nv_minor=9 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
-	    &&  if [[ "$FC" == "nvfortran" ]]; then apt-get install -q=2 -y --no-install-recommends libtinfo5  libncursesw5 mpich libmpich-dev; wget --progress=dot:giga https://developer.download.nvidia.com/hpc-sdk/ubuntu/"$arch_dpkg/"nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget --progress=dot:giga  https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nv_year"_"$nverdot"_"$arch_dpkg".deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC="$FC" ; MPIF90=mpif90.mpich ; MPIRUN_PATH=/usr/bin/mpirun.mpich ; update-alternatives --set mpi /usr/bin/mpicc.mpich; update-alternatives --set mpirun  /usr/bin/mpirun.mpich; update-alternatives --list mpi  ; mpif90 -show; export ARMCI_NETWORK=MPI-TS;  rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; fi \
+	    &&  if [[ "$FC" == "nvfortran" ]]; then apt-get install -q=2 -y --no-install-recommends libtinfo5  libncursesw5 mpich libmpich-dev; wget --progress=dot:giga https://developer.download.nvidia.com/hpc-sdk/ubuntu/"$arch_dpkg/"nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget --progress=dot:giga  https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nv_year"_"$nverdot"_"$arch_dpkg".deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC="$FC" ; MPIF90=mpif90.mpich ; MPIRUN_PATH=/usr/bin/mpirun.mpich ; update-alternatives --set mpi /usr/bin/mpicc.mpich; update-alternatives --set mpirun  /usr/bin/mpirun.mpich; update-alternatives --list mpi  ; mpif90 -show; export ARMCI_NETWORK=MPI-TS;  rm -f nvhpc*deb ; mkdir -p /opt/lib || true; rsync -av /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; export USE_PEIGS=1; fi \
             &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:"$PATH" \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:"$LD_LIBRARY_PATH" \
 	    && echo "URL for cloning"  https://github.com/${GITHUB_REPOSITORY_OWNER}/nwchem.git \
@@ -109,7 +109,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && if [[ "$arch5" == "armv6" ]]; then export FORCETARGET=" TARGET=ARMV6 "; fi \
 	    && if [[ "$arch5" == "armv7" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
-	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas;  apt-get -q=2 install -y --no-install-recommends openmpi-bin libopenblas-dev; fi  \
+	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK; unset  BUILD_OPENBLAS; export BLASOPT=-lopenblas ; export LAPACK_LIB=-lopenblas; export SCALAPACK=-lscalapack-openmpi; export SCALAPACK_SIZE=4; apt-get -q=2 install -y --no-install-recommends openmpi-bin libopenblas-dev libscalapack-openmpi-dev libscalapack-openmpi2.1; fi  \
 # smaller build on qemu emulated archs
 	    && if [[ "$arch" != "x86_64" ]]; then export NWCHEM_MODULES="nwdft driver solvation python"; fi \
 # compile libxc for amd64 
@@ -120,6 +120,8 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	    && df -h /dev/shm \
             && mkdir -p ../bin/${NWCHEM_TARGET} \
             && gcc -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend.c \
+	    && echo "SCALAPACK  envs" $(env|grep SCALAPA) \
+	    && echo "BLAS  envs" $(env|grep BLAS) \
             && make nwchem_config \
             && cd libext   && make V=-1  && cd .. \
             && cd tools    && make V=-1  && cd .. \

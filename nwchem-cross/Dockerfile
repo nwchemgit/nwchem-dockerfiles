@@ -98,11 +98,12 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
 	    && if [[ "$arch" == "riscv64" ]]; then export FORCETARGET=" TARGET=RISCV64_GENERIC "; export ARMCI_NETWORK=MPI-TS; unset USE_OPENMP; fi \
+	    && if [[ "$arch" == "ppc64le" ]]; then unset USE_OPENMP; fi \
 	    && if [[ "$arch" == "armv7l" ]]; then export FORCETARGET=" TARGET=ARMV7 "; export ARMCI_NETWORK=MPI-TS; fi \
 	    && if [[ "$arch" == "s390x" ]]; then export FORCETARGET=" TARGET=ZARCH_GENERIC "; export ARMCI_NETWORK=MPI-TS; fi \
 # _SIZE=4 and openblas pkg for 32bit archs
             && echo 'FORCETARGET is ' $FORCETARGET \
-	    && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  echo 'unset BUILD_SCALAPACK' >> /tmpfile; echo 'export BLAS_SIZE=4' >> /tmpfile; fi  \
+            && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export USE_PEIGS=1; export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  echo 'unset BUILD_SCALAPACK' >> /tmpfile; echo 'export BLAS_SIZE=4' >> /tmpfile;echo 'export USE_PEIGS=1' >> /tmpfile; fi  \
 # smaller build on qemu emulated archs
 # compile libxc for amd64 
 	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
@@ -119,6 +120,10 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 	    && echo "MYCPU is " $MYCPU \
 	    && echo "MY_FFLAG_INT is " $MY_FFLAG_INT \
 	    && echo "I4I8 is " $I4I8 \
+	    && cd .. && wget https://github.com/edoapra/nwchem/commit/2f7acd9330358c5cd0c3a35d9a1e7695400e2a52.patch -O mpich3.patch \
+	    && patch -p1 -s -N < ./mpich3.patch \
+	    && wget https://github.com/edoapra/nwchem/commit/af381dfc91c17b4b9ac117d971140eea1371b073.patch -O oblas_noomp2.patch \
+	    && patch -p1 -s -N < ./oblas_noomp2.patch && cd src\
             && make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}   _CPU=${MYCPU}  nwchem_config  \
 	    && if [[ "$arch" == "x86_64" ]]; then make CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} V=-1 -j3 ;\
 	    else make DEPEND_CC=gcc-${GCC_VERSION} CC=$(xx-info)-gcc-${GCC_VERSION}  FC=$(xx-info)-gfortran-${GCC_VERSION}  FFLAG_INT=${MY_FFLAG_INT} _CPU=${MYCPU} MAYBE_HOST="--host=$(xx-info triple) --build=x86_64-linux-gnu "  MAYBE_OFFLOAD="$I4I8" V=-1 -j3 || { echo 'Compilation Failure'; cat $(find tools -name config.log) ;exit 1; } ; fi \
@@ -193,16 +198,16 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
-	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh  \
+	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh \
              && cp -rp QA/tests/dft_he2+ /tmp/. \
              && rm -rf QA/tests/*   \
 	     && mv /tmp/dft_he2+ QA/tests/. \
 	     && echo done \
 && echo creating tar file \
 && if [[ "$CACHE_HIT" == "Y" ]]; then \
-tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/* ; \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*  ; \
 else  \
-tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/*   /opt/nwchem/src/libext/*tar*bz2 ; fi \
+tar cJf /tmp/nwchem.tar.xz /opt/nwchem/bin/* /opt/nwchem/src/tools/build/config.log  /opt/nwchem/QA/* /opt/nwchem/src/basis/* /opt/nwchem/src/nwpw/libraryps/* /opt/nwchem/src/libext/openblas/OpenBLAS/openblas.log   /opt/nwchem/src/libext/*tar*bz2  || true; fi \
 && echo ls tar file \
 && ls -lrt /tmp/nwchem.tar.xz
 
