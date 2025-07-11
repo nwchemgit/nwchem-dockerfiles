@@ -9,7 +9,7 @@ Instruction for using this image with the [docker compose](https://docs.docker.c
 
 1. Install docker  as described in [https://docs.docker.com/engine/install](https://docs.docker.com/engine/install)
 
-2. Download the [compose.yaml](https://raw.githubusercontent.com/github/nwchem-dockerfiles/refs/heads/master/nwchem-dev.mpipr/compose.yaml) file
+2. Download the [compose.yaml](https://raw.githubusercontent.com/nwchemgit/nwchem-dockerfiles/refs/heads/master/nwchem-dev.mpipr/compose.yaml) file
  
 ```
  wget https://raw.githubusercontent.com/github/nwchem-dockerfiles/refs/heads/master/nwchem-dev.mpipr/compose.yaml
