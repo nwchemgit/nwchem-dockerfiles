@@ -1,8 +1,8 @@
 services:
   nwchem:
     container_name: nwchem
-#    image: "ghcr.io/edoapra/nwchem-dev.openmpi.mpi-pr:latest"
-    image: "ghcr.io/edoapra/nwchem-dev.mpi-pr:latest"
+#    image: "ghcr.io/nwchemgit/nwchem-dev.openmpi.mpi-pr:latest"
+    image: "ghcr.io/nwchemgit/nwchem-dev.mpi-pr:latest"
     volumes:
       - .:/data
     privileged: true
