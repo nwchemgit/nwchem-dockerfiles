@@ -19,12 +19,21 @@ Instruction for using this image with the [docker compose](https://docs.docker.c
 ``` 
 docker compose up -d
 ```
+In some installation, `docker compose` is available as the command `docker-compose`, therefore in those cases, this command becomes
+``` 
+docker-compose up -d
+```
 
 4. Run NWChem
  
 ``` 
  docker compose run nwchem h2o.nw
 ```
+In some installation, `docker compose` is available as the command `docker-compose`, therefore in those cases, this command becomes
+``` 
+ docker-compose run nwchem h2o.nw
+```
+
 
 In the example above the input file name is `h2o.nw`.   
 The default setting will run NWChem using 2 processes.
