@@ -105,9 +105,11 @@ echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
             && echo 'FORCETARGET is ' $FORCETARGET \
             && if [[ ${NWCHEM_TARGET} == "LINUX" ]]; then export USE_PEIGS=1; export BLAS_SIZE=4; unset SCALAPACK_SIZE; unset BUILD_SCALAPACK;  echo 'unset BUILD_SCALAPACK' >> /tmpfile; echo 'export BLAS_SIZE=4' >> /tmpfile;echo 'export USE_PEIGS=1' >> /tmpfile; fi  \
 # smaller build on qemu emulated archs
-# compile libxc for amd64 
-	    && if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1;  \
-	    export USE_SIMINT=1; export SIMINT_MAXAM=5; export SIMINT_VECTOR=avx2 ; fi \
+# compile libxc for amd64
+            && if [[ "$arch" == "x86_64" ]]; then export SIMINT_VECTOR=avx2 ; fi \
+            && if [[ "$arch" == "aarch64" ]]; then export SIMINT_VECTOR=asimd ; fi \
+	    && if [[ "$arch" == "x86_64" ]] || [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1;  \
+	    export USE_SIMINT=1; export SIMINT_MAXAM=5 ; fi \
             && if [[ -f /tmp/libext.tar.bz2 ]]; then echo "fetching libext" ; cd libext ; tar xjvf /tmp/libext.tar.bz2; rm -rf /tmp/libext.tar.bz2 ; ./bin/mpif90 -show; mkdir -p mpich/mpich ; ls -l /opt/nwchem/src/libext/mpich/mpich/../../include ;cd ..  ; fi \
             && if [[ -f /tmp/simint.tar.bz2 ]]; then cd NWints/simint/libsimint_source ; tar xjf /tmp/simint.tar.bz2; rm -rf /tmp/simint.tar.bz2 ; cd ../../..  ; fi\
 	    && df -h /dev/shm \
@@ -167,7 +169,7 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
 	     arch=$(uname -m) ; \
-	     if [[ "$arch" == "x86_64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi ; \
+	     if [[ "$arch" == "x86_64" ]]|| [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi ; \
 	     echo "uname -m is " $(uname -m) ;\
 	     MYCPU=$(uname -m) ; \
     	     echo "MYCPU is " ${MYCPU} ;\ 
@@ -223,7 +225,11 @@ RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-ut
 && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem /opt/nwchem/bin/nwchem \
 &&  ls -lart /tmp \
 &&  if [[ -f /opt/nwchem/bin/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
+&& strip /opt/nwchem/bin/nwchem  || true\
 && ldd /opt/nwchem/bin/nwchem|| true  \
+&& echo "dddddddddddd"  \
+&& dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100 \
+&& echo "dddddddddddd" \
 && rm -rf /tmp/nwchem.tar.xz  /var/lib/dpkg/ /var/lib/apt
 
 ENV         FFIELD=amber  \
