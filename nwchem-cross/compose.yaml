@@ -1,0 +1,20 @@
+services:
+  nwchem:
+    container_name: nwchem
+    image: "ghcr.io/edoapra/nwchemcross-dev-mpi-pr:latest"
+    volumes:
+      - .:/data
+    privileged: true
+    network_mode: host
+    shm_size: 512000000 #256mb
+#    pull_policy: always
+    environment:
+       - OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+       - HWLOC_COMPONENTS=-gl
+       - OMPI_ALLOW_RUN_AS_ROOT=1
+       - OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+    entrypoint:
+      - "mpirun"
+      - "-np"
+      - "${MYNPROC:-3}"
+      - "nwchem"
