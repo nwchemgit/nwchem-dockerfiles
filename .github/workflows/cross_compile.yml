@@ -27,6 +27,7 @@ jobs:
           include:
             - {archs: linux/arm/v7, fc: gfortran, branch: master, armci_network: MPI-PT, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PT, os: ubuntu-24.04-arm}
+            - {archs: linux/amd64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-latest}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS, os: ubuntu-24.04-arm}
     runs-on: ${{ matrix.os }}
@@ -41,7 +42,7 @@ jobs:
       - name: pkg cleanup
         uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v4

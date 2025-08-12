@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 420
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v3
