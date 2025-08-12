@@ -14,7 +14,7 @@ jobs:
       # Expose matched filters as job 'folders' output variable
       folders: ${{ steps.filter.outputs.changes }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: choose_dockerfile_filter
       uses: dorny/paths-filter@v3
       id: filter
@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 420
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to GitHub Container Registry
