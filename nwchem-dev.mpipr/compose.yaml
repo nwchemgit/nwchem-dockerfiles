@@ -4,8 +4,9 @@ services:
 #    image: "ghcr.io/nwchemgit/nwchem-dev.openmpi.mpi-pr:latest"
     image: "ghcr.io/nwchemgit/nwchem-dev.mpi-pr:latest"
     volumes:
-      - .:/data
-    privileged: true
+       - $PWD:/data
+      #- .:/data
+    privileged: false
     network_mode: host
     shm_size: 2048000000 #2GB
 #    pull_policy: always
