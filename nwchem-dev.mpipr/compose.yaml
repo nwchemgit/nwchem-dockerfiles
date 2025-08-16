@@ -7,7 +7,7 @@ services:
       - .:/data
     privileged: true
     network_mode: host
-    shm_size: 512000000 #256mb
+    shm_size: 2048000000 #2GB
 #    pull_policy: always
     environment:
        - OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
