@@ -14,7 +14,7 @@ FROM        ubuntu:focal-20221130
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
 LABEL org.opencontainers.image.description="NWChem image built from the master branch"
-LABEL org.opencontainers.image.source "https://github.com/nwchemgit/nwchem"
+LABEL org.opencontainers.image.source="https://github.com/nwchemgit/nwchem"
 LABEL org.opencontainers.image.documentation="https://nwchemgit.github.io/Containers.html"
 
 #create user nwchem
@@ -172,7 +172,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
 	   && du -sh /opt/nvidia || true \
 	   && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100
 	   
-ENV LD_LIBRARY_PATH /opt/lib
+ENV LD_LIBRARY_PATH=/opt/lib
 
 
 USER        nwchem
