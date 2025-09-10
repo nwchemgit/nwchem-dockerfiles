@@ -73,7 +73,7 @@ RUN         apt-get update \
 	    && strip ../bin/*/nwchem  || true\
 	    && cd $NWCHEM_TOP/QA/tests && rm -rf talc metagga* neb* had* dft* hess*  || true\
 #clean unnecessary packages
-            &&         apt-get -y purge git  make curl subversion  unzip cmake perl tcsh $libmpidev libx265-199 libgcc-12-dev &&  apt-get -y autoremove && apt-get install -y libgomp1 libgfortran5 $libmpi && apt-get clean \
+            &&         apt-get -y purge git  make curl subversion  unzip cmake perl tcsh $libmpidev  libgcc-1*-dev &&  apt-get -y autoremove && apt-get install -y libgomp1 libgfortran5 $libmpi && apt-get clean \
 && echo "dddddddddddd"  \
 && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100 \
 && echo "dddddddddddd" \
