@@ -51,7 +51,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN         apt-get update \
             && apt-get -y upgrade \
 	    && if [[ $MPI_IMPL == mpich ]]; then export libmpi=mpich; export libmpidev=libmpich-dev; fi \
-	    && if [[ $MPI_IMPL == openmpi ]]; then export libmpi=libopenmpi3\ openmpi-bin; export libmpidev=libopenmpi-dev; fi \
+	    && if [[ $MPI_IMPL == openmpi ]]; then export libmpi=openmpi-bin; export libmpidev=libopenmpi-dev; fi \
 	    && echo libmpi $libmpi \
 	    && echo libmpidev $libmpidev \
             && apt-get install -y  gfortran g++ $libmpi $libmpidev  make ssh patch curl subversion wget unzip perl git file python3 python3-dev bzip2 \
@@ -73,7 +73,7 @@ RUN         apt-get update \
 	    && strip ../bin/*/nwchem  || true\
 	    && cd $NWCHEM_TOP/QA/tests && rm -rf talc metagga* neb* had* dft* hess*  || true\
 #clean unnecessary packages
-            &&         apt-get -y purge git  make curl subversion  unzip cmake perl tcsh $libmpidev libx265-199 libgcc-12-dev &&  apt-get -y autoremove && apt-get install -y libgomp1 libgfortran5 $libmpi && apt-get clean \
+            &&         apt-get -y purge git  make curl subversion  unzip cmake perl tcsh $libmpidev  libgcc-1*-dev &&  apt-get -y autoremove && apt-get install -y libgomp1 libgfortran5 $libmpi && apt-get clean \
 && echo "dddddddddddd"  \
 && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100 \
 && echo "dddddddddddd" \
