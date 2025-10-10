@@ -180,9 +180,10 @@ RUN           groupadd -r nwchem -g 1994 \
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}    V=1 -j3;\
-            cd .. ;\
-	    if [[ ${NWCHEM_TARGET} == "LINUX64" ]]; then cd input ; touch memory_def.F ;\
-	    make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran  ; cd .. ;fi ; \
+            cd .. ;fi  ;\
+	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
+	    && if [[ ${NWCHEM_TARGET} == "LINUX64" ]]; then cd input ; touch memory_def.F ;\
+	    make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran  ; cd .. ;  \
 	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
 	     && cp /opt/nwchem/src/libext/bin/mpiexec /opt/nwchem/bin/. \
 	     && cp /opt/nwchem/src/libext/bin/hydra* /opt/nwchem/bin/. \
