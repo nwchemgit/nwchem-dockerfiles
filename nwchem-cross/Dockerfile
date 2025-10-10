@@ -166,22 +166,24 @@ RUN           groupadd -r nwchem -g 1994 \
              && apt-get -q=2   install -y make  gfortran-${GCC_VERSION} python3 python3-dev libssl-dev bzip2 tar\
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils  libgfortran5  libgomp1 libgcc-s1 \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
+	     && cd /opt/nwchem/src \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
 	     arch=$(uname -m) ; \
 	     if [[ "$arch" == "x86_64" ]]|| [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi ; \
 	     echo "uname -m is " $(uname -m) ;\
 	     MYCPU=$(uname -m) ; \
-    	     echo "MYCPU is " ${MYCPU} ;\ 
-	    cd /opt/nwchem/src ;\
+    	     echo "MYCPU is " ${MYCPU} ;\
+	     echo 'ls bin' $(ls -Rl ../bin) ;\
 	    rm ../bin/${NWCHEM_TARGET}/depend.x ;\
 	    gcc-${GCC_VERSION} -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend\
 .c ;\
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}   nwchem_config ;\
 	    cd python ;\
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}    V=1 -j3;\
-            cd .. ;fi  ;\
-	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
+            cd .. ;fi  \
+		    && echo pwd is $(pwd) \
+	    && make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link \
 	    && if [[ ${NWCHEM_TARGET} == "LINUX64" ]]; then cd input ; touch memory_def.F ;\
 	    make LIB_DEFINES+=" -DDFLT_TOT_MEM=366772864 -DMORE_MA_MEM=1 "  CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran  ; cd .. ;  \
 	    make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link ; fi \
