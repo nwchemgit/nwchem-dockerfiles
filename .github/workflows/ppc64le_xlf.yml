@@ -29,7 +29,7 @@ jobs:
         id: qemu
         uses: docker/setup-qemu-action@v3
         with:
-          image: crazymax/binfmt:v6.0.0
+          image: tonistiigi/binfmt:qemu-v10.0.4-56
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
