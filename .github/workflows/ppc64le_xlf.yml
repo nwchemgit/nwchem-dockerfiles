@@ -108,21 +108,23 @@ jobs:
             CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
         run: |
-          docker pull ${{ env.tag }}
+          docker run --privileged --rm tonistiigi/binfmt:qemu-v10.0.4-56 --uninstall qemu-*
+          docker run --privileged --rm tonistiigi/binfmt:qemu-v10.0.4-56 --install all
+          docker pull --platform=linux/ppc64le ${{ env.tag }}
       - name: store cache
         if:  ( github.actor == github.repository_owner )
         run: |
-            mkdir -p ~/cache/
-            docker run --privileged --user 0 --rm \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ env.tag }} \
-            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
-            docker run --privileged --user 0 --rm \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ env.tag }} \
-            -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
-            docker run --privileged --user 0 --rm \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ env.tag }} \
-            -rp /usr/local/mpich.tar.bz2 /data/.  || true
-            ls -Ralrt ~/cache || true
+          mkdir -p ~/cache/
+          docker run --platform=linux/ppc64le --privileged --user 0 --rm \
+          --entrypoint='/bin/cp' -v ~/cache:/data \
+          ${{ env.tag }} \
+          -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
+          docker run --platform=linux/ppc64le --privileged --user 0 --rm \
+          --entrypoint='/bin/cp' -v ~/cache:/data \
+          ${{ env.tag }} \
+          -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
+          docker run --platform=linux/ppc64le --privileged --user 0 --rm \
+          --entrypoint='/bin/cp' -v ~/cache:/data \
+          ${{ env.tag }} \
+          -rp /usr/local/mpich.tar.bz2 /data/.  || true
+          ls -Ralrt ~/cache || true
