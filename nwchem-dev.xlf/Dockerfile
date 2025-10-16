@@ -40,7 +40,7 @@ MPICH_FC=xlf \
             SPCE=${NWCHEM_TOP}/src/data/solvents/spce.rst  \
             CHARMM_S=${NWCHEM_TOP}/src/data/charmm_s/  \
             CHARMM_X=${NWCHEM_TOP}/src/data/charmm_x/  \
-	    BUILD_OPENBLAS=1 \
+	    USE_INTERNALBLAS=1 \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
@@ -65,7 +65,7 @@ RUN         echo "check CACHE_HIT value" \
             && apt-get -y upgrade \
 #            && apt-get install -y  python3-dev gfortran  mpich libmpich-dev  make curl   unzip cmake ssh git file wget \
 #            && apt-get install -y  python3-dev gfortran libopenmpi-dev openmpi-bin  make curl unzip cmake git file wget tar bzip2 \
-            && apt-get install -y  rsync python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 bc \
+            && apt-get install -y  rsync python3-dev gfortran libmpich-dev mpich libmpich12  make curl unzip cmake git file wget tar bzip2 bc  libssl1.0-dev \
             && cd /opt; git clone --depth 1  https://github.com/nwchemgit/nwchem.git  \
 	    && xlf -qversion \
             && cd nwchem/src \
