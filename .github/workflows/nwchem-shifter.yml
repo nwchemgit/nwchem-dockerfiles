@@ -17,22 +17,28 @@ jobs:
           openmp: [ Y, N]
           fc: [ gfortran]
           armci_network: [ MPI-PR ] 
+          container:
+            - shifter
+            - podman
           include:
             - folder: nwchem-dev.mpipr.nersc.mpich4
               armci_network: MPI3
               openmp: Y
               branch: master
               fc: gfortran
+              container: shifter
             - folder: nwchem-dev.mpipr.nersc.mpich4
               armci_network: MPI-PR
               openmp: N
               branch: master
               fc: nvfortran
+              container: shifter
             - folder: nwchem-dev.mpipr.nersc.mpich4
               armci_network: MPI-PR
               openmp: N
               branch: hotfix/release-7-2-0
               fc: nvfortran
+              container: shifter
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -104,6 +110,9 @@ jobs:
         id: armci_net
         run: |
           echo "armci_net=.$(echo ${{ matrix.armci_network }} | tr '[:upper:]' '[:lower:]')"  >> $GITHUB_ENV
+          if [[ ${{ matrix.container }} ==  podman ]]; then
+          echo "container_tag=.podman" >> $GITHUB_ENV
+          fi
         shell: bash
       - name: nwchem version tag
         run: |
@@ -118,7 +127,7 @@ jobs:
       - name: docker tag
         id: docker-tag
         run: |
-          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.omp_tag }}${{ env.armci_net }}${{ env.fc }}" >>  $GITHUB_ENV
+          echo "tag=ghcr.io/${{ github.actor }}/${{ env.longnwversion}}${{ env.container_tag }}${{ env.omp_tag }}${{ env.armci_net }}${{ env.fc }}" >>  $GITHUB_ENV
         shell: bash
       - name: builddate
         id: build-date
@@ -141,6 +150,7 @@ jobs:
             CACHE_HIT=${{ env.cache_hit }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
             ARMCI_NETWORK=${{ matrix.armci_network }}
+            CONTAINER=${{ matrix.container }}
       - name: load and test image
         if:  ( github.actor == github.repository_owner )
         run: |
