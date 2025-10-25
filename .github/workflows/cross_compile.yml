@@ -19,7 +19,7 @@ jobs:
           fc: [ gfortran]
           branch:
             - master
-            - release-7-3-0
+            - hotfix/release-7-3-0
           armci_network:
             - MPI-PR
           os:

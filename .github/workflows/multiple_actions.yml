@@ -20,7 +20,7 @@ jobs:
             - nwchem-dev
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
-          branch: [ master, release-7-3-0]
+          branch: [ master, hotfix/release-7-3-0]
           exclude:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
