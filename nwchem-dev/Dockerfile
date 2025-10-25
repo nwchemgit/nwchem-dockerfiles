@@ -102,7 +102,7 @@ arch_123=$(uname -m|cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == "i3
             && arch=$(uname -m) \
             && arch3=$(uname -m|cut -c 1-3) \
             && arch5=$(uname -m|cut -c 1-5) \
-	    &&  cd /tmp ; wget --progress=dot:giga https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/cmake326.patch; cd / ; patch -p0 < /tmp/cmake326.patch; cd /opt/nwchem/src \
+	    &&  cd /tmp ; wget --progress=dot:giga https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/mpipr/patches/cmake326.patch; cd / ; patch -p0 < /tmp/cmake326.patch; cd /opt/nwchem/src \
 	    &&  if [[ "$FC" == "nvfortran" ]] && [[ "$arch" == "aarch64" ]]; then  cd /tmp ; wget --progress=dot:giga https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER}/nwchem-dockerfiles/master/patches/nv_arm64.patch; cd /opt/nwchem ; patch -p0 < /tmp/nv_arm64.patch; cd /opt/nwchem/src; fi \
 	    && if [[ "$arch" == "aarch64" ]]; then export FORCETARGET=" TARGET=ARMV8 "; fi \
 	    && if [[ "$arch" == "ppc64le" ]]; then export FORCETARGET=" TARGET=POWER8 "; fi \
