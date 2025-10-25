@@ -26,7 +26,6 @@ jobs:
           os:
             - ubuntu-latest
           include:
-            - {archs: linux/arm/v7, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: release-7-3-0, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
