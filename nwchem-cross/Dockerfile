@@ -183,7 +183,7 @@ RUN           groupadd -r nwchem -g 1994 \
             make DEPEND_CC=gcc-${GCC_VERSION} CC=gcc-${GCC_VERSION}  FC=gfortran-${GCC_VERSION} _FC=gfortran _CPU=${MYCPU}    V=1 -j3;\
             cd .. ;fi  \
 		    && echo pwd is $(pwd) \
-	     && if [[ "$arch" == "x86_64" ]]|| [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi ; \
+	     && if [[ "$arch" == "x86_64" ]]|| [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi \
 		    && env \
 	    && make CC=gcc-${GCC_VERSION} _CC=gcc FC=gfortran-${GCC_VERSION} _FC=gfortran    link \
 	    && if [[ ${NWCHEM_TARGET} == "LINUX64" ]]; then cd input ; touch memory_def.F ;\
