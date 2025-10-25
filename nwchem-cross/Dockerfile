@@ -167,12 +167,11 @@ RUN           groupadd -r nwchem -g 1994 \
              && apt-get -q=2 install -y --no-install-recommends file  ca-certificates  pkg-config python3-dev openssh-client perl xz-utils  libgfortran5  libgomp1 libgcc-s1 \
 	     && echo " CACHE_HIT is "  "$CACHE_HIT"  \
 	     && cd /opt/nwchem/src \
-	     arch=$(uname -m) ; \
-	     if [[ "$arch" == "x86_64" ]]|| [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi ; \
-	     echo "uname -m is " $(uname -m) ;\
-	     MYCPU=$(uname -m) ; \
-    	     echo "MYCPU is " ${MYCPU} ;\
-	     echo 'ls bin' $(ls -Rl ../bin) ;\
+	     && arch=$(uname -m) \
+	     && echo "uname -m is " $(uname -m) \
+	     && MYCPU=$(uname -m) \
+    	     && echo "MYCPU is " ${MYCPU} \
+	     && if [[ "$arch" == "x86_64" ]]|| [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
              export NWCHEM_MODULES="all python " ;\
 	    rm ../bin/${NWCHEM_TARGET}/depend.x ;\
