@@ -20,7 +20,7 @@ jobs:
             - nwchem-dev
           archs: [linux/amd64, linux/arm64, linux/ppc64le, linux/arm/v7, linux/riscv64]
           fc: [ gfortran, nvfortran]
-          branch: [ master, hotfix/release-7-2-0]
+          branch: [ master, release-7-3-0]
           exclude:
             - {folder: nwchem-dev, archs: linux/riscv64, fc: nvfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: nvfortran}
@@ -99,7 +99,7 @@ jobs:
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
           else
-            echo "nwversion=720" >> $GITHUB_ENV
+            echo "nwversion=730" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag noarch
