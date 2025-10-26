@@ -12,7 +12,7 @@ jobs:
         fail-fast: false
         matrix:
           include:
-            - {folder: ppc64le.xlf, archs: linux/ppc64le}
+            - {folder: nwchem-dev.xlf, archs: linux/ppc64le}
     runs-on: ubuntu-latest
     timeout-minutes: 420
     steps:
@@ -29,7 +29,7 @@ jobs:
         id: qemu
         uses: docker/setup-qemu-action@v3
         with:
-          image: crazymax/binfmt:v6.0.0
+          image: tonistiigi/binfmt:qemu-v10.0.4-56
       - name: Available platforms
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
@@ -72,26 +72,26 @@ jobs:
       - name: Get Arch
         id: get-arch
         run: |
-          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+          echo "arch=$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )" >> $GITHUB_ENV
         shell: bash
       - name: docker tag
         id: docker-tag
         run: |
-          echo "::set-output name=tag:: ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ steps.get-arch.outputs.arch }}"
+          echo "tag=ghcr.io/${{ github.actor }}/${{ matrix.folder }}/${{ env.arch }}" >> $GITHUB_ENV
         shell: bash
       - name: build date
         id: build-date
         run: |
-          echo "::set-output name=date::$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)"
+          echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: cache_hit
         id: cache_hit
         if: (steps.setup-cache.outputs.cache-hit == 'false')
         run: |
           echo "cache-hit" is ${{ steps.setup-cache.outputs.cache-hit }}
           if [[ ${{ steps.setup-cache.outputs.cache-hit }}  == 'false' ]]; then
-            echo "::set-output name=git::$(echo N)"
+            echo "cache_hit=N" >> $GITHUB_ENV
           else
-            echo "::set-output name=git::$(echo Y)"
+            echo "cache_hit=Y" >> $GITHUB_ENV 
           fi
         shell: bash
       - name: build_schedule
@@ -102,27 +102,29 @@ jobs:
           shm-size: 256m
           platforms: ${{ matrix.archs }}
           tags: |
-            ${{ steps.docker-tag.outputs.tag }}:latest
-            ${{ steps.docker-tag.outputs.tag }}:${{ steps.build-date.outputs.date }}
+            ${{ env.tag }}:latest
+            ${{ env.tag }}:${{ env.date }}
           build-args: |
-            CACHE_HIT=${{ steps.cache_hit.outputs.hit }}
+            CACHE_HIT=${{ env.cache_hit }}
       - name: load and test image
         run: |
-          docker pull ${{ steps.docker-tag.outputs.tag }}
+          docker run --privileged --rm tonistiigi/binfmt:qemu-v10.0.4-56 --uninstall qemu-*
+          docker run --privileged --rm tonistiigi/binfmt:qemu-v10.0.4-56 --install all
+          docker pull --platform=linux/ppc64le ${{ env.tag }}
       - name: store cache
         if:  ( github.actor == github.repository_owner )
         run: |
-            mkdir -p ~/cache/
-            docker run --privileged --user 0 --rm \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
-            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
-            docker run --privileged --user 0 --rm \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
-            -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
-            docker run --privileged --user 0 --rm \
-            --entrypoint='/bin/cp' -v ~/cache:/data \
-            ${{ steps.docker-tag.outputs.tag }} \
-            -rp /usr/local/mpich.tar.bz2 /data/.  || true
-            ls -Ralrt ~/cache || true
+          mkdir -p ~/cache/
+          docker run --platform=linux/ppc64le --privileged --user 0 --rm \
+          --entrypoint='/bin/cp' -v ~/cache:/data \
+          ${{ env.tag }} \
+          -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
+          docker run --platform=linux/ppc64le --privileged --user 0 --rm \
+          --entrypoint='/bin/cp' -v ~/cache:/data \
+          ${{ env.tag }} \
+          -rp /opt/nwchem/src/libext/simint.tar.bz2 /data/.  || true
+          docker run --platform=linux/ppc64le --privileged --user 0 --rm \
+          --entrypoint='/bin/cp' -v ~/cache:/data \
+          ${{ env.tag }} \
+          -rp /usr/local/mpich.tar.bz2 /data/.  || true
+          ls -Ralrt ~/cache || true

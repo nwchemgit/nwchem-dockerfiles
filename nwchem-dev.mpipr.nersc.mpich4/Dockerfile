@@ -14,8 +14,9 @@ LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 LABEL org.opencontainers.image.description "NWChem Shifter image built with Mpich 4.0"
 
 #create user nwchem
-RUN           groupadd -r nwchem -g 1994 \
-              && useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem 
+RUN           env && if [[ "${CONTAINER}" == shifter ]]; then groupadd -r nwchem -g 1994 ;\
+              useradd  -u 1994 -r -g nwchem -c 'NWChem user' -m -d /opt/nwchem -s /bin/bash nwchem ; fi && \
+            if [[ "${CONTAINER}" == shifter ]]; then export MYUSER=nwchem ; else export MYUSER=root ;fi 
 
 #caching from host cache dir
 COPY Dockerfile cache* /tmp/
@@ -202,7 +203,8 @@ ENV         FFIELD=amber \
 #clean unnecessary packages
 #RUN         apt-get -y remove  make curl  unzip cmake   &&  apt-get -y autoremove && apt-get clean
 
-USER        nwchem
+USER        "$MYUSER"
+#USER        nwchem
 
 WORKDIR     /data
 ENTRYPOINT  ["mpirun","-np","3","nwchem"]
