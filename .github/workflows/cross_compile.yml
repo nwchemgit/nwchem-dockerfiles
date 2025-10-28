@@ -48,7 +48,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ env.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercross-v001
+          key: ${{ env.folder}}-${{ matrix.fc}}/${{ matrix.archs}}${{ matrix.branch }}-nwchemdockercross-v001
       - name: Qemu
         if: ${{ matrix.archs != 'linux/amd64' }}
         id: qemu

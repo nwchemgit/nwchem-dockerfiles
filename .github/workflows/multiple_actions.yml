@@ -39,7 +39,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchemdockercache-v018
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}${{matrix.branch}}-nwchemdockercache-v018
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v3
