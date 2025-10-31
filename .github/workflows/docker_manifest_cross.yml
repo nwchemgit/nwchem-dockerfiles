@@ -73,7 +73,7 @@ jobs:
           docker manifest rm $manifest_tag || true
           docker rmi "$noarch_tag":latest || true
           docker rmi "$noarch_tag" || true
-          for arch in amd64 arm64 ppc64le riscv64 s390x arm/v7
+          for arch in amd64 arm64 ppc64le riscv64
           do
           docker rmi "$noarch_tag":"$arch" ||true
           done
