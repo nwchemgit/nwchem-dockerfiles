@@ -68,10 +68,11 @@ jobs:
       - name: test images
         if:  ( github.actor == github.repository_owner ) 
         run: |
+          armci_network=mpi-pr
           for branch in dev 730
           do
-          manifest_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch":latest
-          noarch_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch"
+          manifest_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch"-${armci_network}:latest
+          noarch_tag=ghcr.io/${{ github.actor }}/nwchemcross-"$branch"-${armci_network}
           docker manifest rm $manifest_tag || true
           docker rmi "$noarch_tag":latest || true
           docker rmi "$noarch_tag" || true
