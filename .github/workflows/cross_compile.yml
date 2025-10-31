@@ -115,7 +115,7 @@ jobs:
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
-         elif [[ ${{ matrix.branch }} ==  hotfix/release-7-3-0 ]]; then
+          elif [[ ${{ matrix.branch }} ==  hotfix/release-7-3-0 ]]; then
             echo "nwversion=730" >> $GITHUB_ENV
           else
             echo "nwversion=unknown" >> $GITHUB_ENV
