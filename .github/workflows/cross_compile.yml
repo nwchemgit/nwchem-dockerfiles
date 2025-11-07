@@ -25,7 +25,7 @@ jobs:
           os:
             - ubuntu-latest
           include:
-            - {archs: linux/arm64, fc: gfortran, branch: release-7-3-0, armci_network: MPI-PR, os: ubuntu-24.04-arm}
+            - {archs: linux/arm64, fc: gfortran, branch: hotfix/release-7-3-0, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS, os: ubuntu-24.04-arm}
@@ -115,9 +115,7 @@ jobs:
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
-          elif [[ ${{ matrix.branch }} ==  release-7-3-0 ]]; then
-            echo "nwversion=730" >> $GITHUB_ENV
-          elif [[ ${{ matrix.branch }} ==  hotifx/release-7-3-0 ]]; then
+          elif [[ ${{ matrix.branch }} ==  hotfix/release-7-3-0 ]]; then
             echo "nwversion=730" >> $GITHUB_ENV
           else
             echo "nwversion=unknown" >> $GITHUB_ENV
