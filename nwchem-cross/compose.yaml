@@ -1,12 +1,14 @@
 services:
   nwchem:
     container_name: nwchem
-    image: "ghcr.io/edoapra/nwchemcross-dev-mpi-pr:latest"
+#    image: "ghcr.io/nwchemgit/nwchem-dev.openmpi.mpi-pr:latest"
+    image: "ghcr.io/nwchemgit/nwchemcross-dev-mpi-pr:latest"
     volumes:
-      - .:/data
-    privileged: true
+       - $PWD:/data
+      #- .:/data
+    privileged: false
     network_mode: host
-    shm_size: 512000000 #256mb
+    shm_size: 2048000000 #2GB
 #    pull_policy: always
     environment:
        - OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
