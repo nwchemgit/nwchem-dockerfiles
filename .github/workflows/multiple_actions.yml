@@ -99,7 +99,7 @@ jobs:
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
           else
-            echo "nwversion=730" >> $GITHUB_ENV
+            echo "nwversion=731" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag noarch
