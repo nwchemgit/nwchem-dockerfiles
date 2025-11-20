@@ -32,7 +32,7 @@ jobs:
       tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v4
