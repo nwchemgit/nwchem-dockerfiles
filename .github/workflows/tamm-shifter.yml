@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Get Instruction
         id: get-simd
         run: |
@@ -35,7 +35,7 @@ jobs:
           echo "cache_key=${{ matrix.folder }}-simd${{ env.simd }}-${{ matrix.branch }}${{ env.fc }}-cache-v000" >> $GITHUB_ENV
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/cache

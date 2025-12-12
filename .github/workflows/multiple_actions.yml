@@ -32,10 +32,10 @@ jobs:
       tag_noarch: ${{ steps.env_tag_noarch.outputs.tag_noarch }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/cache
@@ -99,7 +99,7 @@ jobs:
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
           else
-            echo "nwversion=730" >> $GITHUB_ENV
+            echo "nwversion=731" >> $GITHUB_ENV
           fi
         shell: bash
       - name: docker tag noarch
