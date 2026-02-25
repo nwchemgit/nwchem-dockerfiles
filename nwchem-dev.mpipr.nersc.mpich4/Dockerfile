@@ -7,7 +7,7 @@
 #docker run nwchem-702.mpipr.nersc dft_he2+ h2o_dk h2o_opt
 #
 
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
 LABEL maintainer="Edoardo Apra <edoardo.apra@pnnl.gov>"
 
@@ -33,15 +33,15 @@ ENV         GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER
 ENV         ARMCI_NETWORK=$ARMCI_NETWORK
 ARG mpich=4.0.2
 ARG mpich_prefix=mpich-$mpich
-ARG	    CUDA_VERSION_MAJOR=11 \
-	    CUDA_VERSION_MINOR=7
+ARG	    CUDA_VERSION_MAJOR=12 \
+	    CUDA_VERSION_MINOR=6
 ARG	    PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/bin:/opt/nwchem/bin:/usr/local/bin \
 	    LD_LIBRARY_PATH=/usr/local/cuda-"$CUDA_VERSION_MAJOR"."$CUDA_VERSION_MINOR"/lib64:/usr/local/lib  
 #get OpenBLAS and compile with 64-bit integers
 WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
-ENV	    CUDA_VERSION_MAJOR=11 
-ENV	    CUDA_VERSION_MINOR=7
+ENV	    CUDA_VERSION_MAJOR=12
+ENV	    CUDA_VERSION_MINOR=6
 ENV         GCC_VERSION=11
 ENV         PY_VERSION=3.11
 ENV         NWCHEM_TARGET=LINUX64 \
@@ -96,8 +96,8 @@ RUN         apt-get -q=2 update \
 	    && echo "VERSIONGT9 is " $VERSIONGT9 \
 	    && echo "FFLAGS_IN is " $FFLAGS_IN \
             && echo "FFLAGS_IN is " $FFLAGS_IN 	>& nvcc.out && cat nvcc.out && rm nvcc.out \
-	    && wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb \
-	    && dpkg -i cuda-keyring_1.0-1_all.deb \
+	    && wget --progress=dot:giga https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb \
+	    && dpkg -i cuda-keyring_1.1-1_all.deb \
 	    && apt-get -q=2 update \
             && apt-get -q=2 -y install cuda-nvcc-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" cuda-cudart-dev-"$CUDA_VERSION_MAJOR"-"$CUDA_VERSION_MINOR" \
 	    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-"$GCC_VERSION" 1000 \
@@ -108,11 +108,11 @@ RUN         apt-get -q=2 update \
 	    && arch=$(uname -m) \
 	    && echo arch is "$arch" \
 	    && arch_dpkg=$(dpkg --print-architecture)  \
-	    && nv_year=2022 && nv_major=22 &&  nv_minor=11 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" \
-	    &&  if [[ "$FC" == "nvfortran" ]]; then apt-get install -q=2 -y --no-install-recommends g++ libtinfo5  libncursesw5 libnuma1 ; wget  --progress=dot:giga https://developer.download.nvidia.com/hpc-sdk/ubuntu/"$arch_dpkg/"nvhpc-"$nverdash"_"$nverdot"_$arch_dpkg.deb >& log1 ; wget --progress=dot:giga  https://developer.download.nvidia.com/hpc-sdk/ubuntu/$arch_dpkg/nvhpc-"$nv_year"_"$nverdot"_"$arch_dpkg".deb >&  log2 ; tail -n 2 log1 log2; ls -lrt nv*deb;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC="$FC" ;   rm -f nvhpc*deb ; mkdir -p /opt/lib || true;  \
+	    && nv_year=2026 && nv_major=26 &&  nv_minor=1 &&   nverdot="$nv_major"."$nv_minor" && nverdash="$nv_major"-"$nv_minor" && nv_rel=0 \
+	    &&  if [[ "$FC" == "nvfortran" ]]; then apt-get install -q=2 -y --no-install-recommends g++ libtinfo5  libncursesw5 libnuma1 ; wget  --progress=dot:giga https://developer.download.nvidia.com/hpc-sdk/ubuntu/"$arch_dpkg/"nvhpc-"$nverdash"_"$nverdot"-"$nv_rel"_$arch_dpkg.deb ;  dpkg -i nvhpc*deb ; 	 /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x ; export MPICH_FC="$FC" ;   rm -f nvhpc*deb ; mkdir -p /opt/lib || true;  \
 	    rsync -a /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib/*.so* /opt/lib/.;  \
 	    rsync -a /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/math_libs/*/lib64/*.so* /opt/lib/. ; \
-	    rm -f /opt/lib/libcufftMp.so* /opt/lib/libcus* /opt/lib/libcutensor.so* /opt/lib/libcufft.so* \
+	    rm -f /opt/lib/libcufftMp.so* /opt/lib/libcus* /opt/lib/libcutensor.so* /opt/lib/libcufft.so* || true\
 	    export TCE_OPENACC=1;export USE_OPENACC=1; export NWCHEM_LINK_CUDA=1; fi \
             &&  export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:"$PATH" \
             &&  export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:"$LD_LIBRARY_PATH" \
