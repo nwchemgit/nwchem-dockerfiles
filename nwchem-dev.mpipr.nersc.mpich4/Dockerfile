@@ -81,7 +81,7 @@ RUN         apt-get -q=2 update \
 	    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-"$GCC_VERSION" 100 \
 	    && update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-"$GCC_VERSION" 100 \
 	    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python"$PY_VERSION" 100 \
-	    && update-alternatives --install /usr/bin/python3-config python3-config /usr/bin/python""$PY_VERSION"-config 100 \
+	    && update-alternatives --install /usr/bin/python3-config python3-config /usr/bin/python"$PY_VERSION"-config 100 \
 	    && echo FCFCFC is $FC \
 	    && echo NWCHEM_BRANCH is $NWCHEM_BRANCH \
 	    && echo GITHUB_REPOSITORY_OWNER is $GITHUB_REPOSITORY_OWNER \
