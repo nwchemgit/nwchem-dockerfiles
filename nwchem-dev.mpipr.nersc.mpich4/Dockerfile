@@ -42,8 +42,8 @@ WORKDIR     /opt
 ENV         NWCHEM_TOP="/opt/nwchem" 
 ENV	    CUDA_VERSION_MAJOR=12
 ENV	    CUDA_VERSION_MINOR=6
-ENV         GCC_VERSION=11
-ENV         PY_VERSION=3.11
+ENV         GCC_VERSION=13
+ENV         PY_VERSION=3.12
 ENV         NWCHEM_TARGET=LINUX64 \
             NWCHEM_MODULES="all python xtb" \
             USE_TBLITE=1 \
