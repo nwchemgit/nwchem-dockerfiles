@@ -52,7 +52,7 @@ jobs:
       - name: Qemu
         if: ${{ matrix.archs != 'linux/amd64' }}
         id: qemu
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           image: tonistiigi/binfmt:qemu-v8.1.5
           platforms: ${{ matrix.archs }}
