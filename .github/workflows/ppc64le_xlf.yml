@@ -95,7 +95,7 @@ jobs:
           fi
         shell: bash
       - name: build_schedule
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: ${{ github.actor == github.repository_owner }}
           context: ${{ matrix.folder }}
