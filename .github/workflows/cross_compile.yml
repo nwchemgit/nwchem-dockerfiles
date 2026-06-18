@@ -41,7 +41,7 @@ jobs:
       - name: pkg cleanup
         uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v5
