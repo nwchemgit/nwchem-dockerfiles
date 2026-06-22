@@ -228,7 +228,6 @@ RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-ut
 && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem /opt/nwchem/bin/nwchem \
 &&  ls -lart /tmp \
 &&  if [[ -f /opt/nwchem/bin/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
-&& strip /opt/nwchem/bin/nwchem  || true\
 && ldd /opt/nwchem/bin/nwchem|| true  \
 && echo "dddddddddddd"  \
 && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100 \
