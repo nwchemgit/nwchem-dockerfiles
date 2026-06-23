@@ -27,7 +27,6 @@ jobs:
           include:
             - {archs: linux/arm64, fc: gfortran, branch: hotfix/release-7-3-0, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
-            - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS, os: ubuntu-24.04-arm}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 420
@@ -44,7 +43,7 @@ jobs:
         uses: actions/checkout@v7
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/cache
