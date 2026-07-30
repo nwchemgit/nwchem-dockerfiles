@@ -1,6 +1,9 @@
 name: nwchem_crosscompile_docker
 
 on:
+  push:
+  pull_request:
+  release:
   schedule:
     - cron: '59 15 * * FRI'
   repository_dispatch:
