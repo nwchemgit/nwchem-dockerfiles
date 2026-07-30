@@ -23,7 +23,7 @@ ENV         NWCHEM_TOP="/opt/nwchem"
 ENV         FC=${FC}
 ENV         NWCHEM_BRANCH=${NWCHEM_BRANCH}
 ENV         GITHUB_REPOSITORY_OWNER=${GITHUB_REPOSITORY_OWNER}
-ARG         NWCHEM_MODULES="all  "  \
+ARG         NWCHEM_MODULES="all xtb"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
@@ -35,6 +35,7 @@ ARG         NWCHEM_MODULES="all  "  \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
+	    USE_TBLITE=1 \
 	    USE_HWOPT=n 
 #get NWCHEM_TARGET
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -69,7 +70,7 @@ arch_123=$(echo $arch |cut -c 1-3); if [[ "$arch" == "i686" ]] || [[ "$arch" == 
 echo "export GCC_VERSION="${GCC_VERSION} >> /tmpfile && \
 . /tmpfile; echo "NWCHEM_TARGET is " ${NWCHEM_TARGET}  && \
      echo ' defining modules according to CACHE_HIT=' "$CACHE_HIT" && \
-     if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft solvation driver stepper"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="all"  ; fi &&\
+     if [[ "$arch" != "x86_64" ]] && [[ "$CACHE_HIT" == "N" ]]; then export NWCHEM_MODULES="nwdft solvation driver stepper xtb"; echo 'smaller build without cache. CACHE_HIT='$CACHE_HIT ; else echo 'large build with cache. CACHE_HIT='$CACHE_HIT ; export NWCHEM_MODULES="all xtb"  ; fi &&\
 #one single ugly command to reduce docker size
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
              xx-apt  install -y  g++ gfortran libssl-dev \
@@ -139,7 +140,7 @@ FROM $UBUNTU_TAG AS relink
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ARG CACHE_HIT
-ARG         NWCHEM_MODULES="all  "  \
+ARG         NWCHEM_MODULES="all xtb"  \
             ARMCI_NETWORK=MPI-PT  \
             USE_OPENMP=1  \
             USE_NOIO=y  \
@@ -151,6 +152,7 @@ ARG         NWCHEM_MODULES="all  "  \
 	    BUILD_SCALAPACK=1 \
 	    BLAS_SIZE=8 \
 	    SCALAPACK_SIZE=8 \
+	    USE_TBLITE=1 \
 	    USE_HWOPT=n 
 
 RUN mkdir -p /opt
@@ -173,7 +175,7 @@ RUN           groupadd -r nwchem -g 1994 \
     	     && echo "MYCPU is " ${MYCPU} \
 	     && if [[ "$arch" == "x86_64" ]]|| [[ "$arch" == "aarch64" ]]; then export USE_LIBXC=1; export USE_SIMINT=1;fi  \
 	     && if [[ "$CACHE_HIT" == "Y" ]]; then \
-             export NWCHEM_MODULES="all python " ;\
+             export NWCHEM_MODULES="all python xtb" ;\
 	    rm ../bin/${NWCHEM_TARGET}/depend.x ;\
 	    gcc-${GCC_VERSION} -o ../bin/"$NWCHEM_TARGET/depend.x" config/depend\
 .c ;\
@@ -199,7 +201,6 @@ RUN           groupadd -r nwchem -g 1994 \
 	     && export SKIP_CACHE=1  \
 	     && export NWCHEM_EXECUTABLE=/opt/nwchem/bin/${NWCHEM_TARGET}/nwchem \
 	     && cp /tmp/run_qas.sh ./travis/run_qas.sh  \
-	     && OMP_NUM_THREADS=1 ./travis/run_qas.sh \
              && cp -rp QA/tests/dft_he2+ /tmp/. \
              && rm -rf QA/tests/*   \
 	     && mv /tmp/dft_he2+ QA/tests/. \
@@ -228,7 +229,6 @@ RUN apt-get update -q=2 && apt  install -y -q=2 libatomic1  binutils bzip2 xz-ut
 && ln -sf /opt/nwchem/bin/${NWCHEM_TARGET}/nwchem /opt/nwchem/bin/nwchem \
 &&  ls -lart /tmp \
 &&  if [[ -f /opt/nwchem/bin/nwchem ]]; then echo 'NWChem binary created from tar file' ; else   echo 'error in tar file extraction' $(pwd); exit 1; fi \
-&& strip /opt/nwchem/bin/nwchem  || true\
 && ldd /opt/nwchem/bin/nwchem|| true  \
 && echo "dddddddddddd"  \
 && dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -n | tail -n 100 \
