@@ -12,6 +12,24 @@ on:
   workflow_call:   # makes it reusable
 
 jobs:
+  check-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: dump_env
+        run: |
+          echo "github.workflow:" ${{ github.workflow }}
+          echo "github.workflow_ref and  github.job_workflow_ref"
+          echo ${{ github.workflow_ref }} 
+          echo ${{ job.workflow_ref }} 
+          echo
+          echo "conditional" ${{ github.workflow_ref != job.workflow_ref }}
+      - name: do_check_false
+        # This job only runs if it is being called as a reusable workflow
+        if: ${{ github.workflow_ref != job.workflow_ref }}
+        run: echo "This job is running inside a reusable workflow!"
+      - name: do_check_true
+        if: ${{ github.workflow_ref == job.workflow_ref }}
+        run: echo "This job is NOT running inside a reusable workflow!"
   docker_schedule:
     strategy:
         fail-fast: false
@@ -41,10 +59,24 @@ jobs:
       - name: set ubuntu tag
         run: |
           echo "ubuntu_tag=ubuntu:plucky" >> $GITHUB_ENV
+      - name: check if repository_owner has a nwchem-dockerfiles repository
+        run: |
+            if git ls-remote https://github.com/${{ github.repository_owner }}/nwchem-dockerfiles HEAD; then
+               echo "${{ github.repository_owner }} has a nwchem-dockerfiles repository"
+               echo "repo_owner=${{ github.repository_owner }}" >> $GITHUB_ENV
+            else
+               echo "${{ github.repository_owner }} does not have a nwchem-dockerfiles repository"
+               echo "repo_owner=nwchemgit" >> $GITHUB_ENV
+            fi
+      - name: print name of owner we use for nwchem-dockerfiles repository
+        run: |
+          echo "we will use  ${{ env.repo_owner }} as owner for nwchem-dockerfiles"
       - name: pkg cleanup
         uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          repository: ${{ env.repo_owner }}/nwchem-dockerfiles
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v6
@@ -168,7 +200,7 @@ jobs:
       - name: build_schedule
         uses: docker/build-push-action@v7
         with:
-          push: ${{ github.actor == github.repository_owner }}
+          push: ${{ github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref }}
           provenance: false
           context: ${{ env.folder }}
           shm-size: 256m
