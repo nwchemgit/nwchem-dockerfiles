@@ -9,6 +9,7 @@ on:
   repository_dispatch:
     types: [backend_automation]
   workflow_dispatch:
+  workflow_call:   # makes it reusable
 
 jobs:
   docker_schedule:
