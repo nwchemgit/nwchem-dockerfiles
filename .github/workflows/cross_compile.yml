@@ -8,15 +8,18 @@ on:
     - cron: '59 15 * * FRI'
   repository_dispatch:
     types: [backend_automation]
-  workflow_dispatch:
-  workflow_call:   # makes it reusable
 
 jobs:
-  check-env:
+  init:
     runs-on: ubuntu-latest
+    outputs:
+      release_branch: ${{ steps.set-release.outputs.release_branch }}
     steps:
+      - id: set-release
+        run: echo "release_branch=\"hotfix\/release-7-3-0\"" >> $GITHUB_OUTPUT
       - name: dump_env
         run: |
+          echo
           echo "github.workflow:" ${{ github.workflow }}
           echo "github.workflow_ref and  github.job_workflow_ref"
           echo ${{ github.workflow_ref }} 
@@ -31,6 +34,7 @@ jobs:
         if: ${{ github.workflow_ref == job.workflow_ref }}
         run: echo "This job is NOT running inside a reusable workflow!"
   docker_schedule:
+    needs: init
     strategy:
         fail-fast: false
         matrix:
@@ -41,24 +45,35 @@ jobs:
           fc: [ gfortran]
           branch:
             - master
-            - hotfix/release-7-3-0
+            - ${{ fromJSON(needs.init.outputs.release_branch) }}
           armci_network:
             - MPI-PR
           os:
             - ubuntu-latest
           include:
-            - {archs: linux/arm64, fc: gfortran, branch: hotfix/release-7-3-0, armci_network: MPI-PR, os: ubuntu-24.04-arm}
+            - archs: linux/arm64
+              fc: gfortran
+              branch: ${{ fromJSON(needs.init.outputs.release_branch) }}
+              armci_network: MPI-PR
+              os: ubuntu-24.04-arm
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-PR, os: ubuntu-24.04-arm}
             - {archs: linux/arm64, fc: gfortran, branch: master, armci_network: MPI-TS, os: ubuntu-24.04-arm}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 420
     steps:
+      - name: print matrix branch
+        run: |
+          echo "matrix branch: ${{ matrix.branch }}"
       - name: set folder name
         run: |
           echo "folder=nwchem-cross" >> $GITHUB_ENV
       - name: set ubuntu tag
         run: |
           echo "ubuntu_tag=ubuntu:plucky" >> $GITHUB_ENV
+      - name: set release branch
+        run: |
+          echo "setting env.release_branch as ${{ fromJSON(needs.init.outputs.release_branch) }}"
+          echo "release_branch=${{ fromJSON(needs.init.outputs.release_branch) }}" >> $GITHUB_ENV
       - name: check if repository_owner has a nwchem-dockerfiles repository
         run: |
             if git ls-remote https://github.com/${{ github.repository_owner }}/nwchem-dockerfiles HEAD; then
@@ -70,7 +85,25 @@ jobs:
             fi
       - name: print name of owner we use for nwchem-dockerfiles repository
         run: |
-          echo "we will use  ${{ env.repo_owner }} as owner for nwchem-dockerfiles"
+          echo "we will use  ${{ env.repo_owner }} as owner for  nwchem-dockerfiles"
+      - name: check if repository_owner has a nwchem release branch
+        run: |
+            if git ls-remote https://github.com/${{ github.repository_owner }}/nwchem | grep refs/heads/${{ env.release_branch }}; then
+               echo "${{ github.repository_owner }} has a nwchem ${{ env.release_branch }} branch"
+               echo "release_owner=${{ github.repository_owner }}" >> $GITHUB_ENV
+            else
+               echo "${{ github.repository_owner }} does not have a nwchem ${{ env.release_branch }} branch"
+               echo "release_owner=nwchemgit" >> $GITHUB_ENV
+            fi
+      - name: do_release_owner
+        if: ${{ matrix.branch == env.release_branch }}
+        run: echo "nwchem_repo_owner=${{ env.release_owner }}" >> $GITHUB_ENV
+      - name: do_master_owner
+        if: ${{ matrix.branch != env.release_branch }}
+        run: echo "nwchem_repo_owner=${{ github.repository_owner }}" >> $GITHUB_ENV
+      - name: print name of owner we use for the nwchem branch used in this job
+        run: |
+          echo "we will use ${{ env.nwchem_repo_owner }} as owner for the nwchem ${{ matrix.branch }} branch"
       - name: pkg cleanup
         uses: edoapra/ubuntu-pkg-cleanup@main
       - name: Checkout
@@ -95,6 +128,19 @@ jobs:
         if: ${{ matrix.archs != 'linux/amd64' }}
         run: echo ${{ steps.qemu.outputs.platforms }}
       - name: Set up Docker Buildx
+        id: buildx
+        continue-on-error: true
+        uses: docker/setup-buildx-action@v4
+        with:
+          driver-opts: |
+              image=moby/buildkit:v0.18.2
+              network=host
+          buildkitd-flags: --debug
+      - name: pause
+        run: |
+          sleep 10s
+      - name: Set up Docker Buildx (retry)
+        if: ${{ failure() }}
         uses: docker/setup-buildx-action@v4
         with:
           driver-opts: |
@@ -150,7 +196,7 @@ jobs:
         run: |
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
-          elif [[ ${{ matrix.branch }} ==  hotfix/release-7-3-0 ]]; then
+          elif [[ ${{ matrix.branch }} ==   ${{ env.release_branch }} ]]; then
             echo "nwversion=731" >> $GITHUB_ENV
           else
             echo "nwversion=unknown" >> $GITHUB_ENV
@@ -212,7 +258,7 @@ jobs:
             FC=${{ matrix.fc }}
             NWCHEM_BRANCH=${{ matrix.branch }}
             CACHE_HIT=${{ env.cache_hit }}
-            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            GITHUB_REPOSITORY_OWNER=${{ env.nwchem_repo_owner }}
             UBUNTU_TAG=${{ env.ubuntu_tag }}
             ARMCI_NETWORK=${{ matrix.armci_network }}
       - name: load and test image
