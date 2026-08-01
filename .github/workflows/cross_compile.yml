@@ -8,6 +8,8 @@ on:
     - cron: '59 15 * * FRI'
   repository_dispatch:
     types: [backend_automation]
+  workflow_dispatch:
+  workflow_call:   # makes it reusable
 
 jobs:
   init:
