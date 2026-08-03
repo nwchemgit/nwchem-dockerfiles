@@ -170,7 +170,7 @@ jobs:
           buildkitd-flags: --debug
       - name: Login to GitHub Container Registry
         if: ${{ github.actor == github.repository_owner }}
-        uses: docker/login-action@v4.5.2
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -264,10 +264,18 @@ jobs:
             sed -e "s/FROM\ ubuntu\:jammy\ AS\ push/FROM\ riscv64\/ubuntu\:jammy\ AS\ push/"  Dockerfile.new > Dockerfile
             grep FROM Dockerfile
             fi
+      - name: set push value
+        if: ${{ !fromJSON(needs.init.outputs.reuse)}}
+        run: |
+          if [[ ${{ github.actor}}  == ${{ github.repository_owner }} ]]; then
+            echo "push=true" >> $GITHUB_ENV
+          else
+             echo "push=false" >> $GITHUB_ENV
+          fi
       - name: build_schedule
         uses: docker/build-push-action@v7
         with:
-          push: ${{ github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref }}
+          push: ${{ env.push }}
           provenance: false
           context: ${{ env.folder }}
           shm-size: 256m
@@ -283,7 +291,7 @@ jobs:
             UBUNTU_TAG=${{ env.ubuntu_tag }}
             ARMCI_NETWORK=${{ matrix.armci_network }}
       - name: load and test image
-        if:  ( github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref )
+        if:  ${{ env.push }}
         run: |
           sleep 30s
           docker pull ${{ env.tag }}
