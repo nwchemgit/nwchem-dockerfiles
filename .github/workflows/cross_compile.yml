@@ -22,13 +22,14 @@ jobs:
         run: echo "release_branch=\"hotfix\/release-7-3-0\"" >> $GITHUB_OUTPUT
       - name: dump_env
         run: |
+          set -ex
           echo
           echo "github.workflow:" ${{ github.workflow }}
           echo GW ${{ github.workflow_ref }} 
           echo JW ${{ job.workflow_ref }} 
-          echo GJ ${{ github.job_workflow_ref }} 
           echo
           echo "conditional" ${{ github.workflow_ref != job.workflow_ref }}
+          set +ex
       - id: set-reuse-step
         run: |
           if [[ ${{ github.workflow_ref != job.workflow_ref }} ]]; then
@@ -326,6 +327,6 @@ jobs:
   bundle_images2:
     needs: [docker_schedule,init]
     if:  ${{ !fromJSON(needs.init.outputs.reuse)}}
-    uses: edoapra/nwchem-dockerfiles/.github/workflows/docker_manifest_cross.yml@master
+    uses: nwchemgit/nwchem-dockerfiles/.github/workflows/docker_manifest_cross.yml@master
     secrets:
       inherit
