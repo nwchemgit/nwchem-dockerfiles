@@ -32,7 +32,7 @@ jobs:
           set +ex
       - id: set-reuse-step
         run: |
-          if [[ ${{ github.workflow_ref != job.workflow_ref }} ]]; then
+          if [[ ${{ github.workflow_ref}}  == ${{ job.workflow_ref }} ]]; then
              echo "reuse=false" >> $GITHUB_OUTPUT
           else
              echo "reuse=true" >> $GITHUB_OUTPUT
