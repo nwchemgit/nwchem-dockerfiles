@@ -10,6 +10,28 @@ jobs:
   pull_and_bundle:
     runs-on: ubuntu-latest
     steps:
+      - name: dump_env
+        run: |
+          set -ex
+          echo
+          echo "github.workflow:" ${{ github.workflow }}
+          echo "github.workflow_ref and  job.workflow_ref"
+          echo ${{ github.workflow_ref }} 
+          echo ${{ job.workflow_ref }} 
+          echo
+          echo "conditional == " ${{ github.workflow_ref == job.workflow_ref }}
+          echo
+          echo "github.actor:" ${{ github.actor }}
+          echo "github.actor and  github.repository_owner"
+          echo ${{ github.actor  }} 
+          echo ${{ github.repository_owner }} 
+          echo
+          echo "conditional ==" ${{ github.workflow_ref == job.workflow_ref }}
+          echo
+          echo "conditional complex "
+          echo ${{ github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref }}
+          echo
+          set +ex
       - name: github_login
         if: ${{ github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref }}
         uses: docker/login-action@v4.5.2
@@ -66,7 +88,7 @@ jobs:
           docker manifest inspect  $manifest_tag
         shell: bash
       - name: test images
-        if:  ( github.actor == github.repository_owner ) 
+        if:  ( github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref) 
         run: |
           armci_network=mpi-pr
           for branch in dev 730

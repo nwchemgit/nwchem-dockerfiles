@@ -307,6 +307,7 @@ jobs:
             ls -Ralrt ~/cache || true
   bundle_images2:
     needs: [docker_schedule]
+    if:  ( github.actor == github.repository_owner)
     uses: nwchemgit/nwchem-dockerfiles/.github/workflows/docker_manifest_cross.yml@master
     secrets:
       inherit
