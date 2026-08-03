@@ -264,14 +264,18 @@ jobs:
             sed -e "s/FROM\ ubuntu\:jammy\ AS\ push/FROM\ riscv64\/ubuntu\:jammy\ AS\ push/"  Dockerfile.new > Dockerfile
             grep FROM Dockerfile
             fi
-      - name: set push value
+      - name: set push value when reuse = f
         if: ${{ !fromJSON(needs.init.outputs.reuse)}}
         run: |
           if [[ ${{ github.actor}}  == ${{ github.repository_owner }} ]]; then
             echo "push=true" >> $GITHUB_ENV
           else
-             echo "push=false" >> $GITHUB_ENV
+            echo "push=false" >> $GITHUB_ENV
           fi
+      - name: set push value when reuse = t
+        if: ${{ fromJSON(needs.init.outputs.reuse)}}
+        run: |
+          echo "push=false" >> $GITHUB_ENV
       - name: build_schedule
         uses: docker/build-push-action@v7
         with:
