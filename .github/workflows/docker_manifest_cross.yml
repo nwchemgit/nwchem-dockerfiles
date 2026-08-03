@@ -12,29 +12,9 @@ jobs:
     steps:
       - name: dump_env
         run: |
-          set -ex
-          echo
-          echo "github.workflow:" ${{ github.workflow }}
-          echo "github.workflow_ref and  job.workflow_ref"
-          echo ${{ github.workflow_ref }} 
-          echo ${{ job.workflow_ref }} 
-          echo
-          echo "conditional == " ${{ github.workflow_ref == job.workflow_ref }}
-          echo
-          echo "github.actor:" ${{ github.actor }}
-          echo "github.actor and  github.repository_owner"
-          echo ${{ github.actor  }} 
-          echo ${{ github.repository_owner }} 
-          echo
-          echo "conditional ==" ${{ github.workflow_ref == job.workflow_ref }}
-          echo
-          echo "conditional complex "
-          echo ${{ github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref }}
-          echo
-          set +ex
       - name: github_login
-        if: ${{ github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref }}
-        uses: docker/login-action@v4.5.2
+        if: ${{ github.actor == github.repository_owner}}
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -44,7 +24,7 @@ jobs:
         run: |
           echo "date=$(TZ=America/Los_Angeles date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
       - name: pull  images and push manifest
-        if:  ( github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref) 
+        if:  ( github.actor == github.repository_owner) 
         run: |
           armci_network=mpi-pr
           for branch in dev 730
@@ -88,7 +68,7 @@ jobs:
           docker manifest inspect  $manifest_tag
         shell: bash
       - name: test images
-        if:  ( github.actor == github.repository_owner && github.workflow_ref == job.workflow_ref) 
+        if:  ( github.actor == github.repository_owner) 
         run: |
           armci_network=mpi-pr
           for branch in dev 730
