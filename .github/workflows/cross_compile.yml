@@ -295,7 +295,7 @@ jobs:
             UBUNTU_TAG=${{ env.ubuntu_tag }}
             ARMCI_NETWORK=${{ matrix.armci_network }}
       - name: load and test image
-        if:  ${{ env.push }}
+        if:  env.push == 'true'
         run: |
           sleep 30s
           docker pull ${{ env.tag }}
